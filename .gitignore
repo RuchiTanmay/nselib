@@ -1,2 +1,5 @@
 # created by virtualenv automatically
 venv/
+*.csv
+__pycache__/
+*.xml

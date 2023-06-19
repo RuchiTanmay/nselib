@@ -8,7 +8,7 @@ def mylogger(logger):
     # Create handlers
     c_handler = logging.StreamHandler(sys.stdout)
     # Create formatters and add it to handlers
-    f_format = logging.Formatter('%(asctime)s::%(name)s::%(levelname)s::%(message)s')
+    f_format = logging.Formatter('%(name)s::%(levelname)s::%(message)s')
     c_handler.setFormatter(f_format)
     # Add handlers to the logger
     logger.addHandler(c_handler)
