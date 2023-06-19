@@ -3,3 +3,6 @@ venv/
 *.csv
 __pycache__/
 *.xml
+build/
+dist/
+.egg-info/

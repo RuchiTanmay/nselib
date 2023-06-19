@@ -57,7 +57,8 @@ def derive_from_and_to_date(from_date:str = None, to_date:str = None, period:str
              today - relativedelta(months=12)]
 
     f_date = np.select(conditions,value, default=(today - timedelta(days=1)))
-    from_date = pd.to_datetime(str(f_date))
+    from_date = pd.to_datetime(str(f_date)).strftime(dd_mm_yyyy)
+    today = today.strftime(dd_mm_yyyy)
     return from_date, today
 
 
