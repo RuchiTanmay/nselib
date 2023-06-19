@@ -321,8 +321,8 @@ def bhav_copy(trade_date:str):
     return bhav_df
 
 
-# if __name__ == '__main__':
-#     df = bhav_copy(trade_date='01-06-2022')
-#     print(df)
-#     print(df.columns)
+if __name__ == '__main__':
+    df = bhav_copy(trade_date='01-06-2022')
+    print(df)
+    print(df.columns)
 

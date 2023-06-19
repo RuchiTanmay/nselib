@@ -1,4 +1,22 @@
-# NSElib 0.3
+Metadata-Version: 2.1
+Name: nselib
+Version: 0.2
+Summary: library to get NSE India data
+Home-page: https://github.com/RuchiTanmay/nselib
+Author: RuchiTanmay
+Author-email: ruchitanmay@gmail.com
+Keywords: nseindia,nse,python,sdk,trading,stock markets
+Classifier: Intended Audience :: Developers
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# NSElib 0.2
 Python Library to get publicly available data on new NSE india website.
 
 Release Notes
