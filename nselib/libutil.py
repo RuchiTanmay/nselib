@@ -62,7 +62,7 @@ def derive_from_and_to_date(from_date:str = None, to_date:str = None, period:str
 
 
 def cleaning_column_name(col:list):
-    unwanted_str_list = ['CH_','COP_']
+    unwanted_str_list = ['FH_']
     new_col=col
     for unwanted in unwanted_str_list:
         new_col = [name.replace(f'{unwanted}', '') for name in new_col]
