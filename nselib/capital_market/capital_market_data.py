@@ -286,7 +286,7 @@ def get_short_selling_data(from_date:str, to_date:str):
     return data_df
 
 
-def get_bhav_copy_with_delivery(trade_date:str):
+def bhav_copy_with_delivery(trade_date:str):
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
     use_date = trade_date.strftime(ddmmyyyy)
     url = 'https://archives.nseindia.com/products/content/sec_bhavdata_full_'
@@ -302,12 +302,12 @@ def get_bhav_copy_with_delivery(trade_date:str):
                                    'DELIV_PER', 'DATE1']]
 
 
-def get_bhav_copy(trade_date:str):
+def bhav_copy(trade_date:str):
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
-    trade_date = trade_date.strftime(ddmmyyyy)
-    url = 'https://archives.nseindia.com/content/historical/EQUITIES/2023/JUN/NSE_CM_bhavcopy_16062023.csv.zip'
-    payload = f'{trade_date}.csv'
-    request_bhav = nse_urlfetch(url)
+    url = 'https://archives.nseindia.com/content/historical/EQUITIES/'
+    payload = f"{str(trade_date.strftime('%Y'))}/{str(trade_date.strftime('%b').upper())}/" \
+              f"cm{str(trade_date.strftime('%d%b%Y').upper())}bhav.csv.zip"
+    request_bhav = nse_urlfetch(url+payload)
     bhav_df = pd.DataFrame()
     if request_bhav.status_code == 200:
         zip_bhav = zipfile.ZipFile(BytesIO(request_bhav.content), 'r')
@@ -316,13 +316,13 @@ def get_bhav_copy(trade_date:str):
                 bhav_df = pd.read_csv(zip_bhav.open(file_name))
     elif request_bhav.status_code == 403:
         raise FileNotFoundError(f' Data not found, change the date...')
-    bhav_df = bhav_df[bhavcopy_old]
-    bhav_df.columns = bhavcopy_new
+    bhav_df = bhav_df[['SYMBOL', 'SERIES', 'OPEN', 'HIGH', 'LOW', 'CLOSE', 'LAST', 'PREVCLOSE', 'TOTTRDQTY',
+                       'TOTTRDVAL', 'TIMESTAMP', 'TOTALTRADES']]
     return bhav_df
 
 
-if __name__ == '__main__':
-    df = get_bhav_copy(trade_date='01-06-2022')
-    print(df)
-    print(df.columns)
-    # df.to_csv(r'C:\Ruchi Tanmay\Stock Market\Data Analysis\Final Data\bhav_copy.csv', index=False)
+# if __name__ == '__main__':
+#     df = bhav_copy(trade_date='01-06-2022')
+#     print(df)
+#     print(df.columns)
+

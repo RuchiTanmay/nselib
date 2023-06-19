@@ -4,18 +4,18 @@ dd_mm_yyyy = '%d-%m-%Y'
 dd_mmm_yyyy = '%d-%b-%Y'
 ddmmyyyy = '%d%m%Y'
 
-equity_periods = ['1D', '1W', '1M', '6M', '1Y']
+equity_periods = ['1D', '1W', '1M', '3M', '6M', '1Y']
 
-#---------- column lists-----------------
+# ---------- column lists-----------------
 
 price_volume_and_deliverable_position_data_columns = \
-                                ['Symbol', 'Series', 'Date', 'PrevClose', 'OpenPrice', 'HighPrice',
-                                 'LowPrice', 'LastPrice', 'ClosePrice', 'AveragePrice', 'TotalTradedQuantity',
-                                 'TurnoverInRs', 'No.ofTrades', 'DeliverableQty', '%DlyQttoTradedQty']
+    ['Symbol', 'Series', 'Date', 'PrevClose', 'OpenPrice', 'HighPrice',
+     'LowPrice', 'LastPrice', 'ClosePrice', 'AveragePrice', 'TotalTradedQuantity',
+     'TurnoverInRs', 'No.ofTrades', 'DeliverableQty', '%DlyQttoTradedQty']
 
 price_volume_data_columns = ['Symbol', 'Series', 'Date', 'PrevClose', 'OpenPrice', 'HighPrice',
-                           'LowPrice', 'LastPrice', 'ClosePrice', 'AveragePrice',
-                           'TotalTradedQuantity', 'Turnover', 'No.ofTrades']
+                             'LowPrice', 'LastPrice', 'ClosePrice', 'AveragePrice',
+                             'TotalTradedQuantity', 'Turnover', 'No.ofTrades']
 
 deliverable_data_columns = ['Symbol', 'Series', 'Date', 'TradedQty', 'DeliverableQty', '%DlyQttoTradedQty']
 
@@ -31,5 +31,10 @@ bhavcopy_old = ['ISIN', 'TckrSymb', 'SctySrs', 'OpnPric', 'HghPric', 'LwPric', '
                 'PrvsClsgPric', 'TtlTradgVol', 'TtlTrfVal', 'TradDt', 'TtlNbOfTxsExctd']
 
 bhavcopy_new = ['ISIN', 'SYMBOL', 'SERIES', 'OPEN', 'HIGH', 'LOW', 'CLOSE', 'LAST', 'PREVCLOSE', 'TOTTRDQTY',
-                'TOTTRDVAL', 'TIMESTAMP',	'TOTALTRADES']
+                'TOTTRDVAL', 'TIMESTAMP', 'TOTALTRADES']
+
+future_price_volume_data_column = ['INSTRUMENT', 'SYMBOL', 'EXPIRY_DT', 'STRIKE_PRICE', 'OPTION_TYPE', 'MARKET_TYPE',
+                                   'OPENING_PRICE', 'TRADE_HIGH_PRICE', 'TRADE_LOW_PRICE', 'CLOSING_PRICE',
+                                   'LAST_TRADED_PRICE', 'PREV_CLS', 'SETTLE_PRICE', 'TOT_TRADED_QTY', 'TOT_TRADED_VAL',
+                                   'OPEN_INT', 'CHANGE_IN_OI', 'MARKET_LOT', 'TIMESTAMP', 'UNDERLYING_VALUE']
 
