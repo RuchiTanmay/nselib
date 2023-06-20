@@ -22,6 +22,13 @@ header = {
     }
 
 
+class CalenderNotFound(Exception):
+    def __init__(self, message):
+
+        # Call the base class constructor with the parameters it needs
+        super(CalenderNotFound, self).__init__(message)
+
+
 def validate_date_param(from_date:str, to_date:str, period:str):
     if not period and (not from_date or not to_date):
         raise ValueError(' Please provide the valid parameters')
@@ -84,8 +91,28 @@ def get_nselib_path():
     return mydir.split(r'\nselib', 1)[0]
 
 
+def trading_holiday_calendar():
+    data_df = pd.DataFrame(columns=['Product','tradingDate','weekDay','description','Sr_no'])
+    url = "https://www.nseindia.com/api/holiday-master?type=trading"
+    try:
+        data_dict = nse_urlfetch(url).json()
+    except Exception as e:
+        raise CalenderNotFound(" Calender data Not found try after some time ")
+    for prod in data_dict:
+        h_df = pd.DataFrame(data_dict[prod])
+        h_df['Product'] = prod
+        data_df = pd.concat([data_df, h_df])
+    condition = [data_df['Product']=='CBM', data_df['Product']=='CD', data_df['Product']=='CM',
+                 data_df['Product']=='CMOT', data_df['Product']=='COM', data_df['Product']=='FO',
+                 data_df['Product'] == 'IRD', data_df['Product']=='MF', data_df['Product']=='NDM',
+                 data_df['Product'] == 'NTRP', data_df['Product'] == 'SLBS']
+    value = ['Corporate Bonds', 'Currency Derivatives', 'Equities', 'CMOT', 'Commodity Derivatives', 'Equity Derivatives',
+             'Interest Rate Derivatives', 'Mutual Funds', 'New Debt Segment', 'Negotiated Trade Reporting Platform',
+             'Securities Lending & Borrowing Schemes']
+    data_df['Product'] = np.select(condition, value)
+    return data_df
 
 
-if __name__ == '__main__':
-    # data = derive_from_and_to_date('6M')
-    print(derive_from_and_to_date('6M'))
+# if __name__ == '__main__':
+#     # data = derive_from_and_to_date('6M')
+#     print(trading_holiday_calendar())

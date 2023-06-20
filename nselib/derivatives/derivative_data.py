@@ -180,8 +180,8 @@ def participant_wise_trading_volume(trade_date: str):
     return data_df
 
 
-if __name__ == '__main__':
-    df = future_price_volume_data("BANKNIFTY", "FUTIDX", from_date='17-06-2023', to_date='19-06-2023', period='1D')
-    # df = participant_wise_trading_volume(trade_date='03-04-2023')
-    print(df)
-    print(df[df['EXPIRY_DT']=='27-Jul-2023'])
+# if __name__ == '__main__':
+#     df = future_price_volume_data("BANKNIFTY", "FUTIDX", from_date='17-06-2023', to_date='19-06-2023', period='1D')
+#     # df = participant_wise_trading_volume(trade_date='03-04-2023')
+#     print(df)
+#     print(df[df['EXPIRY_DT']=='27-Jul-2023'])
