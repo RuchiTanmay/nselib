@@ -43,10 +43,12 @@ data = nselib.trading_holiday_calendar()
 * block_deals_data
 * short_selling_data
 * bhav_copy_with_delivery
-* bhav_copy
+* bhav_copy_equities
 * equity_list
 * fno_equity_list
 * nifty50_equity_list
+* india_vix_data
+* index_data
 
 Example : 
 
@@ -66,6 +68,10 @@ More functions will be available in future releases...
 * fno_bhav_copy
 * participant_wise_open_interest
 * participant_wise_trading_volume
+* expiry_dates_future
+* expiry_dates_option_index
+* nse_live_option_chain
+* fii_derivatives_statistics
 
 Example : 
 
