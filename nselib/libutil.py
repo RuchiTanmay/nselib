@@ -29,6 +29,11 @@ class CalenderNotFound(Exception):
         super(CalenderNotFound, self).__init__(message)
 
 
+class NSEdataNotFound(Exception):
+    def __init__(self, message):
+        super(NSEdataNotFound, self).__init__(message)
+
+
 def validate_date_param(from_date:str, to_date:str, period:str):
     if not period and (not from_date or not to_date):
         raise ValueError(' Please provide the valid parameters')
@@ -36,15 +41,15 @@ def validate_date_param(from_date:str, to_date:str, period:str):
         raise ValueError(f'period = {period} is not a valid value')
 
     try:
-        from_date = datetime.strptime(from_date, dd_mm_yyyy)
-        to_date = datetime.strptime(to_date, dd_mm_yyyy)
+        if not period:
+            from_date = datetime.strptime(from_date, dd_mm_yyyy)
+            to_date = datetime.strptime(to_date, dd_mm_yyyy)
+            time_delta = (to_date - from_date).days
+            if time_delta < 1:
+                raise ValueError(f'to_date should greater than from_date ')
     except Exception as e:
         print(e)
         raise ValueError(f'either or both from_date = {from_date} || to_date = {to_date} are not valid value')
-
-    time_delta = (to_date-from_date).days
-    if time_delta < 1:
-        raise ValueError(f'to_date should greater than from_date ')
 
 
 def derive_from_and_to_date(from_date:str = None, to_date:str = None, period:str = None):
@@ -70,11 +75,16 @@ def derive_from_and_to_date(from_date:str = None, to_date:str = None, period:str
 
 
 def cleaning_column_name(col:list):
-    unwanted_str_list = ['FH_']
+    unwanted_str_list = ['FH_', 'EOD_', 'HIT_']
     new_col=col
     for unwanted in unwanted_str_list:
         new_col = [name.replace(f'{unwanted}', '') for name in new_col]
     return new_col
+
+
+def cleaning_nse_symbol(symbol):
+    symbol = symbol.replace('&','%26')  #URL Parse for Stocks Like M&M Finance
+    return symbol.upper()
 
 
 def nse_urlfetch(url):

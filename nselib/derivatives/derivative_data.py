@@ -24,7 +24,7 @@ def future_price_volume_data(symbol: str, instrument: str, from_date: str = None
     :raise ValueError if the parameter input is not proper
     """
     validate_date_param(from_date, to_date, period)
-
+    symbol, instrument = cleaning_nse_symbol(symbol=symbol), instrument.upper()
     if instrument not in ['FUTIDX', 'FUTSTK']:
         raise ValueError(f'{instrument} is not a future instrument')
 
@@ -49,14 +49,12 @@ def future_price_volume_data(symbol: str, instrument: str, from_date: str = None
 
 
 def get_future_price_volume_data(symbol: str, instrument: str, from_date: str, to_date: str):
-    # print(from_date, to_date)
-    data_df = pd.DataFrame()
     url = "https://www.nseindia.com/api/historical/foCPV?"
     payload = f"from={from_date}&to={to_date}&instrumentType={instrument}&symbol={symbol}&csv=true"
     try:
         data_dict = nse_urlfetch(url + payload).json()
     except Exception as e:
-        raise ValueError(" Invalid parameters ")
+        raise ValueError(f" Invalid parameters : NSE error:{e}")
     data_df = pd.DataFrame(data_dict['data']).drop(columns='TIMESTAMP')
     data_df.columns = cleaning_column_name(data_df.columns)
     return data_df[future_price_volume_data_column]
@@ -80,7 +78,7 @@ def option_price_volume_data(symbol: str, instrument: str, option_type: str = No
     :raise ValueError if the parameter input is not proper
     """
     validate_date_param(from_date, to_date, period)
-
+    symbol, instrument = cleaning_nse_symbol(symbol=symbol), instrument.upper()
     if instrument not in ['OPTIDX', 'OPTSTK']:
         raise ValueError(f'{instrument} is not a future instrument')
 
@@ -111,14 +109,13 @@ def option_price_volume_data(symbol: str, instrument: str, option_type: str = No
 
 
 def get_option_price_volume_data(symbol: str, instrument: str, option_type: str, from_date: str, to_date: str):
-    data_df = pd.DataFrame()
     url = "https://www.nseindia.com/api/historical/foCPV?"
     payload = f"from={from_date}&to={to_date}&instrumentType={instrument}&symbol={symbol}" \
               f"&optionType={option_type}&csv=true"
     try:
         data_dict = nse_urlfetch(url + payload).json()
     except Exception as e:
-        raise ValueError(" Invalid parameters ")
+        raise ValueError(f" Invalid parameters : NSE error : {e}")
     data_df = pd.DataFrame(data_dict['data']).drop(columns='TIMESTAMP')
     data_df.columns = cleaning_column_name(data_df.columns)
     # print(data_df.columns)
@@ -126,6 +123,11 @@ def get_option_price_volume_data(symbol: str, instrument: str, option_type: str,
 
 
 def fno_bhav_copy(trade_date: str):
+    """
+    NSE future option bhav copy
+    :param trade_date: eg:'01-06-2023'
+    :return: pandas Data frame
+    """
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
     url = 'https://archives.nseindia.com/content/historical/DERIVATIVES/'
     payload = f"{str(trade_date.strftime('%Y'))}/{str(trade_date.strftime('%b').upper())}/" \
@@ -145,8 +147,12 @@ def fno_bhav_copy(trade_date: str):
 
 
 def participant_wise_open_interest(trade_date: str):
+    """
+    get FII, DII, Pro, Client wise participant OI data as per traded date
+    :param trade_date: eg:'01-06-2023'
+    :return: pandas Data frame
+    """
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
-    raw_data = pd.DataFrame()
     url = f"https://archives.nseindia.com/content/nsccl/fao_participant_oi_{str(trade_date.strftime('%d%m%Y'))}.csv"
     # payload = f"{str(for_date.strftime('%d%m%Y'))}.csv"
     file_chk = requests.get(url, headers=header)
@@ -163,8 +169,12 @@ def participant_wise_open_interest(trade_date: str):
 
 
 def participant_wise_trading_volume(trade_date: str):
+    """
+    get FII, DII, Pro, Client wise participant volume data as per traded date
+    :param trade_date: eg:'01-06-2023'
+    :return: pandas Data frame
+    """
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
-    raw_data = pd.DataFrame()
     url = f"https://archives.nseindia.com/content/nsccl/fao_participant_vol_{str(trade_date.strftime('%d%m%Y'))}.csv"
     # payload = f"{str(for_date.strftime('%d%m%Y'))}.csv"
     file_chk = requests.get(url, headers=header)
@@ -180,8 +190,141 @@ def participant_wise_trading_volume(trade_date: str):
     return data_df
 
 
+def fii_derivatives_statistics(trade_date: str):
+    """
+    get FII derivatives statistics as per the traded date provided
+    :param trade_date: eg:'01-06-2023'
+    :return: pandas dataframe
+    """
+    t_date = pd.to_datetime(trade_date, format='%d-%m-%Y')
+    trade_date = t_date.strftime('%d-%b-%Y')
+    url = f"https://archives.nseindia.com/content/fo/fii_stats_{trade_date}.xls"
+    try:
+        bhav_df = pd.read_excel(url, skiprows=3, skipfooter=10).dropna()
+        bhav_df.columns = ['fii_derivatives', 'buy_contracts', 'buy_value_in_Cr', 'sell_contracts', 'sell_value_in_Cr',
+                           'open_contracts', 'open_contracts_value_in_Cr']
+    except Exception as e:
+        raise FileNotFoundError(f' FII derivatives statistics not found for : {trade_date} :: NSE error : {e}')
+    return bhav_df
+
+
+def get_nse_option_chain(symbol):
+    symbol = cleaning_nse_symbol(symbol)
+    if any(x in symbol for x in indices_list):
+        payload = nse_urlfetch('https://www.nseindia.com/api/option-chain-indices?symbol=' + symbol)
+    else:
+        payload = nse_urlfetch('https://www.nseindia.com/api/option-chain-equities?symbol=' + symbol)
+    return payload
+
+
+def expiry_dates_future():
+    """
+    get the future and option expiry dates as per stock or index given
+    :return: list of dates
+    """
+    payload = get_nse_option_chain("TCS").json()
+    return payload['records']['expiryDates']
+
+
+def expiry_dates_option_index():
+    """
+    get the future and option expiry dates as per stock or index given
+    :return: dictionary
+    """
+    # data_df = pd.DataFrame(columns=['index', 'expiry_date'])
+    data_dict = {}
+    for ind in indices_list:
+        payload = get_nse_option_chain(ind).json()
+        data_dict.update({ind: payload['records']['expiryDates']})
+    return data_dict
+
+
+def nse_live_option_chain(symbol:str, expiry_date:str = None, oi_mode: str = "full"):
+    """
+    get live nse option chain.
+    :param symbol: eg:SBIN/BANKNIFTY
+    :param expiry_date: '01-06-2023'
+    :param oi_mode: eg: full/compact
+    :return: pands dataframe
+    """
+    payload = get_nse_option_chain(symbol).json()
+    exp_date = pd.to_datetime(expiry_date, format='%d-%m-%Y')
+    expiry_date = exp_date.strftime('%d-%b-%Y')
+
+    if oi_mode == 'compact':
+        col_names = ['Fetch_Time', 'Symbol', 'Expiry_Date', 'CALLS_OI', 'CALLS_Chng_in_OI', 'CALLS_Volume', 'CALLS_IV',
+                     'CALLS_LTP', 'CALLS_Net_Chng', 'Strike_Price', 'PUTS_OI', 'PUTS_Chng_in_OI', 'PUTS_Volume',
+                     'PUTS_IV', 'PUTS_LTP', 'PUTS_Net_Chng']
+    else:
+        col_names = ['Fetch_Time', 'Symbol', 'Expiry_Date', 'CALLS_OI', 'CALLS_Chng_in_OI', 'CALLS_Volume', 'CALLS_IV',
+                     'CALLS_LTP', 'CALLS_Net_Chng', 'CALLS_Bid_Qty', 'CALLS_Bid_Price', 'CALLS_Ask_Price',
+                     'CALLS_Ask_Qty', 'Strike_Price', 'PUTS_Bid_Qty', 'PUTS_Bid_Price', 'PUTS_Ask_Price', 'PUTS_Ask_Qty',
+                     'PUTS_Net_Chng', 'PUTS_LTP', 'PUTS_IV', 'PUTS_Volume', 'PUTS_Chng_in_OI', 'PUTS_OI']
+
+    oi_data = pd.DataFrame(columns=col_names)
+
+    oi_row = {'Fetch_Time': None, 'Symbol': None, 'Expiry_Date': None, 'CALLS_OI': 0, 'CALLS_Chng_in_OI': 0, 'CALLS_Volume': 0,
+              'CALLS_IV': 0, 'CALLS_LTP': 0, 'CALLS_Net_Chng': 0, 'CALLS_Bid_Qty': 0, 'CALLS_Bid_Price': 0,
+              'CALLS_Ask_Price': 0, 'CALLS_Ask_Qty': 0, 'Strike_Price': 0, 'PUTS_OI': 0, 'PUTS_Chng_in_OI': 0,
+              'PUTS_Volume': 0, 'PUTS_IV': 0, 'PUTS_LTP': 0, 'PUTS_Net_Chng': 0, 'PUTS_Bid_Qty': 0,
+              'PUTS_Bid_Price': 0, 'PUTS_Ask_Price': 0, 'PUTS_Ask_Qty': 0}
+
+    print(expiry_date)
+    for m in range(len(payload['records']['data'])):
+        if not expiry_date or (payload['records']['data'][m]['expiryDate'] == expiry_date):
+            try:
+                oi_row['Expiry_Date'] = payload['records']['data'][m]['expiryDate']
+                oi_row['CALLS_OI'] = payload['records']['data'][m]['CE']['openInterest']
+                oi_row['CALLS_Chng_in_OI'] = payload['records']['data'][m]['CE']['changeinOpenInterest']
+                oi_row['CALLS_Volume'] = payload['records']['data'][m]['CE']['totalTradedVolume']
+                oi_row['CALLS_IV'] = payload['records']['data'][m]['CE']['impliedVolatility']
+                oi_row['CALLS_LTP'] = payload['records']['data'][m]['CE']['lastPrice']
+                oi_row['CALLS_Net_Chng'] = payload['records']['data'][m]['CE']['change']
+                if oi_mode == 'full':
+                    oi_row['CALLS_Bid_Qty'] = payload['records']['data'][m]['CE']['bidQty']
+                    oi_row['CALLS_Bid_Price'] = payload['records']['data'][m]['CE']['bidprice']
+                    oi_row['CALLS_Ask_Price'] = payload['records']['data'][m]['CE']['askPrice']
+                    oi_row['CALLS_Ask_Qty'] = payload['records']['data'][m]['CE']['askQty']
+            except KeyError:
+                oi_row['CALLS_OI'], oi_row['CALLS_Chng_in_OI'], oi_row['CALLS_Volume'], oi_row['CALLS_IV'], oi_row[
+                    'CALLS_LTP'], oi_row['CALLS_Net_Chng'] = 0, 0, 0, 0, 0, 0
+                if oi_mode == 'full':
+                    oi_row['CALLS_Bid_Qty'], oi_row['CALLS_Bid_Price'], oi_row['CALLS_Ask_Price'], oi_row[
+                        'CALLS_Ask_Qty'] = 0, 0, 0, 0
+                pass
+
+            oi_row['Strike_Price'] = payload['records']['data'][m]['strikePrice']
+
+            try:
+                oi_row['PUTS_OI'] = payload['records']['data'][m]['PE']['openInterest']
+                oi_row['PUTS_Chng_in_OI'] = payload['records']['data'][m]['PE']['changeinOpenInterest']
+                oi_row['PUTS_Volume'] = payload['records']['data'][m]['PE']['totalTradedVolume']
+                oi_row['PUTS_IV'] = payload['records']['data'][m]['PE']['impliedVolatility']
+                oi_row['PUTS_LTP'] = payload['records']['data'][m]['PE']['lastPrice']
+                oi_row['PUTS_Net_Chng'] = payload['records']['data'][m]['PE']['change']
+                if oi_mode == 'full':
+                    oi_row['PUTS_Bid_Qty'] = payload['records']['data'][m]['PE']['bidQty']
+                    oi_row['PUTS_Bid_Price'] = payload['records']['data'][m]['PE']['bidprice']
+                    oi_row['PUTS_Ask_Price'] = payload['records']['data'][m]['PE']['askPrice']
+                    oi_row['PUTS_Ask_Qty'] = payload['records']['data'][m]['PE']['askQty']
+            except KeyError:
+                oi_row['PUTS_OI'], oi_row['PUTS_Chng_in_OI'], oi_row['PUTS_Volume'], oi_row['PUTS_IV'], oi_row[
+                    'PUTS_LTP'], oi_row['PUTS_Net_Chng'] = 0, 0, 0, 0, 0, 0
+                if oi_mode == 'full':
+                    oi_row['PUTS_Bid_Qty'], oi_row['PUTS_Bid_Price'], oi_row['PUTS_Ask_Price'], oi_row[
+                        'PUTS_Ask_Qty'] = 0, 0, 0, 0
+
+            # if oi_mode == 'full':
+            #     oi_row['CALLS_Chart'], oi_row['PUTS_Chart'] = 0, 0
+            oi_data = pd.concat([oi_data, pd.DataFrame([oi_row])], ignore_index=True)
+            oi_data['Symbol'] = symbol
+            oi_data['Fetch_Time'] = payload['records']['timestamp']
+    return oi_data
+
+
 # if __name__ == '__main__':
-#     df = future_price_volume_data("BANKNIFTY", "FUTIDX", from_date='17-06-2023', to_date='19-06-2023', period='1D')
-#     # df = participant_wise_trading_volume(trade_date='03-04-2023')
-#     print(df)
-#     print(df[df['EXPIRY_DT']=='27-Jul-2023'])
+    #     df = future_price_volume_data("BANKNIFTY", "FUTIDX", from_date='17-06-2023', to_date='19-06-2023', period='1D')
+    #     df = participant_wise_trading_volume(trade_date='03-04-2023')
+    #     print(df)
+    #     print(df[df['EXPIRY_DT']=='27-Jul-2023'])
+

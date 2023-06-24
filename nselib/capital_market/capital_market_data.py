@@ -1,6 +1,5 @@
 import pandas as pd
 import datetime as dt
-import time
 import zipfile
 from io import BytesIO, StringIO
 from nselib.libutil import *
@@ -20,6 +19,7 @@ def price_volume_and_deliverable_position_data(symbol: str, from_date: str = Non
     :raise ValueError if the parameter input is not proper
     """
     validate_date_param(from_date, to_date, period)
+    symbol = cleaning_nse_symbol(symbol=symbol)
     from_date, to_date = derive_from_and_to_date(from_date=from_date, to_date=to_date, period=period)
     nse_df = pd.DataFrame(columns=price_volume_and_deliverable_position_data_columns)
     from_date = datetime.strptime(from_date, dd_mm_yyyy)
@@ -40,15 +40,16 @@ def price_volume_and_deliverable_position_data(symbol: str, from_date: str = Non
 
 
 def get_price_volume_and_deliverable_position_data(symbol: str, from_date: str, to_date: str):
-    # print(from_date, to_date)
-    data_df = pd.DataFrame()
     url = "https://www.nseindia.com/api/historical/securityArchives?"
     payload = f"from={from_date}&to={to_date}&symbol={symbol}&dataType=priceVolumeDeliverable&series=ALL&csv=true"
-    data_text = nse_urlfetch(url + payload).text
-    data_text = data_text.replace('\x82', '').replace('â¹', 'In Rs')
-    with open('file.csv', 'w') as f:
-        f.write(data_text)
-    f.close()
+    try:
+        data_text = nse_urlfetch(url + payload).text
+        data_text = data_text.replace('\x82', '').replace('â¹', 'In Rs')
+        with open('file.csv', 'w') as f:
+            f.write(data_text)
+        f.close()
+    except Exception as e:
+        raise NSEdataNotFound(f" Resource not available MSG: {e}")
     data_df = pd.read_csv('file.csv')
     data_df.columns = [name.replace(' ', '') for name in data_df.columns]
     return data_df
@@ -66,6 +67,7 @@ def price_volume_data(symbol: str, from_date: str = None, to_date: str = None, p
     :raise ValueError if the parameter input is not proper
     """
     validate_date_param(from_date, to_date, period)
+    symbol = cleaning_nse_symbol(symbol=symbol)
     from_date, to_date = derive_from_and_to_date(from_date=from_date, to_date=to_date, period=period)
     nse_df = pd.DataFrame(columns=price_volume_data_columns)
     from_date = datetime.strptime(from_date, dd_mm_yyyy)
@@ -86,13 +88,15 @@ def price_volume_data(symbol: str, from_date: str = None, to_date: str = None, p
 
 
 def get_price_volume_data(symbol: str, from_date: str, to_date: str):
-    # print(from_date, to_date)
     url = "https://www.nseindia.com/api/historical/securityArchives?"
     payload = f"from={from_date}&to={to_date}&symbol={symbol}&dataType=priceVolume&series=ALL&csv=true"
-    data_text = nse_urlfetch(url + payload).text
-    with open('file.csv', 'w') as f:
-        f.write(data_text)
-    f.close()
+    try:
+        data_text = nse_urlfetch(url + payload).text
+        with open('file.csv', 'w') as f:
+            f.write(data_text)
+        f.close()
+    except Exception as e:
+        raise NSEdataNotFound(f" Resource not available MSG: {e}")
     data_df = pd.read_csv('file.csv')
     data_df.columns = [name.replace(' ', '') for name in data_df.columns]
     return data_df
@@ -113,6 +117,7 @@ def deliverable_position_data(symbol: str, from_date: str = None, to_date: str =
     :raise ValueError if the parameter input is not proper
     """
     validate_date_param(from_date, to_date, period)
+    symbol = cleaning_nse_symbol(symbol=symbol)
     from_date, to_date = derive_from_and_to_date(from_date=from_date, to_date=to_date, period=period)
     nse_df = pd.DataFrame(columns=deliverable_data_columns)
     from_date = datetime.strptime(from_date, dd_mm_yyyy)
@@ -133,10 +138,12 @@ def deliverable_position_data(symbol: str, from_date: str = None, to_date: str =
 
 
 def get_deliverable_position_data(symbol: str, from_date: str, to_date: str):
-    # print(from_date, to_date)
     url = "https://www.nseindia.com/api/historical/securityArchives?"
     payload = f"from={from_date}&to={to_date}&symbol={symbol}&dataType=deliverable&series=ALL&csv=true"
-    data_text = nse_urlfetch(url + payload).text
+    try:
+        data_text = nse_urlfetch(url + payload).text
+    except Exception as e:
+        raise NSEdataNotFound(f" Resource not available MSG: {e}")
     # data_text = data_text.replace('\x82','').replace('â¹', 'In Rs')
     with open('file.csv', 'w') as f:
         f.write(data_text)
@@ -144,6 +151,96 @@ def get_deliverable_position_data(symbol: str, from_date: str, to_date: str):
     data_df = pd.read_csv('file.csv')
     data_df.columns = [name.replace(' ', '') for name in data_df.columns]
     return data_df
+
+
+def india_vix_data(from_date: str = None, to_date: str = None, period: str = None):
+    """
+    get india vix spot data  set for the specific time period.
+    :param from_date: '17-03-2022' ('dd-mm-YYYY')
+    :param to_date: '17-06-2023' ('dd-mm-YYYY')
+    :param period: use one {'1D': last day data,'1W': for last 7 days data,
+                            '1M': from last month same date, '6M': last 6 month data, '1Y': from last year same date)
+    :return: pandas.DataFrame
+    :raise ValueError if the parameter input is not proper
+    """
+    validate_date_param(from_date, to_date, period)
+    from_date, to_date = derive_from_and_to_date(from_date=from_date, to_date=to_date, period=period)
+    nse_df = pd.DataFrame(columns=india_vix_data_column)
+    from_date = datetime.strptime(from_date, dd_mm_yyyy)
+    to_date = datetime.strptime(to_date, dd_mm_yyyy)
+    load_days = (to_date - from_date).days
+    while load_days > 0:
+        if load_days > 365:
+            end_date = (from_date + dt.timedelta(364)).strftime(dd_mm_yyyy)
+            start_date = from_date.strftime(dd_mm_yyyy)
+        else:
+            end_date = to_date.strftime(dd_mm_yyyy)
+            start_date = from_date.strftime(dd_mm_yyyy)
+        data_df = get_india_vix_data(from_date=start_date, to_date=end_date)
+        from_date = from_date + dt.timedelta(365)
+        load_days = (to_date - from_date).days
+        nse_df = pd.concat([nse_df, data_df], ignore_index=True)
+    return nse_df
+
+
+def get_india_vix_data(from_date: str, to_date: str):
+    url = f"https://www.nseindia.com/api/historical/vixhistory?from={from_date}&to={to_date}&csv=true"
+    try:
+        data_json = nse_urlfetch(url).json()
+        data_df = pd.DataFrame(data_json['data'])
+    except Exception as e:
+        raise NSEdataNotFound(f" Resource not available MSG: {e}")
+    data_df.drop(columns='TIMESTAMP', inplace=True)
+    data_df.columns = cleaning_column_name(data_df.columns)
+    return data_df[india_vix_data_column]
+
+
+def index_data(index:str, from_date: str = None, to_date: str = None, period: str = None):
+    """
+    get historical index data set for the specific time period.
+    apply the index name as per the nse india site
+    :param index: 'NIFTY 50'/'NIFTY BANK'
+    :param from_date: '17-03-2022' ('dd-mm-YYYY')
+    :param to_date: '17-06-2023' ('dd-mm-YYYY')
+    :param period: use one {'1D': last day data,'1W': for last 7 days data,
+                            '1M': from last month same date, '6M': last 6 month data, '1Y': from last year same date)
+    :return: pandas.DataFrame
+    :raise ValueError if the parameter input is not proper
+    """
+    validate_date_param(from_date, to_date, period)
+    from_date, to_date = derive_from_and_to_date(from_date=from_date, to_date=to_date, period=period)
+    nse_df = pd.DataFrame(columns=index_data_columns)
+    from_date = datetime.strptime(from_date, dd_mm_yyyy)
+    to_date = datetime.strptime(to_date, dd_mm_yyyy)
+    load_days = (to_date - from_date).days
+    while load_days > 0:
+        if load_days > 365:
+            end_date = (from_date + dt.timedelta(364)).strftime(dd_mm_yyyy)
+            start_date = from_date.strftime(dd_mm_yyyy)
+        else:
+            end_date = to_date.strftime(dd_mm_yyyy)
+            start_date = from_date.strftime(dd_mm_yyyy)
+        data_df = get_index_data(index=index, from_date=start_date, to_date=end_date)
+        from_date = from_date + dt.timedelta(365)
+        load_days = (to_date - from_date).days
+        nse_df = pd.concat([nse_df, data_df], ignore_index=True)
+    return nse_df
+
+
+def get_index_data(index:str, from_date: str, to_date: str):
+    index = index.replace(' ', '%20').upper()
+    url = f"https://www.nseindia.com/api/historical/indicesHistory?indexType={index}&from={from_date}&to={to_date}"
+    try:
+        data_json = nse_urlfetch(url).json()
+        data_close_df = pd.DataFrame(data_json['data']['indexCloseOnlineRecords']).drop(columns=['_id', "EOD_TIMESTAMP"])
+        data_turnover_df = pd.DataFrame(data_json['data']['indexTurnoverRecords']).drop(columns=['_id',
+                                                                                                 'HIT_INDEX_NAME_UPPER'])
+        data_df = pd.merge(data_close_df,data_turnover_df, on='TIMESTAMP', how='inner')
+    except Exception as e:
+        raise NSEdataNotFound(f" Resource not available MSG: {e}")
+    data_df.drop(columns='TIMESTAMP', inplace=True)
+    data_df.columns = cleaning_column_name(data_df.columns)
+    return data_df[index_data_columns]
 
 
 def bulk_deal_data(from_date: str = None, to_date: str = None, period: str = None):
@@ -278,6 +375,7 @@ def get_short_selling_data(from_date: str, to_date: str):
     url = "https://www.nseindia.com/api/historical/short-selling?"
     payload = f"from={from_date}&to={to_date}&csv=true"
     data_text = nse_urlfetch(url + payload).text
+    print((url + payload))
     # data_text = data_text.replace('\x82','').replace('â¹', 'In Rs')
     with open('file.csv', 'w') as f:
         f.write(data_text)
@@ -288,6 +386,11 @@ def get_short_selling_data(from_date: str, to_date: str):
 
 
 def bhav_copy_with_delivery(trade_date: str):
+    """
+    get the NSE bhav copy with delivery data as per the traded date
+    :param trade_date: eg:'01-06-2023'
+    :return: pandas data frame
+    """
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
     use_date = trade_date.strftime(ddmmyyyy)
     url = f'https://archives.nseindia.com/products/content/sec_bhavdata_full_{use_date}.csv'
@@ -302,7 +405,12 @@ def bhav_copy_with_delivery(trade_date: str):
                     'DELIV_PER', 'DATE1']]
 
 
-def bhav_copy(trade_date: str):
+def bhav_copy_equities(trade_date: str):
+    """
+    get nse bhav copy as per the traded date provided
+    :param trade_date:
+    :return: pandas dataframe
+    """
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
     url = 'https://archives.nseindia.com/content/historical/EQUITIES/'
     payload = f"{str(trade_date.strftime('%Y'))}/{str(trade_date.strftime('%b').upper())}/" \
@@ -321,29 +429,72 @@ def bhav_copy(trade_date: str):
     return bhav_df
 
 
+def bhav_copy_indices(trade_date: str):
+    """
+    get nse bhav copy as per the traded date provided
+    :param trade_date: eg:'01-06-2023'
+    :return: pandas dataframe
+    """
+    trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
+    url = f"https://archives.nseindia.com/content/indices/ind_close_all_{str(trade_date.strftime('%d%m%Y').upper())}.csv"
+    try:
+        bhav_df = pd.read_csv(url)
+    except Exception as e:
+        raise FileNotFoundError(f' Bhav copy indices not found for : {trade_date} :: NSE error : {e}')
+    return bhav_df
+
+
 def equity_list():
-    data_df = pd.read_csv("https://archives.nseindia.com/content/equities/EQUITY_L.csv")
+    """
+    get list of all equity available to trade in NSE
+    :return: pandas data frame
+    """
+    try:
+        data_df = pd.read_csv("https://archives.nseindia.com/content/equities/EQUITY_L.csv")
+    except Exception as e:
+        raise FileNotFoundError(f' Equity List not found :: NSE error : {e}')
     data_df = data_df[['SYMBOL', 'NAME OF COMPANY', ' SERIES', ' DATE OF LISTING', ' FACE VALUE']]
     return data_df
 
 
 def fno_equity_list():
-    data_df = pd.read_csv("https://archives.nseindia.com/content/fo/fo_mktlots.csv", skiprows=5)
+    """
+    get a dataframe of all listed derivative list with the recent lot size to trade
+    :return: pandas data frame
+    """
     today = dt.date.today()
     MMM_YY = today.strftime(mmm_yy).upper()
+    try:
+        ind_data_df = pd.read_csv("https://archives.nseindia.com/content/fo/fo_mktlots.csv")
+        data_df = pd.read_csv("https://archives.nseindia.com/content/fo/fo_mktlots.csv", skiprows=5)
+    except Exception as e:
+        raise FileNotFoundError(f' all listed derivative List not found :: NSE error : {e}')
+
+    ind_data_df.columns = [name.replace('    ', '').replace(' ', '') for name in ind_data_df.columns]
+    ind_data_df = ind_data_df[['UNDERLYING', 'SYMBOL', f'{MMM_YY}']].head(4)
+    ind_data_df.columns = ['Company_Name', 'Symbol', f'{MMM_YY}']
     data_df.rename(columns={'Derivatives on Individual Securities': 'Company_Name'}, inplace=True)
     data_df.columns = [name.replace('    ', '').replace(' ', '') for name in data_df.columns]
     data_df = data_df[['Company_Name', 'Symbol', f'{MMM_YY}']]
+    data_df = pd.concat([ind_data_df, data_df], ignore_index=True)
     return data_df
 
 
 def nifty50_equity_list():
-    data_df = pd.read_csv("https://archives.nseindia.com/content/indices/ind_nifty50list.csv")
+    """
+    list of all equities under NIFTY 50 index
+    :return: pandas data frame
+    """
+    try:
+        data_df = pd.read_csv("https://archives.nseindia.com/content/indices/ind_nifty50list.csv")
+    except Exception as e:
+        raise FileNotFoundError(f' equities under NIFTY 50 index not found :: NSE error : {e}')
     data_df = data_df[['Company Name', 'Industry', 'Symbol']]
     return data_df
 
 
 # if __name__ == '__main__':
-#     import nselib
-#     data = nselib.trading_holiday_calendar()
-#     print(data)
+    # import nselib.capital_market as cm
+    # data = index_data(index='NIFTY 50', from_date='23-08-2022', to_date='23-06-2023')
+    # data = fno_equity_list()  #from_date='23-03-2022', to_date='23-06-2023'
+
