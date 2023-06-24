@@ -1,4 +1,4 @@
-# NSElib 0.4
+# NSElib 0.5
 Python Library to get publicly available data on new NSE india website.
 
 Release Notes
