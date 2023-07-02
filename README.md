@@ -49,6 +49,8 @@ data = nselib.trading_holiday_calendar()
 * nifty50_equity_list
 * india_vix_data
 * index_data
+* market_watch_all_indices
+* fii_dii_trading_activity
 
 Example : 
 

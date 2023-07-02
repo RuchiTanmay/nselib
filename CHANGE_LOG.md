@@ -1,6 +1,9 @@
 # CHANGE LOG
 #### All the changes are listed...
 
+### Version: 0.6 [02/07/2023]
+* Functions added (market_watch_all_indices, fii_dii_trading_activity)
+
 ### Version: 0.5 [24/06/2023]
 * Functions added (india_vix_data, index_data, expiry_dates_future, expiry_dates_option_index, nse_live_option_chain, fii_derivatives_statistics)
 

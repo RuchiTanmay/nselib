@@ -7,7 +7,6 @@ nselib/__init__.py
 nselib/constants.py
 nselib/libutil.py
 nselib/logger.py
-nselib/version.py
 nselib.egg-info/PKG-INFO
 nselib.egg-info/SOURCES.txt
 nselib.egg-info/dependency_links.txt
