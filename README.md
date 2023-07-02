@@ -1,4 +1,5 @@
-# NSElib 0.5
+# NSElib 0.6
+
 Python Library to get publicly available data on new NSE india website.
 
 Release Notes
@@ -49,6 +50,8 @@ data = nselib.trading_holiday_calendar()
 * nifty50_equity_list
 * india_vix_data
 * index_data
+* market_watch_all_indices
+* fii_dii_trading_activity
 
 Example : 
 

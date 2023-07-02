@@ -371,11 +371,16 @@ def short_selling_data(from_date: str = None, to_date: str = None, period: str =
 
 
 def get_short_selling_data(from_date: str, to_date: str):
+    """
+    NSE short selling data in data frame
+    :param from_date:
+    :param to_date:
+    :return:
+    """
     # print(from_date, to_date)
     url = "https://www.nseindia.com/api/historical/short-selling?"
     payload = f"from={from_date}&to={to_date}&csv=true"
     data_text = nse_urlfetch(url + payload).text
-    print((url + payload))
     # data_text = data_text.replace('\x82','').replace('â¹', 'In Rs')
     with open('file.csv', 'w') as f:
         f.write(data_text)
@@ -493,8 +498,34 @@ def nifty50_equity_list():
     return data_df
 
 
+def market_watch_all_indices():
+    """
+    Market Watch - Indices of the day in data frame
+    :return: pd.DataFrame
+    """
+    url = "https://www.nseindia.com/api/allIndices"
+    data_json = nse_urlfetch(url).json()
+    data_df = pd.DataFrame(data_json['data'])
+    return data_df[['key', 'index', 'indexSymbol', 'last', 'variation', 'percentChange', 'open', 'high', 'low',
+                   'previousClose', 'yearHigh', 'yearLow', 'pe', 'pb', 'dy', 'declines', 'advances', 'unchanged',
+                   'perChange365d', 'perChange30d', 'previousDay', 'oneWeekAgo', 'oneMonthAgo', 'oneYearAgo']]
+
+
+def fii_dii_trading_activity():
+    """
+    FII and DII trading activity of the day in data frame
+    :return: pd.DataFrame
+    """
+    url = "https://www.nseindia.com/api/fiidiiTradeReact"
+    data_json = nse_urlfetch(url).json()
+    data_df = pd.DataFrame(data_json)
+    return data_df
+
+
 # if __name__ == '__main__':
     # import nselib.capital_market as cm
-    # data = index_data(index='NIFTY 50', from_date='23-08-2022', to_date='23-06-2023')
+    # data = fii_dii_trading_activity()
+    # print(data)
+    # print(data.columns)
     # data = fno_equity_list()  #from_date='23-03-2022', to_date='23-06-2023'
 

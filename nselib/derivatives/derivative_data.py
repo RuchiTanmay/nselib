@@ -1,8 +1,7 @@
 import pandas as pd
 import datetime as dt
-import time
 import zipfile
-from io import BytesIO, StringIO
+from io import BytesIO
 from nselib.libutil import *
 from nselib.constants import *
 
@@ -248,8 +247,9 @@ def nse_live_option_chain(symbol:str, expiry_date:str = None, oi_mode: str = "fu
     :return: pands dataframe
     """
     payload = get_nse_option_chain(symbol).json()
-    exp_date = pd.to_datetime(expiry_date, format='%d-%m-%Y')
-    expiry_date = exp_date.strftime('%d-%b-%Y')
+    if expiry_date:
+        exp_date = pd.to_datetime(expiry_date, format='%d-%m-%Y')
+        expiry_date = exp_date.strftime('%d-%b-%Y')
 
     if oi_mode == 'compact':
         col_names = ['Fetch_Time', 'Symbol', 'Expiry_Date', 'CALLS_OI', 'CALLS_Chng_in_OI', 'CALLS_Volume', 'CALLS_IV',
@@ -269,7 +269,7 @@ def nse_live_option_chain(symbol:str, expiry_date:str = None, oi_mode: str = "fu
               'PUTS_Volume': 0, 'PUTS_IV': 0, 'PUTS_LTP': 0, 'PUTS_Net_Chng': 0, 'PUTS_Bid_Qty': 0,
               'PUTS_Bid_Price': 0, 'PUTS_Ask_Price': 0, 'PUTS_Ask_Qty': 0}
 
-    print(expiry_date)
+    # print(expiry_date)
     for m in range(len(payload['records']['data'])):
         if not expiry_date or (payload['records']['data'][m]['expiryDate'] == expiry_date):
             try:
@@ -323,8 +323,8 @@ def nse_live_option_chain(symbol:str, expiry_date:str = None, oi_mode: str = "fu
 
 
 # if __name__ == '__main__':
-    #     df = future_price_volume_data("BANKNIFTY", "FUTIDX", from_date='17-06-2023', to_date='19-06-2023', period='1D')
-    #     df = participant_wise_trading_volume(trade_date='03-04-2023')
-    #     print(df)
-    #     print(df[df['EXPIRY_DT']=='27-Jul-2023'])
+    # df = future_price_volume_data("BANKNIFTY", "FUTIDX", from_date='17-06-2023', to_date='19-06-2023', period='1D')
+    # df = nse_live_option_chain(symbol='BANKNIFTY')
+    # print(df)
+    # print(df[df['EXPIRY_DT']=='27-Jul-2023'])
 
