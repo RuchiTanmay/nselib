@@ -32,14 +32,14 @@ def price_volume_and_deliverable_position_data(symbol: str, from_date: str = Non
         else:
             end_date = to_date.strftime(dd_mm_yyyy)
             start_date = from_date.strftime(dd_mm_yyyy)
-        data_df = get_price_volume_and_deliverable_position_data(symbol=symbol, from_date=start_date, to_date=end_date,file_name=file_name)
+        data_df = get_price_volume_and_deliverable_position_data(symbol=symbol, from_date=start_date, to_date=end_date, file_name=file_name)
         from_date = from_date + dt.timedelta(365)
         load_days = (to_date - from_date).days
         nse_df = pd.concat([nse_df, data_df], ignore_index=True)
     return nse_df
 
 
-def get_price_volume_and_deliverable_position_data(symbol: str, from_date: str, to_date: str,file_name: str = 'file'):
+def get_price_volume_and_deliverable_position_data(symbol: str, from_date: str, to_date: str, file_name: str = 'file'):
     url = "https://www.nseindia.com/api/historical/securityArchives?"
     payload = f"from={from_date}&to={to_date}&symbol={symbol}&dataType=priceVolumeDeliverable&series=ALL&csv=true"
     try:
@@ -56,7 +56,7 @@ def get_price_volume_and_deliverable_position_data(symbol: str, from_date: str, 
     return data_df
 
 
-def price_volume_data(symbol: str, from_date: str = None, to_date: str = None, period: str = None):
+def price_volume_data(symbol: str, from_date: str = None, to_date: str = None, period: str = None, file_name: str = 'file'):
     """
     get Security wise price volume data set.
     :param symbol: symbol eg: 'SBIN'
@@ -81,19 +81,20 @@ def price_volume_data(symbol: str, from_date: str = None, to_date: str = None, p
         else:
             end_date = to_date.strftime(dd_mm_yyyy)
             start_date = from_date.strftime(dd_mm_yyyy)
-        data_df = get_price_volume_data(symbol=symbol, from_date=start_date, to_date=end_date)
+        data_df = get_price_volume_data(symbol=symbol, from_date=start_date, to_date=end_date, file_name = file_name)
         from_date = from_date + dt.timedelta(365)
         load_days = (to_date - from_date).days
         nse_df = pd.concat([nse_df, data_df], ignore_index=True)
     return nse_df
 
 
-def get_price_volume_data(symbol: str, from_date: str, to_date: str):
+def get_price_volume_data(symbol: str, from_date: str, to_date: str, file_name: str = 'file'):
     url = "https://www.nseindia.com/api/historical/securityArchives?"
     payload = f"from={from_date}&to={to_date}&symbol={symbol}&dataType=priceVolume&series=ALL&csv=true"
     try:
         data_text = nse_urlfetch(url + payload).text
-        with open('file.csv', 'w') as f:
+        file_name = file_name+'.csv'
+        with open(file_name, 'w') as f:
             f.write(data_text)
         f.close()
     except Exception as e:
@@ -103,7 +104,7 @@ def get_price_volume_data(symbol: str, from_date: str, to_date: str):
     return data_df
 
 
-def deliverable_position_data(symbol: str, from_date: str = None, to_date: str = None, period: str = None):
+def deliverable_position_data(symbol: str, from_date: str = None, to_date: str = None, period: str = None, file_name: str = 'file'):
     """
     get Security wise deliverable position data set.
     :param symbol: symbol eg: 'SBIN'
@@ -131,14 +132,14 @@ def deliverable_position_data(symbol: str, from_date: str = None, to_date: str =
         else:
             end_date = to_date.strftime(dd_mm_yyyy)
             start_date = from_date.strftime(dd_mm_yyyy)
-        data_df = get_price_volume_data(symbol=symbol, from_date=start_date, to_date=end_date)
+        data_df = get_price_volume_data(symbol=symbol, from_date=start_date, to_date=end_date, file_name = file_name)
         from_date = from_date + dt.timedelta(365)
         load_days = (to_date - from_date).days
         nse_df = pd.concat([nse_df, data_df], ignore_index=True)
     return nse_df
 
 
-def get_deliverable_position_data(symbol: str, from_date: str, to_date: str):
+def get_deliverable_position_data(symbol: str, from_date: str, to_date: str, file_name: str = 'file'):
     url = "https://www.nseindia.com/api/historical/securityArchives?"
     payload = f"from={from_date}&to={to_date}&symbol={symbol}&dataType=deliverable&series=ALL&csv=true"
     try:
@@ -146,7 +147,8 @@ def get_deliverable_position_data(symbol: str, from_date: str, to_date: str):
     except Exception as e:
         raise NSEdataNotFound(f" Resource not available MSG: {e}")
     # data_text = data_text.replace('\x82','').replace('â¹', 'In Rs')
-    with open('file.csv', 'w') as f:
+    file_name = file_name+'.csv'
+    with open(file_name, 'w') as f:
         f.write(data_text)
     f.close()
     data_df = pd.read_csv('file.csv')
@@ -244,7 +246,7 @@ def get_index_data(index:str, from_date: str, to_date: str):
     return data_df[index_data_columns]
 
 
-def bulk_deal_data(from_date: str = None, to_date: str = None, period: str = None):
+def bulk_deal_data(from_date: str = None, to_date: str = None, period: str = None, file_name: str = 'file'):
     """
     get bulk deal data set.
     :param from_date: '17-03-2022' ('dd-mm-YYYY')
@@ -270,20 +272,21 @@ def bulk_deal_data(from_date: str = None, to_date: str = None, period: str = Non
         else:
             end_date = to_date.strftime(dd_mm_yyyy)
             start_date = from_date.strftime(dd_mm_yyyy)
-        data_df = get_bulk_deal_data(from_date=start_date, to_date=end_date)
+        data_df = get_bulk_deal_data(from_date=start_date, to_date=end_date, file_name = file_name)
         from_date = from_date + dt.timedelta(365)
         load_days = (to_date - from_date).days
         nse_df = pd.concat([nse_df, data_df], ignore_index=True)
     return nse_df
 
 
-def get_bulk_deal_data(from_date: str, to_date: str):
+def get_bulk_deal_data(from_date: str, to_date: str, file_name: str = 'file'):
     # print(from_date, to_date)
     url = "https://www.nseindia.com/api/historical/bulk-deals?"
     payload = f"from={from_date}&to={to_date}&csv=true"
     data_text = nse_urlfetch(url + payload).text
     # data_text = data_text.replace('\x82','').replace('â¹', 'In Rs')
-    with open('file.csv', 'w') as f:
+    file_name = file_name+'.csv'
+    with open(file_name, 'w') as f:
         f.write(data_text)
     f.close()
     data_df = pd.read_csv('file.csv')
@@ -291,7 +294,7 @@ def get_bulk_deal_data(from_date: str, to_date: str):
     return data_df
 
 
-def block_deals_data(from_date: str = None, to_date: str = None, period: str = None):
+def block_deals_data(from_date: str = None, to_date: str = None, period: str = None, file_name: str = 'file'):
     """
     get block deals data set.
     :param from_date: '17-03-2022' ('dd-mm-YYYY')
@@ -317,20 +320,21 @@ def block_deals_data(from_date: str = None, to_date: str = None, period: str = N
         else:
             end_date = to_date.strftime(dd_mm_yyyy)
             start_date = from_date.strftime(dd_mm_yyyy)
-        data_df = get_block_deals_data(from_date=start_date, to_date=end_date)
+        data_df = get_block_deals_data(from_date=start_date, to_date=end_date, file_name = file_name)
         from_date = from_date + dt.timedelta(365)
         load_days = (to_date - from_date).days
         nse_df = pd.concat([nse_df, data_df], ignore_index=True)
     return nse_df
 
 
-def get_block_deals_data(from_date: str, to_date: str):
+def get_block_deals_data(from_date: str, to_date: str, file_name: str = 'file'):
     # print(from_date, to_date)
     url = "https://www.nseindia.com/api/historical/block-deals?"
     payload = f"from={from_date}&to={to_date}&csv=true"
     data_text = nse_urlfetch(url + payload).text
     # data_text = data_text.replace('\x82','').replace('â¹', 'In Rs')
-    with open('file.csv', 'w') as f:
+    file_name = file_name+'.csv'
+    with open(file_name, 'w') as f:
         f.write(data_text)
     f.close()
     data_df = pd.read_csv('file.csv')
@@ -338,7 +342,7 @@ def get_block_deals_data(from_date: str, to_date: str):
     return data_df
 
 
-def short_selling_data(from_date: str = None, to_date: str = None, period: str = None):
+def short_selling_data(from_date: str = None, to_date: str = None, period: str = None, file_name: str = 'file'):
     """
     get short selling data set.
     :param from_date: '17-03-2022' ('dd-mm-YYYY')
@@ -364,14 +368,14 @@ def short_selling_data(from_date: str = None, to_date: str = None, period: str =
         else:
             end_date = to_date.strftime(dd_mm_yyyy)
             start_date = from_date.strftime(dd_mm_yyyy)
-        data_df = get_short_selling_data(from_date=start_date, to_date=end_date)
+        data_df = get_short_selling_data(from_date=start_date, to_date=end_date, file_name = file_name)
         from_date = from_date + dt.timedelta(365)
         load_days = (to_date - from_date).days
         nse_df = pd.concat([nse_df, data_df], ignore_index=True)
     return nse_df
 
 
-def get_short_selling_data(from_date: str, to_date: str):
+def get_short_selling_data(from_date: str, to_date: str, file_name: str = 'file'):
     """
     NSE short selling data in data frame
     :param from_date:
@@ -383,7 +387,8 @@ def get_short_selling_data(from_date: str, to_date: str):
     payload = f"from={from_date}&to={to_date}&csv=true"
     data_text = nse_urlfetch(url + payload).text
     # data_text = data_text.replace('\x82','').replace('â¹', 'In Rs')
-    with open('file.csv', 'w') as f:
+    file_name = file_name+'.csv'
+    with open(file_name, 'w') as f:
         f.write(data_text)
     f.close()
     data_df = pd.read_csv('file.csv')
