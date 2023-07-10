@@ -7,7 +7,7 @@ from nselib.constants import *
 
 
 def price_volume_and_deliverable_position_data(symbol: str, from_date: str = None, to_date: str = None,
-                                               period: str = None):
+                                               period: str = None, file_name: str = 'file'):
     """
     get Security wise price volume & Deliverable position data set. use get_nse_symbols() to get all symbols
     :param symbol: symbol eg: 'SBIN'
@@ -32,20 +32,21 @@ def price_volume_and_deliverable_position_data(symbol: str, from_date: str = Non
         else:
             end_date = to_date.strftime(dd_mm_yyyy)
             start_date = from_date.strftime(dd_mm_yyyy)
-        data_df = get_price_volume_and_deliverable_position_data(symbol=symbol, from_date=start_date, to_date=end_date)
+        data_df = get_price_volume_and_deliverable_position_data(symbol=symbol, from_date=start_date, to_date=end_date,file_name=file_name)
         from_date = from_date + dt.timedelta(365)
         load_days = (to_date - from_date).days
         nse_df = pd.concat([nse_df, data_df], ignore_index=True)
     return nse_df
 
 
-def get_price_volume_and_deliverable_position_data(symbol: str, from_date: str, to_date: str):
+def get_price_volume_and_deliverable_position_data(symbol: str, from_date: str, to_date: str,file_name: str = 'file'):
     url = "https://www.nseindia.com/api/historical/securityArchives?"
     payload = f"from={from_date}&to={to_date}&symbol={symbol}&dataType=priceVolumeDeliverable&series=ALL&csv=true"
     try:
         data_text = nse_urlfetch(url + payload).text
         data_text = data_text.replace('\x82', '').replace('â¹', 'In Rs')
-        with open('file.csv', 'w') as f:
+        file_name = file_name+'.csv'
+        with open(file_name, 'w') as f:
             f.write(data_text)
         f.close()
     except Exception as e:
