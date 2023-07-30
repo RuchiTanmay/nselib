@@ -1,6 +1,9 @@
 # CHANGE LOG
 #### All the changes are listed...
 
+### Version: 0.7 [30/07/2023]
+* Now we can get the Derivative bhav copy from 2008 on wards
+
 ### Version: 0.6 [02/07/2023]
 * Functions added (market_watch_all_indices, fii_dii_trading_activity)
 

@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name='nselib',
     packages=setuptools.find_packages(),
-    version='0.6',
+    version='0.7',
     include_package_data=True,
     description='library to get NSE India data',
     long_description=long_description,
