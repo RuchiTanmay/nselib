@@ -86,6 +86,8 @@ OR
 
 data = derivatives.price_volume_and_deliverable_position_data(symbol='BANKNIFTY', instrument='FUTIDX', period='1M')
 
+Note: instrument type ( future index = FUTIDX, future stocks = FUTSTK, option index = OPTIDX, option stocks = OPTSTK)
+
 More functions will be available in future releases...
 
 ### Debt

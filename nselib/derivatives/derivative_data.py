@@ -123,7 +123,7 @@ def get_option_price_volume_data(symbol: str, instrument: str, option_type: str,
 
 def fno_bhav_copy(trade_date: str):
     """
-    NSE future option bhav copy
+    NSE future option bhav copy from 2008 on wards
     :param trade_date: eg:'01-06-2023'
     :return: pandas Data frame
     """
@@ -139,7 +139,18 @@ def fno_bhav_copy(trade_date: str):
             if file_name:
                 bhav_df = pd.read_csv(zip_bhav.open(file_name))
     elif request_bhav.status_code == 403:
-        raise FileNotFoundError(f' Data not found, change the date...')
+        url2="https://www.nseindia.com/api/reports?archives=" \
+             "%5B%7B%22name%22%3A%22F%26O%20-%20Bhavcopy(csv)%22%2C%22type%22%3A%22archives%22%2C%22category%22" \
+             f"%3A%22derivatives%22%2C%22section%22%3A%22equity%22%7D%5D&date={str(trade_date.strftime('%d-%b-%Y'))}" \
+             f"&type=equity&mode=single"
+        request_bhav = nse_urlfetch(url2)
+        if request_bhav.status_code == 200:
+            zip_bhav = zipfile.ZipFile(BytesIO(request_bhav.content), 'r')
+            for file_name in zip_bhav.filelist:
+                if file_name:
+                    bhav_df = pd.read_csv(zip_bhav.open(file_name))
+        elif request_bhav.status_code == 403:
+            raise FileNotFoundError(f' Data not found, change the date...')
     bhav_df = bhav_df[['INSTRUMENT', 'SYMBOL', 'EXPIRY_DT', 'STRIKE_PR', 'OPTION_TYP', 'OPEN', 'HIGH', 'LOW',
                        'CLOSE', 'SETTLE_PR', 'CONTRACTS', 'VAL_INLAKH', 'OPEN_INT', 'CHG_IN_OI', 'TIMESTAMP']]
     return bhav_df
