@@ -1,6 +1,6 @@
-# NSElib 0.6
+# mcxlib 0.1
 
-Python Library to get publicly available data on new NSE india website.
+Python Library to get publicly available data on new MCX website.
 
 Release Notes
 * Compatible and Tested with Python 3.8 and above 
@@ -19,79 +19,35 @@ For Windows systems you can install Anaconda, this will cover many dependencies 
 ## Installation
 Fresh installation 
 
-```$pip install nselib```
+```$pip install mcxlib```
 
 Upgrade
 
-```$pip install nselib --upgrade```
+```$pip install mcxlib --upgrade```
 
 ## Function list
 
-### nselib
-* trading_holiday_calendar
-
-Example :
-
-import nselib
-
-data = nselib.trading_holiday_calendar()
-
-### Capital Market
-* price_volume_and_deliverable_position_data 
-* price_volume_data
-* deliverable_position_data
-* bulk_deal_data
-* block_deals_data
-* short_selling_data
-* bhav_copy_with_delivery
-* bhav_copy_equities
-* equity_list
-* fno_equity_list
-* nifty50_equity_list
-* india_vix_data
-* index_data
-* market_watch_all_indices
-* fii_dii_trading_activity
+* get_live_market_watch
+* get_live_top_gainers
+* get_live_heat_map
+* get_live_top_gainers
+* get_live_top_losers
+* get_live_most_active_contracts
+* get_live_most_active_puts_calls
+* get_bhav_copy
+* get_historical_data
+* get_pro_cli_details
+* get_option_chain
+* get_put_call_ratio
+* get_category_wise_oi
+* get_category_wise_turnover
 
 Example : 
 
-from nselib import capital_market 
+import mcxlib
 
-data = capital_market.price_volume_and_deliverable_position_data(symbol='SBIN', from_date='01-06-2023', to_date='10-06-2023')
+data = get_live_market_watch()
                                             
-OR
-
-data = capital_market.price_volume_and_deliverable_position_data(symbol='SBIN', period='1M')
-
-More functions will be available in future releases...
-
-### Derivative
-* future_price_volume_data
-* option_price_volume_data
-* fno_bhav_copy
-* participant_wise_open_interest
-* participant_wise_trading_volume
-* expiry_dates_future
-* expiry_dates_option_index
-* nse_live_option_chain
-* fii_derivatives_statistics
-
-Example : 
-
-from nselib import derivatives
-
-data = derivatives.future_price_volume_data(symbol='SBIN', instrument='FUTSTK', from_date='01-06-2023', to_date='10-06-2023')
-
-OR
-
-data = derivatives.price_volume_and_deliverable_position_data(symbol='BANKNIFTY', instrument='FUTIDX', period='1M')
-
-Note: instrument type ( future index = FUTIDX, future stocks = FUTSTK, option index = OPTIDX, option stocks = OPTSTK)
-
-More functions will be available in future releases...
-
-### Debt
-
 More functions will be available in future releases...
 
 
@@ -100,13 +56,13 @@ There are multiple ways in which you can contribute-
 
 ### Write about your project
 
-There are working on to add many function to this library. NSElib at the moment is short of good documentation. There are lot of features in NSElib yet to come :( , so till we complete the documentation, I'll need support from the community.
+There are working on to add many function to this library. mcxlib at the moment is short of good documentation. There are lot of features in mcxlib yet to come :( , so till we complete the documentation, I'll need support from the community.
 
 Please write about your projects in blogs, quora answers and other forums, so that people find working examples to get started.
 
 ### Raising issues, bugs, enhancement requests
 
-For quick resolution please raise issues both [here on issue page](https://github.com/RuchiTanmay/nselib/issues). I'll try my best to address the issues quickly on github as and when I get notified, but raising it on stackoverflow will provide you access to a larger group and someone else might solve your problem before I do.
+For quick resolution please raise issues both [here on issue page](https://github.com/RuchiTanmay/mcxlib/issues). I'll try my best to address the issues quickly on github as and when I get notified, but raising it on stackoverflow will provide you access to a larger group and someone else might solve your problem before I do.
 
 ### Submit patches
 

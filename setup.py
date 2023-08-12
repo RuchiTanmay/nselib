@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name='nselib',
+    name='mcxlib',
     packages=setuptools.find_packages(),
     version='0.7',
     include_package_data=True,
@@ -12,9 +12,9 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown", author='RuchiTanmay',
     author_email='ruchitanmay@gmail.com',
-    url='https://github.com/RuchiTanmay/nselib',
+    url='https://github.com/RuchiTanmay/mcxlib',
     install_requires=['requests', 'pandas', 'scipy'],
-    keywords=['nseindia', 'nse', 'python', 'sdk', 'trading', 'stock markets'],
+    keywords=['mcx', 'mcx india', 'python', 'mcx data', 'mcx history data', 'commodity'],
     classifiers=[
         'Intended Audience :: Developers',
         'Natural Language :: English',
