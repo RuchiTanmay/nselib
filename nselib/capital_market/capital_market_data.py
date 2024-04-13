@@ -92,7 +92,7 @@ def get_price_volume_data(symbol: str, from_date: str, to_date: str):
     payload = f"from={from_date}&to={to_date}&symbol={symbol}&dataType=priceVolume&series=ALL&csv=true"
     try:
         data_text = nse_urlfetch(url + payload).text
-        with open('file.csv', 'w') as f:
+        with open('file.csv', 'w', encoding='utf-8') as f:
             f.write(data_text)
         f.close()
     except Exception as e:
