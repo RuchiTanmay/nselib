@@ -165,7 +165,7 @@ def participant_wise_open_interest(trade_date: str):
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
     url = f"https://archives.nseindia.com/content/nsccl/fao_participant_oi_{str(trade_date.strftime('%d%m%Y'))}.csv"
     # payload = f"{str(for_date.strftime('%d%m%Y'))}.csv"
-    file_chk = requests.get(url, headers=header)
+    file_chk = requests.get(url, headers=header, proxies=PROXIES)
     if file_chk.status_code != 200:
         raise FileNotFoundError(f" No data available for : {trade_date}")
     try:
