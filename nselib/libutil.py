@@ -89,7 +89,8 @@ def cleaning_nse_symbol(symbol):
 
 def nse_urlfetch(url):
     r_session = requests.session()
-    nse_live = r_session.get("https://nseindia.com", headers=header)
+    # nse_live = r_session.get("https://nseindia.com", headers=header)
+    url = url.replace('http://', 'https://')
     return r_session.get(url, headers=header)
 
 
