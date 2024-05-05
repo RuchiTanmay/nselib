@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import datetime, timedelta, date
 import requests
@@ -20,6 +21,12 @@ header = {
     "Sec-Fetch-User": "?1", "Accept": "*/*", "Sec-Fetch-Site": "none", "Sec-Fetch-Mode": "navigate",
     "Accept-Encoding": "gzip, deflate, br", "Accept-Language": "en-US,en;q=0.9,hi;q=0.8"
     }
+
+PROXIES = {
+    'http': f'http://{os.getenv("HTTP_PROXY")}',
+    'https': f'http://{os.getenv("HTTPS_PROXY")}',
+    'ftp': f'http://{os.getenv("FTP_PROXY")}'
+}
 
 
 class CalenderNotFound(Exception):
@@ -89,8 +96,10 @@ def cleaning_nse_symbol(symbol):
 
 def nse_urlfetch(url):
     r_session = requests.session()
-    nse_live = r_session.get("http://nseindia.com", headers=header)
-    return r_session.get(url, headers=header)
+    # nse_live = r_session.get("https://nseindia.com", headers=header)
+    url = url.replace('http://', 'https://')
+    logging.info(f'Proxies: {PROXIES}')
+    return r_session.get(url, headers=header, proxies=PROXIES)
 
 
 def get_nselib_path():
