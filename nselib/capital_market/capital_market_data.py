@@ -522,10 +522,10 @@ def fii_dii_trading_activity():
     return data_df
 
 
-# if __name__ == '__main__':
-    # import nselib.capital_market as cm
-    # data = fii_dii_trading_activity()
-    # print(data)
-    # print(data.columns)
-    # data = fno_equity_list()  #from_date='23-03-2022', to_date='23-06-2023'
+if __name__ == '__main__':
+    import nselib.capital_market as cm
+    data = fii_dii_trading_activity()
+    print(data)
+    print(data.columns)
+    data = fno_equity_list()  #from_date='23-03-2022', to_date='23-06-2023'
 

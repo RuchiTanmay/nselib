@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: nselib
-Version: 0.5
+Version: 0.7
 Summary: library to get NSE India data
 Home-page: https://github.com/RuchiTanmay/nselib
 Author: RuchiTanmay
@@ -16,7 +16,8 @@ Classifier: Topic :: Software Development :: Libraries :: Python Modules
 Description-Content-Type: text/markdown
 License-File: LICENSE
 
-# NSElib 0.5
+# NSElib 0.6
+
 Python Library to get publicly available data on new NSE india website.
 
 Release Notes
@@ -67,6 +68,8 @@ data = nselib.trading_holiday_calendar()
 * nifty50_equity_list
 * india_vix_data
 * index_data
+* market_watch_all_indices
+* fii_dii_trading_activity
 
 Example : 
 
@@ -100,6 +103,8 @@ data = derivatives.future_price_volume_data(symbol='SBIN', instrument='FUTSTK', 
 OR
 
 data = derivatives.price_volume_and_deliverable_position_data(symbol='BANKNIFTY', instrument='FUTIDX', period='1M')
+
+Note: instrument type ( future index = FUTIDX, future stocks = FUTSTK, option index = OPTIDX, option stocks = OPTSTK)
 
 More functions will be available in future releases...
 
