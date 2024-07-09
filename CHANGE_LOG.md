@@ -1,6 +1,9 @@
 # CHANGE LOG
 #### All the changes are listed...
 
+### Version: 1.0 [09/07/2024]
+* Code changes as per new NSE data changes. fixes all bugs
+
 ### Version: 0.7 [30/07/2023]
 * Now we can get the Derivative bhav copy from 2008 on wards
 

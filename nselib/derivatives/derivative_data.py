@@ -43,7 +43,10 @@ def future_price_volume_data(symbol: str, instrument: str, from_date: str = None
                                                from_date=start_date, to_date=end_date)
         from_date = from_date + dt.timedelta(91)
         load_days = (to_date - from_date).days
-        nse_df = pd.concat([nse_df, data_df], ignore_index=True)
+        if nse_df.empty:
+            nse_df = data_df
+        else:
+            nse_df = pd.concat([nse_df, data_df], ignore_index=True)
     return nse_df
 
 
@@ -100,7 +103,10 @@ def option_price_volume_data(symbol: str, instrument: str, option_type: str = No
         for opt_typ in option_type:
             data_df = get_option_price_volume_data(symbol=symbol, instrument=instrument, option_type=opt_typ,
                                                    from_date=start_date, to_date=end_date)
-            nse_df = pd.concat([nse_df, data_df], ignore_index=True)
+            if nse_df.empty:
+                nse_df = data_df
+            else:
+                nse_df = pd.concat([nse_df, data_df], ignore_index=True)
         from_date = from_date + dt.timedelta(91)
         load_days = (to_date - from_date).days
 
@@ -123,14 +129,13 @@ def get_option_price_volume_data(symbol: str, instrument: str, option_type: str,
 
 def fno_bhav_copy(trade_date: str):
     """
-    NSE future option bhav copy from 2008 on wards
+    new CM-UDiFF Common NSE future option bhav copy from 2018 on wards
     :param trade_date: eg:'01-06-2023'
     :return: pandas Data frame
     """
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
-    url = 'https://archives.nseindia.com/content/historical/DERIVATIVES/'
-    payload = f"{str(trade_date.strftime('%Y'))}/{str(trade_date.strftime('%b').upper())}/" \
-              f"fo{str(trade_date.strftime('%d%b%Y').upper())}bhav.csv.zip"
+    url = 'https://nsearchives.nseindia.com/content/fo/BhavCopy_NSE_FO_0_0_0_'
+    payload = f"{str(trade_date.strftime('%Y%m%d'))}_F_0000.csv.zip"
     request_bhav = nse_urlfetch(url + payload)
     bhav_df = pd.DataFrame()
     if request_bhav.status_code == 200:
@@ -139,7 +144,7 @@ def fno_bhav_copy(trade_date: str):
             if file_name:
                 bhav_df = pd.read_csv(zip_bhav.open(file_name))
     elif request_bhav.status_code == 403:
-        url2="https://www.nseindia.com/api/reports?archives=" \
+        url2 = "https://www.nseindia.com/api/reports?archives=" \
              "%5B%7B%22name%22%3A%22F%26O%20-%20Bhavcopy(csv)%22%2C%22type%22%3A%22archives%22%2C%22category%22" \
              f"%3A%22derivatives%22%2C%22section%22%3A%22equity%22%7D%5D&date={str(trade_date.strftime('%d-%b-%Y'))}" \
              f"&type=equity&mode=single"
@@ -151,8 +156,8 @@ def fno_bhav_copy(trade_date: str):
                     bhav_df = pd.read_csv(zip_bhav.open(file_name))
         elif request_bhav.status_code == 403:
             raise FileNotFoundError(f' Data not found, change the date...')
-    bhav_df = bhav_df[['INSTRUMENT', 'SYMBOL', 'EXPIRY_DT', 'STRIKE_PR', 'OPTION_TYP', 'OPEN', 'HIGH', 'LOW',
-                       'CLOSE', 'SETTLE_PR', 'CONTRACTS', 'VAL_INLAKH', 'OPEN_INT', 'CHG_IN_OI', 'TIMESTAMP']]
+    # bhav_df = bhav_df[['INSTRUMENT', 'SYMBOL', 'EXPIRY_DT', 'STRIKE_PR', 'OPTION_TYP', 'OPEN', 'HIGH', 'LOW',
+    #                    'CLOSE', 'SETTLE_PR', 'CONTRACTS', 'VAL_INLAKH', 'OPEN_INT', 'CHG_IN_OI', 'TIMESTAMP']]
     return bhav_df
 
 
@@ -249,7 +254,7 @@ def expiry_dates_option_index():
     return data_dict
 
 
-def nse_live_option_chain(symbol:str, expiry_date:str = None, oi_mode: str = "full"):
+def nse_live_option_chain(symbol: str, expiry_date: str = None, oi_mode: str = "full"):
     """
     get live nse option chain.
     :param symbol: eg:SBIN/BANKNIFTY
@@ -327,7 +332,10 @@ def nse_live_option_chain(symbol:str, expiry_date:str = None, oi_mode: str = "fu
 
             # if oi_mode == 'full':
             #     oi_row['CALLS_Chart'], oi_row['PUTS_Chart'] = 0, 0
-            oi_data = pd.concat([oi_data, pd.DataFrame([oi_row])], ignore_index=True)
+            if oi_data.empty:
+                oi_data = pd.DataFrame([oi_row]).copy()
+            else:
+                oi_data = pd.concat([oi_data, pd.DataFrame([oi_row])], ignore_index=True)
             oi_data['Symbol'] = symbol
             oi_data['Fetch_Time'] = payload['records']['timestamp']
     return oi_data
@@ -335,7 +343,9 @@ def nse_live_option_chain(symbol:str, expiry_date:str = None, oi_mode: str = "fu
 
 # if __name__ == '__main__':
     # df = future_price_volume_data("BANKNIFTY", "FUTIDX", from_date='17-06-2023', to_date='19-06-2023', period='1D')
-    # df = nse_live_option_chain(symbol='BANKNIFTY')
+    # df = option_price_volume_data(symbol='BANKNIFTY', instrument='OPTIDX', period='1W')
+    # df = fii_derivatives_statistics(trade_date='08-07-2024')
     # print(df)
+    # print(df.columns)
     # print(df[df['EXPIRY_DT']=='27-Jul-2023'])
 

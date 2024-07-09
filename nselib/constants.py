@@ -1,4 +1,3 @@
-import os
 
 dd_mm_yyyy = '%d-%m-%Y'
 dd_mmm_yyyy = '%d-%b-%Y'
@@ -6,7 +5,7 @@ ddmmyyyy = '%d%m%Y'
 mmm_yy = '%b-%y'
 
 equity_periods = ['1D', '1W', '1M', '3M', '6M', '1Y']
-indices_list = ['NIFTY','FINNIFTY','BANKNIFTY']
+indices_list = ['NIFTY', 'FINNIFTY', 'BANKNIFTY']
 
 
 # ---------- column lists-----------------
@@ -46,4 +45,3 @@ india_vix_data_column = ['TIMESTAMP', 'INDEX_NAME', 'OPEN_INDEX_VAL', 'CLOSE_IND
 
 index_data_columns = ['TIMESTAMP', 'INDEX_NAME', 'OPEN_INDEX_VAL', 'HIGH_INDEX_VAL', 'CLOSE_INDEX_VAL',
                       'LOW_INDEX_VAL', 'TRADED_QTY', 'TURN_OVER']
-
