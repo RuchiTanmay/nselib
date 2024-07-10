@@ -83,7 +83,10 @@ def price_volume_data(symbol: str, from_date: str = None, to_date: str = None, p
         data_df = get_price_volume_data(symbol=symbol, from_date=start_date, to_date=end_date)
         from_date = from_date + dt.timedelta(365)
         load_days = (to_date - from_date).days
-        nse_df = pd.concat([nse_df, data_df], ignore_index=True)
+        if nse_df.empty:
+            nse_df = data_df
+        else:
+            nse_df = pd.concat([nse_df, data_df], ignore_index=True)
     return nse_df
 
 
@@ -91,13 +94,12 @@ def get_price_volume_data(symbol: str, from_date: str, to_date: str):
     url = "https://www.nseindia.com/api/historical/securityArchives?"
     payload = f"from={from_date}&to={to_date}&symbol={symbol}&dataType=priceVolume&series=ALL&csv=true"
     try:
-        data_text = nse_urlfetch(url + payload).text
-        with open('file.csv', 'w') as f:
-            f.write(data_text)
-        f.close()
+        data_text = nse_urlfetch(url + payload)
+        if data_text.status_code != 200:
+            raise NSEdataNotFound(f" Resource not available for Price Volume Data")
     except Exception as e:
         raise NSEdataNotFound(f" Resource not available MSG: {e}")
-    data_df = pd.read_csv('file.csv')
+    data_df = pd.read_csv(BytesIO(data_text.content), index_col=False)
     data_df.columns = [name.replace(' ', '') for name in data_df.columns]
     return data_df
 
@@ -130,10 +132,13 @@ def deliverable_position_data(symbol: str, from_date: str = None, to_date: str =
         else:
             end_date = to_date.strftime(dd_mm_yyyy)
             start_date = from_date.strftime(dd_mm_yyyy)
-        data_df = get_price_volume_data(symbol=symbol, from_date=start_date, to_date=end_date)
+        data_df = get_deliverable_position_data(symbol=symbol, from_date=start_date, to_date=end_date)
         from_date = from_date + dt.timedelta(365)
         load_days = (to_date - from_date).days
-        nse_df = pd.concat([nse_df, data_df], ignore_index=True)
+        if nse_df.empty:
+            nse_df = data_df
+        else:
+            nse_df = pd.concat([nse_df, data_df], ignore_index=True)
     return nse_df
 
 
@@ -141,14 +146,12 @@ def get_deliverable_position_data(symbol: str, from_date: str, to_date: str):
     url = "https://www.nseindia.com/api/historical/securityArchives?"
     payload = f"from={from_date}&to={to_date}&symbol={symbol}&dataType=deliverable&series=ALL&csv=true"
     try:
-        data_text = nse_urlfetch(url + payload).text
+        data_text = nse_urlfetch(url + payload)
+        if data_text.status_code != 200:
+            raise NSEdataNotFound(f" Resource not available for deliverable_position_data")
     except Exception as e:
         raise NSEdataNotFound(f" Resource not available MSG: {e}")
-    # data_text = data_text.replace('\x82','').replace('â¹', 'In Rs')
-    with open('file.csv', 'w') as f:
-        f.write(data_text)
-    f.close()
-    data_df = pd.read_csv('file.csv')
+    data_df = pd.read_csv(BytesIO(data_text.content), index_col=False)
     data_df.columns = [name.replace(' ', '') for name in data_df.columns]
     return data_df
 
@@ -179,7 +182,10 @@ def india_vix_data(from_date: str = None, to_date: str = None, period: str = Non
         data_df = get_india_vix_data(from_date=start_date, to_date=end_date)
         from_date = from_date + dt.timedelta(365)
         load_days = (to_date - from_date).days
-        nse_df = pd.concat([nse_df, data_df], ignore_index=True)
+        if nse_df.empty:
+            nse_df = data_df
+        else:
+            nse_df = pd.concat([nse_df, data_df], ignore_index=True)
     return nse_df
 
 
@@ -195,7 +201,7 @@ def get_india_vix_data(from_date: str, to_date: str):
     return data_df[india_vix_data_column]
 
 
-def index_data(index:str, from_date: str = None, to_date: str = None, period: str = None):
+def index_data(index: str, from_date: str = None, to_date: str = None, period: str = None):
     """
     get historical index data set for the specific time period.
     apply the index name as per the nse india site
@@ -223,11 +229,14 @@ def index_data(index:str, from_date: str = None, to_date: str = None, period: st
         data_df = get_index_data(index=index, from_date=start_date, to_date=end_date)
         from_date = from_date + dt.timedelta(365)
         load_days = (to_date - from_date).days
-        nse_df = pd.concat([nse_df, data_df], ignore_index=True)
+        if nse_df.empty:
+            nse_df = data_df
+        else:
+            nse_df = pd.concat([nse_df, data_df], ignore_index=True)
     return nse_df
 
 
-def get_index_data(index:str, from_date: str, to_date: str):
+def get_index_data(index: str, from_date: str, to_date: str):
     index = index.replace(' ', '%20').upper()
     url = f"https://www.nseindia.com/api/historical/indicesHistory?indexType={index}&from={from_date}&to={to_date}"
     try:
@@ -272,7 +281,10 @@ def bulk_deal_data(from_date: str = None, to_date: str = None, period: str = Non
         data_df = get_bulk_deal_data(from_date=start_date, to_date=end_date)
         from_date = from_date + dt.timedelta(365)
         load_days = (to_date - from_date).days
-        nse_df = pd.concat([nse_df, data_df], ignore_index=True)
+        if nse_df.empty:
+            nse_df = data_df
+        else:
+            nse_df = pd.concat([nse_df, data_df], ignore_index=True)
     return nse_df
 
 
@@ -280,12 +292,10 @@ def get_bulk_deal_data(from_date: str, to_date: str):
     # print(from_date, to_date)
     url = "https://www.nseindia.com/api/historical/bulk-deals?"
     payload = f"from={from_date}&to={to_date}&csv=true"
-    data_text = nse_urlfetch(url + payload).text
-    # data_text = data_text.replace('\x82','').replace('â¹', 'In Rs')
-    with open('file.csv', 'w') as f:
-        f.write(data_text)
-    f.close()
-    data_df = pd.read_csv('file.csv')
+    data_text = nse_urlfetch(url + payload)
+    if data_text.status_code != 200:
+        raise NSEdataNotFound(f" Resource not available for bulk_deal_data")
+    data_df = pd.read_csv(BytesIO(data_text.content), index_col=False)
     data_df.columns = [name.replace(' ', '') for name in data_df.columns]
     return data_df
 
@@ -319,7 +329,10 @@ def block_deals_data(from_date: str = None, to_date: str = None, period: str = N
         data_df = get_block_deals_data(from_date=start_date, to_date=end_date)
         from_date = from_date + dt.timedelta(365)
         load_days = (to_date - from_date).days
-        nse_df = pd.concat([nse_df, data_df], ignore_index=True)
+        if nse_df.empty:
+            nse_df = data_df
+        else:
+            nse_df = pd.concat([nse_df, data_df], ignore_index=True)
     return nse_df
 
 
@@ -327,12 +340,10 @@ def get_block_deals_data(from_date: str, to_date: str):
     # print(from_date, to_date)
     url = "https://www.nseindia.com/api/historical/block-deals?"
     payload = f"from={from_date}&to={to_date}&csv=true"
-    data_text = nse_urlfetch(url + payload).text
-    # data_text = data_text.replace('\x82','').replace('â¹', 'In Rs')
-    with open('file.csv', 'w') as f:
-        f.write(data_text)
-    f.close()
-    data_df = pd.read_csv('file.csv')
+    data_text = nse_urlfetch(url + payload)
+    if data_text.status_code != 200:
+        raise NSEdataNotFound(f" Resource not available for block_deals_data")
+    data_df = pd.read_csv(BytesIO(data_text.content), index_col=False)
     data_df.columns = [name.replace(' ', '') for name in data_df.columns]
     return data_df
 
@@ -366,7 +377,10 @@ def short_selling_data(from_date: str = None, to_date: str = None, period: str =
         data_df = get_short_selling_data(from_date=start_date, to_date=end_date)
         from_date = from_date + dt.timedelta(365)
         load_days = (to_date - from_date).days
-        nse_df = pd.concat([nse_df, data_df], ignore_index=True)
+        if nse_df.empty:
+            nse_df = data_df
+        else:
+            nse_df = pd.concat([nse_df, data_df], ignore_index=True)
     return nse_df
 
 
@@ -380,12 +394,10 @@ def get_short_selling_data(from_date: str, to_date: str):
     # print(from_date, to_date)
     url = "https://www.nseindia.com/api/historical/short-selling?"
     payload = f"from={from_date}&to={to_date}&csv=true"
-    data_text = nse_urlfetch(url + payload).text
-    # data_text = data_text.replace('\x82','').replace('â¹', 'In Rs')
-    with open('file.csv', 'w') as f:
-        f.write(data_text)
-    f.close()
-    data_df = pd.read_csv('file.csv')
+    data_text = nse_urlfetch(url + payload)
+    if data_text.status_code != 200:
+        raise NSEdataNotFound(f" Resource not available for short_selling_data")
+    data_df = pd.read_csv(BytesIO(data_text.content), index_col=False)
     data_df.columns = [name.replace(' ', '') for name in data_df.columns]
     return data_df
 
@@ -398,28 +410,27 @@ def bhav_copy_with_delivery(trade_date: str):
     """
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
     use_date = trade_date.strftime(ddmmyyyy)
-    url = f'https://archives.nseindia.com/products/content/sec_bhavdata_full_{use_date}.csv'
+    url = f'https://nsearchives.nseindia.com/products/content/sec_bhavdata_full_{use_date}.csv'
     request_bhav = nse_urlfetch(url)
-    bhav_df = pd.DataFrame()
     if request_bhav.status_code == 200:
-        bhav_df = pd.read_csv(StringIO(request_bhav.text), sep=', ', engine='python')
-    elif request_bhav.status_code == 403:
+        bhav_df = pd.read_csv(BytesIO(request_bhav.content))
+    else:
         raise FileNotFoundError(f' Data not found, change the date...')
-    return bhav_df[['SYMBOL', 'SERIES', 'OPEN_PRICE', 'HIGH_PRICE', 'LOW_PRICE', 'CLOSE_PRICE',
-                    'PREV_CLOSE', 'TTL_TRD_QNTY', 'TURNOVER_LACS', 'NO_OF_TRADES', 'DELIV_QTY',
-                    'DELIV_PER', 'DATE1']]
+    bhav_df.columns = [name.replace(' ', '') for name in bhav_df.columns]
+    bhav_df['SERIES'] = bhav_df['SERIES'].str.replace(' ', '')
+    bhav_df['DATE1'] = bhav_df['DATE1'].str.replace(' ', '')
+    return bhav_df
 
 
 def bhav_copy_equities(trade_date: str):
     """
-    get nse bhav copy as per the traded date provided
+    get new CM-UDiFF Common Bhavcopy Final as per the traded date provided
     :param trade_date:
     :return: pandas dataframe
     """
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
-    url = 'https://archives.nseindia.com/content/historical/EQUITIES/'
-    payload = f"{str(trade_date.strftime('%Y'))}/{str(trade_date.strftime('%b').upper())}/" \
-              f"cm{str(trade_date.strftime('%d%b%Y').upper())}bhav.csv.zip"
+    url = 'https://nsearchives.nseindia.com/content/cm/BhavCopy_NSE_CM_0_0_0_'
+    payload = f"{str(trade_date.strftime('%Y%m%d'))}_F_0000.csv.zip"
     request_bhav = nse_urlfetch(url + payload)
     bhav_df = pd.DataFrame()
     if request_bhav.status_code == 200:
@@ -429,8 +440,8 @@ def bhav_copy_equities(trade_date: str):
                 bhav_df = pd.read_csv(zip_bhav.open(file_name))
     elif request_bhav.status_code == 403:
         raise FileNotFoundError(f' Data not found, change the date...')
-    bhav_df = bhav_df[['SYMBOL', 'SERIES', 'OPEN', 'HIGH', 'LOW', 'CLOSE', 'LAST', 'PREVCLOSE', 'TOTTRDQTY',
-                       'TOTTRDVAL', 'TIMESTAMP', 'TOTALTRADES']]
+    # bhav_df = bhav_df[['SYMBOL', 'SERIES', 'OPEN', 'HIGH', 'LOW', 'CLOSE', 'LAST', 'PREVCLOSE', 'TOTTRDQTY',
+    #                    'TOTTRDVAL', 'TIMESTAMP', 'TOTALTRADES']]
     return bhav_df
 
 
@@ -467,21 +478,12 @@ def fno_equity_list():
     get a dataframe of all listed derivative list with the recent lot size to trade
     :return: pandas data frame
     """
-    today = dt.date.today()
-    MMM_YY = today.strftime(mmm_yy).upper()
-    try:
-        ind_data_df = pd.read_csv("https://archives.nseindia.com/content/fo/fo_mktlots.csv")
-        data_df = pd.read_csv("https://archives.nseindia.com/content/fo/fo_mktlots.csv", skiprows=5)
-    except Exception as e:
-        raise FileNotFoundError(f' all listed derivative List not found :: NSE error : {e}')
-
-    ind_data_df.columns = [name.replace('    ', '').replace(' ', '') for name in ind_data_df.columns]
-    ind_data_df = ind_data_df[['UNDERLYING', 'SYMBOL', f'{MMM_YY}']].head(4)
-    ind_data_df.columns = ['Company_Name', 'Symbol', f'{MMM_YY}']
-    data_df.rename(columns={'Derivatives on Individual Securities': 'Company_Name'}, inplace=True)
-    data_df.columns = [name.replace('    ', '').replace(' ', '') for name in data_df.columns]
-    data_df = data_df[['Company_Name', 'Symbol', f'{MMM_YY}']]
-    data_df = pd.concat([ind_data_df, data_df], ignore_index=True)
+    url = "https://www.nseindia.com/api/underlying-information"
+    data_obj = nse_urlfetch(url)
+    if data_obj.status_code != 200:
+        raise NSEdataNotFound(f" Resource not available for fno_equity_list")
+    data_dict = data_obj.json()
+    data_df = pd.DataFrame(data_dict['data']['UnderlyingList'])
     return data_df
 
 
@@ -523,9 +525,9 @@ def fii_dii_trading_activity():
 
 
 # if __name__ == '__main__':
-    # import nselib.capital_market as cm
-    # data = fii_dii_trading_activity()
-    # print(data)
-    # print(data.columns)
+#     import nselib.capital_market as cm
+#     data = fii_dii_trading_activity()
+#     print(data)
+#     print(data.columns)
     # data = fno_equity_list()  #from_date='23-03-2022', to_date='23-06-2023'
 
