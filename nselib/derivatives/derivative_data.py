@@ -130,7 +130,7 @@ def get_option_price_volume_data(symbol: str, instrument: str, option_type: str,
 def fno_bhav_copy(trade_date: str):
     """
     new CM-UDiFF Common NSE future option bhav copy from 2018 on wards
-    :param trade_date: eg:'01-06-2023'
+    :param trade_date: eg:'20-06-2023'
     :return: pandas Data frame
     """
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
@@ -164,7 +164,7 @@ def fno_bhav_copy(trade_date: str):
 def participant_wise_open_interest(trade_date: str):
     """
     get FII, DII, Pro, Client wise participant OI data as per traded date
-    :param trade_date: eg:'01-06-2023'
+    :param trade_date: eg:'20-06-2023'
     :return: pandas Data frame
     """
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
@@ -186,7 +186,7 @@ def participant_wise_open_interest(trade_date: str):
 def participant_wise_trading_volume(trade_date: str):
     """
     get FII, DII, Pro, Client wise participant volume data as per traded date
-    :param trade_date: eg:'01-06-2023'
+    :param trade_date: eg:'20-06-2023'
     :return: pandas Data frame
     """
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
@@ -208,7 +208,7 @@ def participant_wise_trading_volume(trade_date: str):
 def fii_derivatives_statistics(trade_date: str):
     """
     get FII derivatives statistics as per the traded date provided
-    :param trade_date: eg:'01-06-2023'
+    :param trade_date: eg:'20-06-2023'
     :return: pandas dataframe
     """
     t_date = pd.to_datetime(trade_date, format='%d-%m-%Y')
@@ -258,7 +258,7 @@ def nse_live_option_chain(symbol: str, expiry_date: str = None, oi_mode: str = "
     """
     get live nse option chain.
     :param symbol: eg:SBIN/BANKNIFTY
-    :param expiry_date: '01-06-2023'
+    :param expiry_date: '20-06-2023'
     :param oi_mode: eg: full/compact
     :return: pands dataframe
     """

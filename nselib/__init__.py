@@ -1,3 +1,3 @@
 from .libutil import trading_holiday_calendar
 
-__version__ = 1.0
+__version__ = 1.1
