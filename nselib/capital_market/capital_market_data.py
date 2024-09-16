@@ -405,7 +405,7 @@ def get_short_selling_data(from_date: str, to_date: str):
 def bhav_copy_with_delivery(trade_date: str):
     """
     get the NSE bhav copy with delivery data as per the traded date
-    :param trade_date: eg:'01-06-2023'
+    :param trade_date: eg:'20-06-2023'
     :return: pandas data frame
     """
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
@@ -415,7 +415,7 @@ def bhav_copy_with_delivery(trade_date: str):
     if request_bhav.status_code == 200:
         bhav_df = pd.read_csv(BytesIO(request_bhav.content))
     else:
-        raise FileNotFoundError(f' Data not found, change the date...')
+        raise FileNotFoundError(f' Data not found, change the trade_date...')
     bhav_df.columns = [name.replace(' ', '') for name in bhav_df.columns]
     bhav_df['SERIES'] = bhav_df['SERIES'].str.replace(' ', '')
     bhav_df['DATE1'] = bhav_df['DATE1'].str.replace(' ', '')
@@ -439,7 +439,7 @@ def bhav_copy_equities(trade_date: str):
             if file_name:
                 bhav_df = pd.read_csv(zip_bhav.open(file_name))
     elif request_bhav.status_code == 403:
-        raise FileNotFoundError(f' Data not found, change the date...')
+        raise FileNotFoundError(f' Data not found, change the trade_date...')
     # bhav_df = bhav_df[['SYMBOL', 'SERIES', 'OPEN', 'HIGH', 'LOW', 'CLOSE', 'LAST', 'PREVCLOSE', 'TOTTRDQTY',
     #                    'TOTTRDVAL', 'TIMESTAMP', 'TOTALTRADES']]
     return bhav_df
@@ -448,7 +448,7 @@ def bhav_copy_equities(trade_date: str):
 def bhav_copy_indices(trade_date: str):
     """
     get nse bhav copy as per the traded date provided
-    :param trade_date: eg:'01-06-2023'
+    :param trade_date: eg:'20-06-2023'
     :return: pandas dataframe
     """
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
@@ -524,10 +524,172 @@ def fii_dii_trading_activity():
     return data_df
 
 
+def var_begin_day(trade_date: str):
+    """
+    get the VaR Begin Day data as per the traded date
+    :param trade_date: eg:'20-06-2023'
+    :return: pandas data frame
+    """
+    trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
+    use_date = trade_date.strftime(ddmmyyyy)
+    url = f'https://nsearchives.nseindia.com/archives/nsccl/var/C_VAR1_{use_date}_1.DAT'
+    request_nse = nse_urlfetch(url)
+    if request_nse.status_code == 200:
+        var_df = pd.read_csv(BytesIO(request_nse.content), skiprows=1)
+    else:
+        raise FileNotFoundError(f' Data not found, change the trade_date...')
+    var_df.columns = var_columns
+    return var_df
+
+
+def var_1st_intra_day(trade_date: str):
+    """
+    get the VaR 1st Intra Day data as per the traded date
+    :param trade_date: eg:'20-06-2023'
+    :return: pandas data frame
+    """
+    trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
+    use_date = trade_date.strftime(ddmmyyyy)
+    url = f'https://nsearchives.nseindia.com/archives/nsccl/var/C_VAR1_{use_date}_2.DAT'
+    request_nse = nse_urlfetch(url)
+    if request_nse.status_code == 200:
+        var_df = pd.read_csv(BytesIO(request_nse.content), skiprows=1)
+    else:
+        raise FileNotFoundError(f' Data not found, change the trade_date...')
+    var_df.columns = var_columns
+    return var_df
+
+
+def var_2nd_intra_day(trade_date: str):
+    """
+    get the VaR 2nd Intra Day data as per the traded date
+    :param trade_date: eg:'20-06-2023'
+    :return: pandas data frame
+    """
+    trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
+    use_date = trade_date.strftime(ddmmyyyy)
+    url = f'https://nsearchives.nseindia.com/archives/nsccl/var/C_VAR1_{use_date}_3.DAT'
+    request_nse = nse_urlfetch(url)
+    if request_nse.status_code == 200:
+        var_df = pd.read_csv(BytesIO(request_nse.content), skiprows=1)
+    else:
+        raise FileNotFoundError(f' Data not found, change the trade_date...')
+    var_df.columns = var_columns
+    return var_df
+
+
+def var_3rd_intra_day(trade_date: str):
+    """
+    get the VaR 3rd Intra Day data as per the traded date
+    :param trade_date: eg:'20-06-2023'
+    :return: pandas data frame
+    """
+    trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
+    use_date = trade_date.strftime(ddmmyyyy)
+    url = f'https://nsearchives.nseindia.com/archives/nsccl/var/C_VAR1_{use_date}_4.DAT'
+    request_nse = nse_urlfetch(url)
+    if request_nse.status_code == 200:
+        var_df = pd.read_csv(BytesIO(request_nse.content), skiprows=1)
+    else:
+        raise FileNotFoundError(f' Data not found, change the trade_date...')
+    var_df.columns = var_columns
+    return var_df
+
+
+def var_4th_intra_day(trade_date: str):
+    """
+    get the VaR 4th Intra Day data as per the traded date
+    :param trade_date: eg:'20-06-2023'
+    :return: pandas data frame
+    """
+    trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
+    use_date = trade_date.strftime(ddmmyyyy)
+    url = f'https://nsearchives.nseindia.com/archives/nsccl/var/C_VAR1_{use_date}_5.DAT'
+    request_nse = nse_urlfetch(url)
+    if request_nse.status_code == 200:
+        var_df = pd.read_csv(BytesIO(request_nse.content), skiprows=1)
+    else:
+        raise FileNotFoundError(f' Data not found, change the trade_date...')
+    var_df.columns = var_columns
+    return var_df
+
+
+def var_end_of_day(trade_date: str):
+    """
+    get the VaR End of Day data as per the traded date
+    :param trade_date: eg:'20-06-2023'
+    :return: pandas data frame
+    """
+    trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
+    use_date = trade_date.strftime(ddmmyyyy)
+    url = f'https://nsearchives.nseindia.com/archives/nsccl/var/C_VAR1_{use_date}_6.DAT'
+    request_nse = nse_urlfetch(url)
+    if request_nse.status_code == 200:
+        var_df = pd.read_csv(BytesIO(request_nse.content), skiprows=1)
+    else:
+        raise FileNotFoundError(f' Data not found, change the trade_date...')
+    var_df.columns = var_columns
+    return var_df
+
+
+def sme_bhav_copy(trade_date: str):
+    """
+    get the SME bhav copy data as per the traded date
+    :param trade_date: eg:'20-06-2023'
+    :return: pandas data frame
+    """
+    trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
+    use_date = trade_date.strftime(ddmmyy)
+    url = f'https://nsearchives.nseindia.com/archives/sme/bhavcopy/sme{use_date}.csv'
+    request_bhav = nse_urlfetch(url)
+    if request_bhav.status_code == 200:
+        bhav_df = pd.read_csv(BytesIO(request_bhav.content))
+    else:
+        raise FileNotFoundError(f' Data not found, change the trade_date...')
+    bhav_df.columns = [name.replace(' ', '') for name in bhav_df.columns]
+    return bhav_df
+
+
+def sme_band_complete(trade_date: str):
+    """
+    get the SME Band Complete data as per the traded date
+    :param trade_date: eg:'20-06-2023'
+    :return: pandas data frame
+    """
+    trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
+    use_date = trade_date.strftime(ddmmyyyy)
+    url = f'https://nsearchives.nseindia.com/sme/content/price_band/archieves/sme_bands_complete_{use_date}.csv'
+    request_sme = nse_urlfetch(url)
+    if request_sme.status_code == 200:
+        sme_df = pd.read_csv(BytesIO(request_sme.content))
+    else:
+        raise FileNotFoundError(f' Data not found, change the trade_date...')
+    sme_df.columns = [name.replace(' ', '') for name in sme_df.columns]
+    return sme_df
+
+
+def week_52_high_low_report(trade_date: str):
+    """
+    get the 52-Week High Low Report data as per the traded date
+    :param trade_date: eg:'20-06-2023'
+    :return: pandas data frame
+    """
+    trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
+    use_date = trade_date.strftime(ddmmyyyy)
+    url = f'https://nsearchives.nseindia.com/content/CM_52_wk_High_low_{use_date}.csv'
+    request_nse = nse_urlfetch(url)
+    if request_nse.status_code == 200:
+        high_low_df = pd.read_csv(BytesIO(request_nse.content), skiprows=2)
+    else:
+        raise FileNotFoundError(f' Data not found, change the trade_date...')
+    high_low_df.columns = [name.replace(' ', '') for name in high_low_df.columns]
+    return high_low_df
+
+
 # if __name__ == '__main__':
-#     import nselib.capital_market as cm
-#     data = fii_dii_trading_activity()
-#     print(data)
-#     print(data.columns)
-    # data = fno_equity_list()  #from_date='23-03-2022', to_date='23-06-2023'
+    # data = bhav_copy_with_delivery(trade_date='11-09-2024')
+
+    # data = deliverable_position_data(symbol='SBIN', from_date='23-03-2024', to_date='23-06-2024')
+    # print(data)
+    # print(data.columns)
 

@@ -1,4 +1,4 @@
-# NSElib 1.0
+# NSElib 1.1
 
 Python Library to get publicly available data on new NSE india website.
 
@@ -52,16 +52,27 @@ data = nselib.trading_holiday_calendar()
 * index_data
 * market_watch_all_indices
 * fii_dii_trading_activity
+* var_begin_day
+* var_1st_intra_day
+* var_2nd_intra_day
+* var_3rd_intra_day
+* var_4th_intra_day
+* var_end_of_day
+* sme_bhav_copy
+* sme_band_complete
+* week_52_high_low_report
 
 Example : 
 
 from nselib import capital_market 
 
-data = capital_market.price_volume_and_deliverable_position_data(symbol='SBIN', from_date='01-06-2023', to_date='10-06-2023')
+data = capital_market.price_volume_and_deliverable_position_data(symbol='SBIN', from_date='20-06-2023', to_date='20-07-2023')
                                             
 OR
 
 data = capital_market.price_volume_and_deliverable_position_data(symbol='SBIN', period='1M')
+
+data = capital_market.bhav_copy_with_delivery(trade_date='20-06-2024')
 
 More functions will be available in future releases...
 
@@ -80,7 +91,7 @@ Example :
 
 from nselib import derivatives
 
-data = derivatives.future_price_volume_data(symbol='SBIN', instrument='FUTSTK', from_date='01-06-2023', to_date='10-06-2023')
+data = derivatives.future_price_volume_data(symbol='SBIN', instrument='FUTSTK', from_date='20-06-2023', to_date='20-07-2023')
 
 OR
 
@@ -100,13 +111,15 @@ There are multiple ways in which you can contribute-
 
 ### Write about your project
 
-There are working on to add many function to this library. NSElib at the moment is short of good documentation. There are lot of features in NSElib yet to come :( , so till we complete the documentation, I'll need support from the community.
+There are working on to add many function to this library. NSElib at the moment is short of good documentation. There are a lot of features in NSElib yet to come :( , so till we complete the documentation, I'll need support from the community.
 
 Please write about your projects in blogs, quora answers and other forums, so that people find working examples to get started.
 
 ### Raising issues, bugs, enhancement requests
 
 For quick resolution please raise issues both [here on issue page](https://github.com/RuchiTanmay/nselib/issues). I'll try my best to address the issues quickly on github as and when I get notified, but raising it on stackoverflow will provide you access to a larger group and someone else might solve your problem before I do.
+
+### Contact author on [LinkedIn](https://www.linkedin.com/in/ruchi-tanmay-61848219)
 
 ### Submit patches
 
