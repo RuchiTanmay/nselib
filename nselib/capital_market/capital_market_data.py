@@ -452,9 +452,12 @@ def bhav_copy_indices(trade_date: str):
     :return: pandas dataframe
     """
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
-    url = f"https://archives.nseindia.com/content/indices/ind_close_all_{str(trade_date.strftime('%d%m%Y').upper())}.csv"
+    url = f"https://nsearchives.nseindia.com/content/indices/ind_close_all_{str(trade_date.strftime('%d%m%Y').upper())}.csv"
+    file_chk = nse_urlfetch(url)
+    if file_chk.status_code != 200:
+        raise FileNotFoundError(f" No data available for : {trade_date}")
     try:
-        bhav_df = pd.read_csv(url)
+        bhav_df = pd.read_csv(BytesIO(file_chk.content))
     except Exception as e:
         raise FileNotFoundError(f' Bhav copy indices not found for : {trade_date} :: NSE error : {e}')
     return bhav_df
@@ -465,8 +468,12 @@ def equity_list():
     get list of all equity available to trade in NSE
     :return: pandas data frame
     """
+    url = "https://archives.nseindia.com/content/equities/EQUITY_L.csv"
+    file_chk = nse_urlfetch(url)
+    if file_chk.status_code != 200:
+        raise FileNotFoundError(f" No data equity list available")
     try:
-        data_df = pd.read_csv("https://archives.nseindia.com/content/equities/EQUITY_L.csv")
+        data_df = pd.read_csv(BytesIO(file_chk.content))
     except Exception as e:
         raise FileNotFoundError(f' Equity List not found :: NSE error : {e}')
     data_df = data_df[['SYMBOL', 'NAME OF COMPANY', ' SERIES', ' DATE OF LISTING', ' FACE VALUE']]
@@ -492,8 +499,12 @@ def nifty50_equity_list():
     list of all equities under NIFTY 50 index
     :return: pandas data frame
     """
+    url = "https://nsearchives.nseindia.com/content/indices/ind_nifty50list.csv"
+    file_chk = nse_urlfetch(url)
+    if file_chk.status_code != 200:
+        raise FileNotFoundError(f" No data equity list available")
     try:
-        data_df = pd.read_csv("https://archives.nseindia.com/content/indices/ind_nifty50list.csv")
+        data_df = pd.read_csv(BytesIO(file_chk.content))
     except Exception as e:
         raise FileNotFoundError(f' equities under NIFTY 50 index not found :: NSE error : {e}')
     data_df = data_df[['Company Name', 'Industry', 'Symbol']]
@@ -687,9 +698,9 @@ def week_52_high_low_report(trade_date: str):
 
 
 # if __name__ == '__main__':
-    # data = bhav_copy_with_delivery(trade_date='11-09-2024')
-
-    # data = deliverable_position_data(symbol='SBIN', from_date='23-03-2024', to_date='23-06-2024')
-    # print(data)
-    # print(data.columns)
+#     data = nifty50_equity_list()  # trade_date='11-09-2024'
+#
+#     # data = deliverable_position_data(symbol='SBIN', from_date='23-03-2024', to_date='23-06-2024')
+#     print(data)
+#     print(data.columns)
 

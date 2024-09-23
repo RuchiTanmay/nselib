@@ -1,5 +1,7 @@
 # CHANGE LOG
 #### All the changes are listed...
+### Version: 1.2 [23/09/2024]
+* nseindia data path changed
 
 ### Version: 1.1 [16/09/2024]
 * functions added to capital market (var_begin_day, var_1st_intra_day, var_2nd_intra_day, var_3rd_intra_day, var_4th_intra_day, var_end_of_day, sme_bhav_copy, sme_band_complete, week_52_high_low_report)
