@@ -168,16 +168,19 @@ def participant_wise_open_interest(trade_date: str):
     :return: pandas Data frame
     """
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
-    url = f"https://archives.nseindia.com/content/nsccl/fao_participant_oi_{str(trade_date.strftime('%d%m%Y'))}.csv"
+    url = f"https://nsearchives.nseindia.com/content/nsccl/fao_participant_oi_{str(trade_date.strftime('%d%m%Y'))}.csv"
     # payload = f"{str(for_date.strftime('%d%m%Y'))}.csv"
-    file_chk = requests.get(url, headers=header)
+    file_chk = nse_urlfetch(url)
+    if file_chk.status_code == 404:
+        url = f"https://archives.nseindia.com/content/nsccl/fao_participant_oi_{str(trade_date.strftime('%d%m%Y'))}.csv"
+        file_chk = nse_urlfetch(url)
     if file_chk.status_code != 200:
         raise FileNotFoundError(f" No data available for : {trade_date}")
     try:
-        data_df = pd.read_csv(url, engine='python', sep=',', quotechar='"', on_bad_lines='skip', skiprows=1,
-                              skipfooter=1)
+        # data_df = pd.read_csv(url, engine='python', sep=',', quotechar='"', on_bad_lines='skip', skiprows=1)
+        data_df = pd.read_csv(BytesIO(file_chk.content), on_bad_lines='skip', skiprows=1)
     except:
-        data_df = pd.read_csv(url, engine='c', sep=',', quotechar='"', on_bad_lines='skip', skiprows=1)
+        data_df = pd.read_csv(BytesIO(file_chk.content), on_bad_lines='skip', skiprows=1)
         data_df.drop(data_df.tail(1).index, inplace=True)
         data_df.columns = [name.replace('\t', '') for name in data_df.columns]
     return data_df
@@ -190,16 +193,16 @@ def participant_wise_trading_volume(trade_date: str):
     :return: pandas Data frame
     """
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
-    url = f"https://archives.nseindia.com/content/nsccl/fao_participant_vol_{str(trade_date.strftime('%d%m%Y'))}.csv"
+    url = f"https://nsearchives.nseindia.com/content/nsccl/fao_participant_vol_{str(trade_date.strftime('%d%m%Y'))}.csv"
     # payload = f"{str(for_date.strftime('%d%m%Y'))}.csv"
-    file_chk = requests.get(url, headers=header)
+    file_chk = nse_urlfetch(url)
     if file_chk.status_code != 200:
         raise FileNotFoundError(f" No data available for : {trade_date}")
     try:
-        data_df = pd.read_csv(url, engine='python', sep=',', quotechar='"', on_bad_lines='skip', skiprows=1,
-                              skipfooter=1)
+        data_df = pd.read_csv(BytesIO(file_chk.content), on_bad_lines='skip', skiprows=1)
     except Exception:
-        data_df = pd.read_csv(url, engine='c', sep=',', quotechar='"', on_bad_lines='skip', skiprows=1)
+        data_df = pd.read_csv(BytesIO(file_chk.content), engine='c', sep=',', quotechar='"',
+                              on_bad_lines='skip', skiprows=1)
         data_df.drop(data_df.tail(1).index, inplace=True)
         data_df.columns = [name.replace('\t', '') for name in data_df.columns]
     return data_df
@@ -213,9 +216,12 @@ def fii_derivatives_statistics(trade_date: str):
     """
     t_date = pd.to_datetime(trade_date, format='%d-%m-%Y')
     trade_date = t_date.strftime('%d-%b-%Y')
-    url = f"https://archives.nseindia.com/content/fo/fii_stats_{trade_date}.xls"
+    url = f"https://nsearchives.nseindia.com/content/fo/fii_stats_{trade_date}.xls"
+    file_chk = nse_urlfetch(url)
+    if file_chk.status_code != 200:
+        raise FileNotFoundError(f" No data available for : {trade_date}")
     try:
-        bhav_df = pd.read_excel(url, skiprows=3, skipfooter=10).dropna()
+        bhav_df = pd.read_excel(BytesIO(file_chk.content), skiprows=3, skipfooter=10).dropna()
         bhav_df.columns = ['fii_derivatives', 'buy_contracts', 'buy_value_in_Cr', 'sell_contracts', 'sell_value_in_Cr',
                            'open_contracts', 'open_contracts_value_in_Cr']
     except Exception as e:
@@ -344,7 +350,8 @@ def nse_live_option_chain(symbol: str, expiry_date: str = None, oi_mode: str = "
 # if __name__ == '__main__':
     # df = future_price_volume_data("BANKNIFTY", "FUTIDX", from_date='17-06-2023', to_date='19-06-2023', period='1D')
     # df = option_price_volume_data(symbol='BANKNIFTY', instrument='OPTIDX', period='1W')
-    # df = fii_derivatives_statistics(trade_date='08-07-2024')
+    # df = fii_derivatives_statistics(trade_date='16-09-2024')
+    # df = expiry_dates_future()
     # print(df)
     # print(df.columns)
     # print(df[df['EXPIRY_DT']=='27-Jul-2023'])
