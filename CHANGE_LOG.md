@@ -1,5 +1,8 @@
 # CHANGE LOG
 #### All the changes are listed...
+### Version: 1.3 [15/10/2024]
+* nseindia api fixes
+
 ### Version: 1.2 [23/09/2024]
 * nseindia data path changed
 
