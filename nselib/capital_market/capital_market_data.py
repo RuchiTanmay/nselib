@@ -698,7 +698,7 @@ def week_52_high_low_report(trade_date: str):
 
 
 # if __name__ == '__main__':
-#     data = nifty50_equity_list()  # trade_date='11-09-2024'
+#     data = fno_equity_list()  # trade_date='11-09-2024'
 #
 #     # data = deliverable_position_data(symbol='SBIN', from_date='23-03-2024', to_date='23-06-2024')
 #     print(data)
