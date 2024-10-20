@@ -40,10 +40,11 @@ def price_volume_and_deliverable_position_data(symbol: str, from_date: str = Non
 
 
 def get_price_volume_and_deliverable_position_data(symbol: str, from_date: str, to_date: str):
-    url = "https://www.nseindia.com/api/historical/securityArchives?"
+    origin_url = "https://nsewebsite-staging.nseindia.com/report-detail/eq_security"
+    url = "https://nsewebsite-staging.nseindia.com/api/historical/securityArchives?"
     payload = f"from={from_date}&to={to_date}&symbol={symbol}&dataType=priceVolumeDeliverable&series=ALL&csv=true"
     try:
-        data_text = nse_urlfetch(url + payload).text
+        data_text = nse_urlfetch(url + payload, origin_url=origin_url).text
         data_text = data_text.replace('\x82', '').replace('â¹', 'In Rs')
         with open('file.csv', 'w') as f:
             f.write(data_text)
@@ -91,10 +92,11 @@ def price_volume_data(symbol: str, from_date: str = None, to_date: str = None, p
 
 
 def get_price_volume_data(symbol: str, from_date: str, to_date: str):
-    url = "https://www.nseindia.com/api/historical/securityArchives?"
+    origin_url = "https://nsewebsite-staging.nseindia.com/report-detail/eq_security"
+    url = "https://nsewebsite-staging.nseindia.com/api/historical/securityArchives?"
     payload = f"from={from_date}&to={to_date}&symbol={symbol}&dataType=priceVolume&series=ALL&csv=true"
     try:
-        data_text = nse_urlfetch(url + payload)
+        data_text = nse_urlfetch(url + payload, origin_url=origin_url)
         if data_text.status_code != 200:
             raise NSEdataNotFound(f" Resource not available for Price Volume Data")
     except Exception as e:
@@ -143,10 +145,11 @@ def deliverable_position_data(symbol: str, from_date: str = None, to_date: str =
 
 
 def get_deliverable_position_data(symbol: str, from_date: str, to_date: str):
-    url = "https://www.nseindia.com/api/historical/securityArchives?"
+    origin_url = "https://nsewebsite-staging.nseindia.com/report-detail/eq_security"
+    url = "https://nsewebsite-staging.nseindia.com/api/historical/securityArchives?"
     payload = f"from={from_date}&to={to_date}&symbol={symbol}&dataType=deliverable&series=ALL&csv=true"
     try:
-        data_text = nse_urlfetch(url + payload)
+        data_text = nse_urlfetch(url + payload, origin_url=origin_url)
         if data_text.status_code != 200:
             raise NSEdataNotFound(f" Resource not available for deliverable_position_data")
     except Exception as e:
@@ -190,9 +193,10 @@ def india_vix_data(from_date: str = None, to_date: str = None, period: str = Non
 
 
 def get_india_vix_data(from_date: str, to_date: str):
-    url = f"https://www.nseindia.com/api/historical/vixhistory?from={from_date}&to={to_date}&csv=true"
+    origin_url = "https://nsewebsite-staging.nseindia.com/report-detail/eq_security"
+    url = f"https://nsewebsite-staging.nseindia.com/api/historical/vixhistory?from={from_date}&to={to_date}&csv=true"
     try:
-        data_json = nse_urlfetch(url).json()
+        data_json = nse_urlfetch(url, origin_url=origin_url).json()
         data_df = pd.DataFrame(data_json['data'])
     except Exception as e:
         raise NSEdataNotFound(f" Resource not available MSG: {e}")
@@ -238,9 +242,10 @@ def index_data(index: str, from_date: str = None, to_date: str = None, period: s
 
 def get_index_data(index: str, from_date: str, to_date: str):
     index = index.replace(' ', '%20').upper()
+    origin_url = "https://nsewebsite-staging.nseindia.com"
     url = f"https://www.nseindia.com/api/historical/indicesHistory?indexType={index}&from={from_date}&to={to_date}"
     try:
-        data_json = nse_urlfetch(url).json()
+        data_json = nse_urlfetch(url, origin_url=origin_url).json()
         data_close_df = pd.DataFrame(data_json['data']['indexCloseOnlineRecords']).drop(columns=['_id', "EOD_TIMESTAMP"])
         data_turnover_df = pd.DataFrame(data_json['data']['indexTurnoverRecords']).drop(columns=['_id',
                                                                                                  'HIT_INDEX_NAME_UPPER'])
@@ -290,9 +295,10 @@ def bulk_deal_data(from_date: str = None, to_date: str = None, period: str = Non
 
 def get_bulk_deal_data(from_date: str, to_date: str):
     # print(from_date, to_date)
-    url = "https://www.nseindia.com/api/historical/bulk-deals?"
+    origin_url = "https://nsewebsite-staging.nseindia.com"
+    url = "https://nsewebsite-staging.nseindia.com/api/historical/bulk-deals?"
     payload = f"from={from_date}&to={to_date}&csv=true"
-    data_text = nse_urlfetch(url + payload)
+    data_text = nse_urlfetch(url + payload, origin_url=origin_url)
     if data_text.status_code != 200:
         raise NSEdataNotFound(f" Resource not available for bulk_deal_data")
     data_df = pd.read_csv(BytesIO(data_text.content), index_col=False)
@@ -338,9 +344,10 @@ def block_deals_data(from_date: str = None, to_date: str = None, period: str = N
 
 def get_block_deals_data(from_date: str, to_date: str):
     # print(from_date, to_date)
-    url = "https://www.nseindia.com/api/historical/block-deals?"
+    origin_url = "https://nsewebsite-staging.nseindia.com"
+    url = "https://nsewebsite-staging.nseindia.com/api/historical/block-deals?"
     payload = f"from={from_date}&to={to_date}&csv=true"
-    data_text = nse_urlfetch(url + payload)
+    data_text = nse_urlfetch(url + payload, origin_url=origin_url)
     if data_text.status_code != 200:
         raise NSEdataNotFound(f" Resource not available for block_deals_data")
     data_df = pd.read_csv(BytesIO(data_text.content), index_col=False)
@@ -392,9 +399,10 @@ def get_short_selling_data(from_date: str, to_date: str):
     :return:
     """
     # print(from_date, to_date)
-    url = "https://www.nseindia.com/api/historical/short-selling?"
+    origin_url = "https://nsewebsite-staging.nseindia.com"
+    url = "https://nsewebsite-staging.nseindia.com/api/historical/short-selling?"
     payload = f"from={from_date}&to={to_date}&csv=true"
-    data_text = nse_urlfetch(url + payload)
+    data_text = nse_urlfetch(url + payload,origin_url=origin_url)
     if data_text.status_code != 200:
         raise NSEdataNotFound(f" Resource not available for short_selling_data")
     data_df = pd.read_csv(BytesIO(data_text.content), index_col=False)
@@ -468,8 +476,9 @@ def equity_list():
     get list of all equity available to trade in NSE
     :return: pandas data frame
     """
+    origin_url = "https://nsewebsite-staging.nseindia.com"
     url = "https://archives.nseindia.com/content/equities/EQUITY_L.csv"
-    file_chk = nse_urlfetch(url)
+    file_chk = nse_urlfetch(url,origin_url=origin_url)
     if file_chk.status_code != 200:
         raise FileNotFoundError(f" No data equity list available")
     try:
@@ -485,8 +494,9 @@ def fno_equity_list():
     get a dataframe of all listed derivative list with the recent lot size to trade
     :return: pandas data frame
     """
+    origin_url = "https://www.nseindia.com/products-services/equity-derivatives-list-underlyings-information"
     url = "https://www.nseindia.com/api/underlying-information"
-    data_obj = nse_urlfetch(url)
+    data_obj = nse_urlfetch(url, origin_url=origin_url)
     if data_obj.status_code != 200:
         raise NSEdataNotFound(f" Resource not available for fno_equity_list")
     data_dict = data_obj.json()
@@ -516,8 +526,9 @@ def market_watch_all_indices():
     Market Watch - Indices of the day in data frame
     :return: pd.DataFrame
     """
+    origin_url = "https://nsewebsite-staging.nseindia.com"
     url = "https://www.nseindia.com/api/allIndices"
-    data_json = nse_urlfetch(url).json()
+    data_json = nse_urlfetch(url, origin_url=origin_url).json()
     data_df = pd.DataFrame(data_json['data'])
     return data_df[['key', 'index', 'indexSymbol', 'last', 'variation', 'percentChange', 'open', 'high', 'low',
                    'previousClose', 'yearHigh', 'yearLow', 'pe', 'pb', 'dy', 'declines', 'advances', 'unchanged',
@@ -698,9 +709,11 @@ def week_52_high_low_report(trade_date: str):
 
 
 # if __name__ == '__main__':
-#     data = fno_equity_list()  # trade_date='11-09-2024'
-#
-#     # data = deliverable_position_data(symbol='SBIN', from_date='23-03-2024', to_date='23-06-2024')
-#     print(data)
-#     print(data.columns)
+    # data = var_3rd_intra_day(trade_date='11-09-2024')  # trade_date='11-09-2024'
+    # data = index_data(index='NIFTY 50', period='1W')
+    # data = block_deals_data(period='1W')
+
+    # data = deliverable_position_data(symbol='SBIN', from_date='23-03-2024', to_date='23-06-2024')
+    # print(data)
+    # print(data.columns)
 
