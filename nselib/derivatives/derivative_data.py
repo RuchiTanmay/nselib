@@ -51,10 +51,11 @@ def future_price_volume_data(symbol: str, instrument: str, from_date: str = None
 
 
 def get_future_price_volume_data(symbol: str, instrument: str, from_date: str, to_date: str):
+    origin_url = "https://www.nseindia.com/report-detail/fo_eq_security"
     url = "https://www.nseindia.com/api/historical/foCPV?"
     payload = f"from={from_date}&to={to_date}&instrumentType={instrument}&symbol={symbol}&csv=true"
     try:
-        data_dict = nse_urlfetch(url + payload).json()
+        data_dict = nse_urlfetch(url + payload, origin_url=origin_url).json()
     except Exception as e:
         raise ValueError(f" Invalid parameters : NSE error:{e}")
     data_df = pd.DataFrame(data_dict['data']).drop(columns='TIMESTAMP')
@@ -114,11 +115,12 @@ def option_price_volume_data(symbol: str, instrument: str, option_type: str = No
 
 
 def get_option_price_volume_data(symbol: str, instrument: str, option_type: str, from_date: str, to_date: str):
+    origin_url = "https://www.nseindia.com/report-detail/fo_eq_security"
     url = "https://www.nseindia.com/api/historical/foCPV?"
     payload = f"from={from_date}&to={to_date}&instrumentType={instrument}&symbol={symbol}" \
               f"&optionType={option_type}&csv=true"
     try:
-        data_dict = nse_urlfetch(url + payload).json()
+        data_dict = nse_urlfetch(url + payload, origin_url=origin_url).json()
     except Exception as e:
         raise ValueError(f" Invalid parameters : NSE error : {e}")
     data_df = pd.DataFrame(data_dict['data']).drop(columns='TIMESTAMP')
@@ -230,11 +232,19 @@ def fii_derivatives_statistics(trade_date: str):
 
 
 def get_nse_option_chain(symbol):
+    """
+    get NSE option chain for the symbol
+    :param symbol: eg:'TCS'/'BANKNIFTY'
+    :return: pandas dataframe
+    """
     symbol = cleaning_nse_symbol(symbol)
+    origin_url = "https://www.nseindia.com/option-chain"
     if any(x in symbol for x in indices_list):
-        payload = nse_urlfetch('https://www.nseindia.com/api/option-chain-indices?symbol=' + symbol)
+        payload = nse_urlfetch('https://www.nseindia.com/api/option-chain-indices?symbol=' + symbol,
+                               origin_url=origin_url)
     else:
-        payload = nse_urlfetch('https://www.nseindia.com/api/option-chain-equities?symbol=' + symbol)
+        payload = nse_urlfetch('https://www.nseindia.com/api/option-chain-equities?symbol=' + symbol,
+                               origin_url=origin_url)
     return payload
 
 
@@ -348,10 +358,10 @@ def nse_live_option_chain(symbol: str, expiry_date: str = None, oi_mode: str = "
 
 
 # if __name__ == '__main__':
-    # df = future_price_volume_data("BANKNIFTY", "FUTIDX", from_date='17-06-2023', to_date='19-06-2023', period='1D')
-    # df = option_price_volume_data(symbol='BANKNIFTY', instrument='OPTIDX', period='1W')
-    # df = fno_bhav_copy(trade_date='16-09-2024')
-    # df = expiry_dates_future()
+    # df = future_price_volume_data("BANKNIFTY", "FUTIDX", from_date='17-06-2023', to_date='19-06-2023', period='1W')
+    # df = nse_live_option_chain(symbol='TCS')
+    # df = fii_derivatives_statistics(trade_date='16-09-2024')
+    # df = expiry_dates_option_index()
     # print(df)
     # print(df.columns)
     # print(df[df['EXPIRY_DT']=='27-Jul-2023'])
