@@ -242,7 +242,7 @@ def index_data(index: str, from_date: str = None, to_date: str = None, period: s
 
 def get_index_data(index: str, from_date: str, to_date: str):
     index = index.replace(' ', '%20').upper()
-    origin_url = "https://nsewebsite-staging.nseindia.com"
+    origin_url = "https://www.nseindia.com/reports-indices-historical-index-data"
     url = f"https://www.nseindia.com/api/historical/indicesHistory?indexType={index}&from={from_date}&to={to_date}"
     try:
         data_json = nse_urlfetch(url, origin_url=origin_url).json()
@@ -709,9 +709,13 @@ def week_52_high_low_report(trade_date: str):
 
 
 # if __name__ == '__main__':
-    # data = var_3rd_intra_day(trade_date='11-09-2024')  # trade_date='11-09-2024'
+    # data = bhav_copy_indices(trade_date='11-09-2024')  # trade_date='11-09-2024'
     # data = index_data(index='NIFTY 50', period='1W')
     # data = block_deals_data(period='1W')
+    # data = block_deals_data(period='1W')
+    # data = india_vix_data(period='1W')
+    # data = short_selling_data(period='1W')
+    # data = index_data(index='NIFTY 50', from_date='21-10-2024', to_date='30-10-2024')
 
     # data = deliverable_position_data(symbol='SBIN', from_date='23-03-2024', to_date='23-06-2024')
     # print(data)

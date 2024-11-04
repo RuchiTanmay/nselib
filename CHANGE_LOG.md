@@ -1,5 +1,8 @@
 # CHANGE LOG
 #### All the changes are listed...
+### Version: 1.5 [04/11/2024]
+* index_data function issue fixes
+
 ### Version: 1.4 [20/10/2024]
 * major nseindia api fixes
 
