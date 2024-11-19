@@ -359,6 +359,7 @@ def nse_live_option_chain(symbol: str, expiry_date: str = None, oi_mode: str = "
 
 # if __name__ == '__main__':
     # df = future_price_volume_data("BANKNIFTY", "FUTIDX", from_date='17-06-2023', to_date='19-06-2023', period='1W')
+    # df = option_price_volume_data('NIFTY', 'OPTIDX', period='1D')
     # df = get_nse_option_chain(symbol='TCS')
     # df = fii_derivatives_statistics(trade_date='16-09-2024')
     # df = expiry_dates_option_index()

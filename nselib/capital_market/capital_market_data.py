@@ -708,7 +708,7 @@ def week_52_high_low_report(trade_date: str):
     return high_low_df
 
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
     # data = bhav_copy_indices(trade_date='11-09-2024')  # trade_date='11-09-2024'
     # data = index_data(index='NIFTY 50', period='1W')
     # data = block_deals_data(period='1W')
@@ -716,8 +716,10 @@ def week_52_high_low_report(trade_date: str):
     # data = india_vix_data(period='1W')
     # data = short_selling_data(period='1W')
     # data = index_data(index='NIFTY 50', from_date='21-10-2024', to_date='30-10-2024')
-
     # data = deliverable_position_data(symbol='SBIN', from_date='23-03-2024', to_date='23-06-2024')
-    # print(data)
-    # print(data.columns)
+    # data = market_watch_all_indices()
+
+    data = market_watch_all_indices()
+    print(data)
+    print(data.columns)
 
