@@ -491,30 +491,31 @@ def equity_list():
 
 def fno_equity_list():
     """
-    Get a dataframe of all listed derivative indices and equity derivatives
-    :return: pandas DataFrame containing both index and stock data with a type column
+    get a dataframe of all listed derivative equity list with the recent lot size to trade
+    :return: pandas data frame
     """
     origin_url = "https://www.nseindia.com/products-services/equity-derivatives-list-underlyings-information"
     url = "https://www.nseindia.com/api/underlying-information"
-    
     data_obj = nse_urlfetch(url, origin_url=origin_url)
     if data_obj.status_code != 200:
-        raise NSEdataNotFound("Resource not available for fno_equity_list")
-        
+        raise NSEdataNotFound(f" Resource not available for fno_equity_list")
     data_dict = data_obj.json()
-    
-    # Create DataFrames for both types
-    index_df = pd.DataFrame(data_dict['data']['IndexList'])
-    stock_df = pd.DataFrame(data_dict['data']['UnderlyingList'])
-    
-    # Add a type column to distinguish between index and stock
-    index_df['type'] = 'index'
-    stock_df['type'] = 'stock'
-    
-    # Combine both DataFrames
-    combined_df = pd.concat([index_df, stock_df], ignore_index=True)
-    
-    return combined_df
+    data_df = pd.DataFrame(data_dict['data']['UnderlyingList'])
+    return data_df
+
+def fno_equity_index_list():
+    """
+    get a dataframe of all listed derivative index list with the recent lot size to trade
+    :return: pandas data frame
+    """
+    origin_url = "https://www.nseindia.com/products-services/equity-derivatives-list-underlyings-information"
+    url = "https://www.nseindia.com/api/underlying-information"
+    data_obj = nse_urlfetch(url, origin_url=origin_url)
+    if data_obj.status_code != 200:
+        raise NSEdataNotFound(f" Resource not available for fno_equity_index_list")
+    data_dict = data_obj.json()
+    data_df = pd.DataFrame(data_dict['data']['IndexList'])
+    return data_df
 
 def nifty50_equity_list():
     """
