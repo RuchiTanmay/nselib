@@ -491,7 +491,7 @@ def equity_list():
 
 def fno_equity_list():
     """
-    get a dataframe of all listed derivative list with the recent lot size to trade
+    get a dataframe of all listed derivative equity list with the recent lot size to trade
     :return: pandas data frame
     """
     origin_url = "https://www.nseindia.com/products-services/equity-derivatives-list-underlyings-information"
@@ -503,6 +503,19 @@ def fno_equity_list():
     data_df = pd.DataFrame(data_dict['data']['UnderlyingList'])
     return data_df
 
+def fno_equity_index_list():
+    """
+    get a dataframe of all listed derivative index list with the recent lot size to trade
+    :return: pandas data frame
+    """
+    origin_url = "https://www.nseindia.com/products-services/equity-derivatives-list-underlyings-information"
+    url = "https://www.nseindia.com/api/underlying-information"
+    data_obj = nse_urlfetch(url, origin_url=origin_url)
+    if data_obj.status_code != 200:
+        raise NSEdataNotFound(f" Resource not available for fno_equity_index_list")
+    data_dict = data_obj.json()
+    data_df = pd.DataFrame(data_dict['data']['IndexList'])
+    return data_df
 
 def nifty50_equity_list():
     """
