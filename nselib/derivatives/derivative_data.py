@@ -363,6 +363,7 @@ def nse_live_option_chain(symbol: str, expiry_date: str = None, oi_mode: str = "
     # df = get_nse_option_chain(symbol='TCS')
     # df = fii_derivatives_statistics(trade_date='16-09-2024')
     # df = expiry_dates_option_index()
+    # df = fno_bhav_copy('17-02-2025')
     # print(df)
     # print(df.columns)
     # print(df[df['EXPIRY_DT']=='27-Jul-2023'])
