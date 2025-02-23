@@ -36,6 +36,10 @@ def price_volume_and_deliverable_position_data(symbol: str, from_date: str = Non
         from_date = from_date + dt.timedelta(365)
         load_days = (to_date - from_date).days
         nse_df = pd.concat([nse_df, data_df], ignore_index=True)
+    nse_df["TotalTradedQuantity"] = pd.to_numeric(nse_df["TotalTradedQuantity"].str.replace(",", ""), errors="coerce")
+    nse_df["TurnoverInRs"] = pd.to_numeric(nse_df["TurnoverInRs"].str.replace(",", ""), errors="coerce")
+    nse_df["No.ofTrades"] = pd.to_numeric(nse_df["No.ofTrades"].str.replace(",", ""), errors="coerce")
+    nse_df["DeliverableQty"] = pd.to_numeric(nse_df["DeliverableQty"].str.replace(",", ""), errors="coerce")
     return nse_df
 
 
@@ -503,7 +507,8 @@ def fno_equity_list():
     data_df = pd.DataFrame(data_dict['data']['UnderlyingList'])
     return data_df
 
-def fno_equity_index_list():
+
+def fno_index_list():
     """
     get a dataframe of all listed derivative index list with the recent lot size to trade
     :return: pandas data frame
@@ -516,6 +521,7 @@ def fno_equity_index_list():
     data_dict = data_obj.json()
     data_df = pd.DataFrame(data_dict['data']['IndexList'])
     return data_df
+
 
 def nifty50_equity_list():
     """
@@ -729,8 +735,11 @@ def week_52_high_low_report(trade_date: str):
     # data = india_vix_data(period='1W')
     # data = short_selling_data(period='1W')
     # data = index_data(index='NIFTY 50', from_date='21-10-2024', to_date='30-10-2024')
-
     # data = deliverable_position_data(symbol='SBIN', from_date='23-03-2024', to_date='23-06-2024')
+    # data = market_watch_all_indices()
+    # data = price_volume_and_deliverable_position_data(symbol='SBIN',  from_date='23-03-2024', to_date='23-06-2024')
+
+    # data = fno_index_list()
     # print(data)
-    # print(data.columns)
+    # print(data.info())
 

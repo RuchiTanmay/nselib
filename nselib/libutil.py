@@ -5,6 +5,7 @@ import numpy as np
 from dateutil.relativedelta import relativedelta
 import pandas as pd
 from nselib.constants import *
+import pandas_market_calendars as mcal
 
 default_header = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"
@@ -23,6 +24,8 @@ header = {
              "Sec-Fetch-Mode": "navigate",
              "Accept-Language": "en-US,en;q=0.9,hi;q=0.8"
             }
+
+nse_calendar = mcal.get_calendar("NSE")
 
 
 class CalenderNotFound(Exception):
@@ -72,14 +75,20 @@ def derive_from_and_to_date(from_date: str = None, to_date: str = None, period: 
              today - relativedelta(months=12)]
 
     f_date = np.select(conditions, value, default=(today - timedelta(days=1)))
-    from_date = pd.to_datetime(str(f_date)).strftime(dd_mm_yyyy)
+    f_date = pd.to_datetime(str(f_date))
+    while True:
+        date_chk = nse_calendar.schedule(start_date=f_date, end_date=f_date)
+        if not date_chk.empty:  # If market was open on this day
+            break  # Stop the loop
+        f_date -= timedelta(days=1)
+    from_date = f_date.strftime(dd_mm_yyyy)
     today = today.strftime(dd_mm_yyyy)
     return from_date, today
 
 
 def cleaning_column_name(col:list):
     unwanted_str_list = ['FH_', 'EOD_', 'HIT_']
-    new_col=col
+    new_col = col
     for unwanted in unwanted_str_list:
         new_col = [name.replace(f'{unwanted}', '') for name in new_col]
     return new_col
@@ -123,10 +132,13 @@ def trading_holiday_calendar():
     value = ['Corporate Bonds', 'Currency Derivatives', 'Equities', 'CMOT', 'Commodity Derivatives', 'Equity Derivatives',
              'Interest Rate Derivatives', 'Mutual Funds', 'New Debt Segment', 'Negotiated Trade Reporting Platform',
              'Securities Lending & Borrowing Schemes']
-    data_df['Product'] = np.select(condition, value)
+    data_df['Product'] = np.select(condition, value, default='Unknown')
     return data_df
 
 
-# if __name__ == '__main__':
-#     # data = derive_from_and_to_date('6M')
-#     print(trading_holiday_calendar())
+if __name__ == '__main__':
+    # data = derive_from_and_to_date('6M')
+    print(trading_holiday_calendar())
+
+
+

@@ -1,4 +1,4 @@
-# NSElib 1.5
+# NSElib 1.6
 
 Python Library to get publicly available data on new NSE india website.
 
@@ -13,6 +13,7 @@ Release Notes
 - scipy
 - pandas
 - lxml
+- pandas_market_calendars
 
 For Windows systems you can install Anaconda, this will cover many dependencies (You'll have to install requests and beautifulsoup additionally though)
 
@@ -47,6 +48,7 @@ data = nselib.trading_holiday_calendar()
 * bhav_copy_equities
 * equity_list
 * fno_equity_list
+* fno_index_list
 * nifty50_equity_list
 * india_vix_data
 * index_data

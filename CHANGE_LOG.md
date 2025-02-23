@@ -1,5 +1,10 @@
 # CHANGE LOG
 #### All the changes are listed...
+### Version: 1.6 [23/02/2025]
+* functions added to capital market (fno_index_list)
+* Issue fix with fetching previous day if holiday
+* trading_holiday_calendar issue fixed
+
 ### Version: 1.5 [04/11/2024]
 * index_data function issue fixes
 
