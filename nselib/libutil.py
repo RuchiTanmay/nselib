@@ -4,22 +4,28 @@ import requests
 import numpy as np
 from dateutil.relativedelta import relativedelta
 import pandas as pd
-import threading
-import six
-import sys
 from nselib.constants import *
-from nselib.logger import mylogger
+import pandas_market_calendars as mcal
+
+default_header = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"
+}
 
 header = {
-    "Connection": "keep-alive",
-    "Cache-Control": "max-age=0",
-    "DNT": "1",
-    "Upgrade-Insecure-Requests": "1",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                  "Chrome/111.0.0.0 Safari/537.36",
-    "Sec-Fetch-User": "?1", "Accept": "*/*", "Sec-Fetch-Site": "none", "Sec-Fetch-Mode": "navigate",
-    "Accept-Encoding": "gzip, deflate, br", "Accept-Language": "en-US,en;q=0.9,hi;q=0.8"
-    }
+            "referer": "https://www.nseindia.com/",
+             "Connection": "keep-alive",
+             "Cache-Control": "max-age=0",
+             "DNT": "1",
+             "Upgrade-Insecure-Requests": "1",
+             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+             "Sec-Fetch-User": "?1",
+             "Accept": "ext/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+             "Sec-Fetch-Site": "none",
+             "Sec-Fetch-Mode": "navigate",
+             "Accept-Language": "en-US,en;q=0.9,hi;q=0.8"
+            }
+
+nse_calendar = mcal.get_calendar("NSE")
 
 
 class CalenderNotFound(Exception):
@@ -34,7 +40,7 @@ class NSEdataNotFound(Exception):
         super(NSEdataNotFound, self).__init__(message)
 
 
-def validate_date_param(from_date:str, to_date:str, period:str):
+def validate_date_param(from_date: str, to_date: str, period: str):
     if not period and (not from_date or not to_date):
         raise ValueError(' Please provide the valid parameters')
     elif period and period.upper() not in equity_periods:
@@ -52,15 +58,15 @@ def validate_date_param(from_date:str, to_date:str, period:str):
         raise ValueError(f'either or both from_date = {from_date} || to_date = {to_date} are not valid value')
 
 
-def derive_from_and_to_date(from_date:str = None, to_date:str = None, period:str = None):
+def derive_from_and_to_date(from_date: str = None, to_date: str = None, period: str = None):
     if not period:
         return from_date, to_date
     today = date.today()
-    conditions = [period.upper()=='1D',
-                  period.upper()=='1W',
-                  period.upper()=='1M',
-                  period.upper()=='6M',
-                  period.upper()=='1Y'
+    conditions = [period.upper() == '1D',
+                  period.upper() == '1W',
+                  period.upper() == '1M',
+                  period.upper() == '6M',
+                  period.upper() == '1Y'
                   ]
     value = [today - timedelta(days=1),
              today - timedelta(weeks=1),
@@ -68,29 +74,36 @@ def derive_from_and_to_date(from_date:str = None, to_date:str = None, period:str
              today - relativedelta(months=6),
              today - relativedelta(months=12)]
 
-    f_date = np.select(conditions,value, default=(today - timedelta(days=1)))
-    from_date = pd.to_datetime(str(f_date)).strftime(dd_mm_yyyy)
+    f_date = np.select(conditions, value, default=(today - timedelta(days=1)))
+    f_date = pd.to_datetime(str(f_date))
+    while True:
+        date_chk = nse_calendar.schedule(start_date=f_date, end_date=f_date)
+        if not date_chk.empty:  # If market was open on this day
+            break  # Stop the loop
+        f_date -= timedelta(days=1)
+    from_date = f_date.strftime(dd_mm_yyyy)
     today = today.strftime(dd_mm_yyyy)
     return from_date, today
 
 
 def cleaning_column_name(col:list):
     unwanted_str_list = ['FH_', 'EOD_', 'HIT_']
-    new_col=col
+    new_col = col
     for unwanted in unwanted_str_list:
         new_col = [name.replace(f'{unwanted}', '') for name in new_col]
     return new_col
 
 
 def cleaning_nse_symbol(symbol):
-    symbol = symbol.replace('&','%26')  #URL Parse for Stocks Like M&M Finance
+    symbol = symbol.replace('&', '%26')  # URL Parse for Stocks Like M&M Finance
     return symbol.upper()
 
 
-def nse_urlfetch(url):
+def nse_urlfetch(url, origin_url="http://nseindia.com"):
     r_session = requests.session()
-    nse_live = r_session.get("http://nseindia.com", headers=header)
-    return r_session.get(url, headers=header)
+    nse_live = r_session.get(origin_url, headers=default_header)
+    cookies = nse_live.cookies
+    return r_session.get(url, headers=header, cookies=cookies)
 
 
 def get_nselib_path():
@@ -102,7 +115,7 @@ def get_nselib_path():
 
 
 def trading_holiday_calendar():
-    data_df = pd.DataFrame(columns=['Product','tradingDate','weekDay','description','Sr_no'])
+    data_df = pd.DataFrame(columns=['Product', 'tradingDate', 'weekDay', 'description', 'Sr_no'])
     url = "https://www.nseindia.com/api/holiday-master?type=trading"
     try:
         data_dict = nse_urlfetch(url).json()
@@ -112,17 +125,20 @@ def trading_holiday_calendar():
         h_df = pd.DataFrame(data_dict[prod])
         h_df['Product'] = prod
         data_df = pd.concat([data_df, h_df])
-    condition = [data_df['Product']=='CBM', data_df['Product']=='CD', data_df['Product']=='CM',
-                 data_df['Product']=='CMOT', data_df['Product']=='COM', data_df['Product']=='FO',
-                 data_df['Product'] == 'IRD', data_df['Product']=='MF', data_df['Product']=='NDM',
+    condition = [data_df['Product'] == 'CBM', data_df['Product'] == 'CD', data_df['Product'] == 'CM',
+                 data_df['Product'] == 'CMOT', data_df['Product'] == 'COM', data_df['Product'] == 'FO',
+                 data_df['Product'] == 'IRD', data_df['Product'] == 'MF', data_df['Product'] == 'NDM',
                  data_df['Product'] == 'NTRP', data_df['Product'] == 'SLBS']
     value = ['Corporate Bonds', 'Currency Derivatives', 'Equities', 'CMOT', 'Commodity Derivatives', 'Equity Derivatives',
              'Interest Rate Derivatives', 'Mutual Funds', 'New Debt Segment', 'Negotiated Trade Reporting Platform',
              'Securities Lending & Borrowing Schemes']
-    data_df['Product'] = np.select(condition, value)
+    data_df['Product'] = np.select(condition, value, default='Unknown')
     return data_df
 
 
-# if __name__ == '__main__':
-#     # data = derive_from_and_to_date('6M')
-#     print(trading_holiday_calendar())
+if __name__ == '__main__':
+    # data = derive_from_and_to_date('6M')
+    print(trading_holiday_calendar())
+
+
+

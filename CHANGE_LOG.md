@@ -1,5 +1,27 @@
 # CHANGE LOG
 #### All the changes are listed...
+### Version: 1.6 [23/02/2025]
+* functions added to capital market (fno_index_list)
+* Issue fix with fetching previous day if holiday
+* trading_holiday_calendar issue fixed
+
+### Version: 1.5 [04/11/2024]
+* index_data function issue fixes
+
+### Version: 1.4 [20/10/2024]
+* major nseindia api fixes
+
+### Version: 1.3 [15/10/2024]
+* nseindia api fixes
+
+### Version: 1.2 [23/09/2024]
+* nseindia data path changed
+
+### Version: 1.1 [16/09/2024]
+* functions added to capital market (var_begin_day, var_1st_intra_day, var_2nd_intra_day, var_3rd_intra_day, var_4th_intra_day, var_end_of_day, sme_bhav_copy, sme_band_complete, week_52_high_low_report)
+
+### Version: 1.0 [09/07/2024]
+* Code changes as per new NSE data changes. fixes all bugs
 
 ### Version: 0.7 [30/07/2023]
 * Now we can get the Derivative bhav copy from 2008 on wards
