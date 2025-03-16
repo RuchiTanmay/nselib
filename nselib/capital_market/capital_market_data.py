@@ -1,9 +1,16 @@
 import pandas as pd
 import datetime as dt
+import json
 import zipfile
 from io import BytesIO, StringIO
+import logging
+import xml.etree.ElementTree as ET
 from nselib.libutil import *
 from nselib.constants import *
+
+
+logging.basicConfig(level=logging.DEBUG)
+logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 
 def price_volume_and_deliverable_position_data(symbol: str, from_date: str = None, to_date: str = None,
@@ -35,7 +42,9 @@ def price_volume_and_deliverable_position_data(symbol: str, from_date: str = Non
         data_df = get_price_volume_and_deliverable_position_data(symbol=symbol, from_date=start_date, to_date=end_date)
         from_date = from_date + dt.timedelta(365)
         load_days = (to_date - from_date).days
-        nse_df = pd.concat([nse_df, data_df], ignore_index=True)
+        if not data_df.empty and not data_df.isna().all().all():
+            nse_df = pd.concat([nse_df, data_df], ignore_index=True)
+
     nse_df["TotalTradedQuantity"] = pd.to_numeric(nse_df["TotalTradedQuantity"].str.replace(",", ""), errors="coerce")
     nse_df["TurnoverInRs"] = pd.to_numeric(nse_df["TurnoverInRs"].str.replace(",", ""), errors="coerce")
     nse_df["No.ofTrades"] = pd.to_numeric(nse_df["No.ofTrades"].str.replace(",", ""), errors="coerce")
@@ -302,6 +311,7 @@ def get_bulk_deal_data(from_date: str, to_date: str):
     origin_url = "https://nsewebsite-staging.nseindia.com"
     url = "https://nsewebsite-staging.nseindia.com/api/historical/bulk-deals?"
     payload = f"from={from_date}&to={to_date}&csv=true"
+    print(url + payload)
     data_text = nse_urlfetch(url + payload, origin_url=origin_url)
     if data_text.status_code != 200:
         raise NSEdataNotFound(f" Resource not available for bulk_deal_data")
@@ -727,19 +737,144 @@ def week_52_high_low_report(trade_date: str):
     return high_low_df
 
 
+def financial_results_for_equity(from_date: str = None,
+                                 to_date: str = None,
+                                 period: str = None,
+                                 fo_sec: bool = None,
+                                 fin_period: str = 'Quarterly'):
+
+    """
+    get audited and un-auditable financial results for equities. as per
+    https://www.nseindia.com/companies-listing/corporate-filings-financial-results
+    :param fin_period: Quaterly/ Half-Yearly/ Annual/ Others
+    :param fo_sec: True/False
+    :param from_date: '17-03-2022' ('dd-mm-YYYY')
+    :param to_date: '17-06-2023' ('dd-mm-YYYY')
+    :param period: use one {'1D': last day data,
+                            '1W': for last 7 days data,
+                            '1M': from last month same date,
+                            '6M': last 6 month data,
+                            '1Y': from last year same date)
+    :return: pandas.DataFrame
+    :raise ValueError if the parameter input is not proper
+    """
+    validate_date_param(from_date, to_date, period)
+    from_date, to_date = derive_from_and_to_date(from_date=from_date, to_date=to_date, period=period)
+    origin_url = "https://www.nseindia.com/companies-listing/corporate-filings-financial-results"
+    url_ = "https://www.nseindia.com/api/corporates-financial-results?index=equities&"
+    if fo_sec:
+        payload = f'from_date={from_date}&to_date={to_date}&fo_sec=true&period={fin_period}'
+    else:
+        payload = f'from_date={from_date}&to_date={to_date}&period={fin_period}'
+    data_text = nse_urlfetch(url_ + payload, origin_url=origin_url)
+    if data_text.status_code != 200:
+        raise NSEdataNotFound(f" Resource not available for financial data with these parameters")
+    json_str = data_text.content.decode("utf-8")
+    data_list = json.loads(json_str)
+    master_data_df = pd.DataFrame(data_list)
+    master_data_df.columns = [name.replace(' ', '') for name in master_data_df.columns]
+    headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+            'Accept': '*/*',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Referer': 'https://www.nseindia.com/'
+        }
+    ns = {
+            "xbrli": "http://www.xbrl.org/2003/instance",
+            "in-bse-fin": "http://www.bseindia.com/xbrl/fin/2020-03-31/in-bse-fin"
+        }
+    keys_to_extract = [
+        "ScripCode", "Symbol", "MSEISymbol", "NameOfTheCompany", "ClassOfSecurity",
+        "DateOfStartOfFinancialYear", "DateOfEndOfFinancialYear",
+        "DateOfBoardMeetingWhenFinancialResultsWereApproved",
+        "DateOnWhichPriorIntimationOfTheMeetingForConsideringFinancialResultsWasInformedToTheExchange",
+        "DescriptionOfPresentationCurrency", "LevelOfRoundingUsedInFinancialStatements",
+        "ReportingQuarter", "StartTimeOfBoardMeeting", "EndTimeOfBoardMeeting",
+        "DateOfStartOfBoardMeeting", "DateOfEndOfBoardMeeting",
+        "DeclarationOfUnmodifiedOpinionOrStatementOnImpactOfAuditQualification",
+        "IsCompanyReportingMultisegmentOrSingleSegment", "DescriptionOfSingleSegment",
+        "DateOfStartOfReportingPeriod", "DateOfEndOfReportingPeriod",
+        "WhetherResultsAreAuditedOrUnaudited", "NatureOfReportStandaloneConsolidated",
+        "RevenueFromOperations", "OtherIncome", "Income", "CostOfMaterialsConsumed",
+        "PurchasesOfStockInTrade", "ChangesInInventoriesOfFinishedGoodsWorkInProgressAndStockInTrade",
+        "EmployeeBenefitExpense", "FinanceCosts", "DepreciationDepletionAndAmortisationExpense",
+        "OtherExpenses", "Expenses", "ProfitBeforeExceptionalItemsAndTax", "ExceptionalItemsBeforeTax",
+        "ProfitBeforeTax", "CurrentTax", "DeferredTax", "TaxExpense",
+        "NetMovementInRegulatoryDeferralAccountBalancesRelatedToProfitOrLossAndTheRelatedDeferredTaxMovement",
+        "ProfitLossForPeriodFromContinuingOperations", "ProfitLossFromDiscontinuedOperationsBeforeTax",
+        "TaxExpenseOfDiscontinuedOperations", "ProfitLossFromDiscontinuedOperationsAfterTax",
+        "ShareOfProfitLossOfAssociatesAndJointVenturesAccountedForUsingEquityMethod",
+        "ProfitLossForPeriod", "OtherComprehensiveIncomeNetOfTaxes",
+        "ComprehensiveIncomeForThePeriod", "ProfitOrLossAttributableToOwnersOfParent",
+        "ProfitOrLossAttributableToNonControllingInterests",
+        "ComprehensiveIncomeForThePeriodAttributableToOwnersOfParent",
+        "ComprehensiveIncomeForThePeriodAttributableToOwnersOfParentNonControllingInterests",
+        "PaidUpValueOfEquityShareCapital", "FaceValueOfEquityShareCapital",
+        "BasicEarningsLossPerShareFromContinuingOperations",
+        "DilutedEarningsLossPerShareFromContinuingOperations",
+        "BasicEarningsLossPerShareFromDiscontinuedOperations",
+        "DilutedEarningsLossPerShareFromDiscontinuedOperations",
+        "BasicEarningsLossPerShareFromContinuingAndDiscontinuedOperations",
+        "DilutedEarningsLossPerShareFromContinuingAndDiscontinuedOperations",
+        "DescriptionOfOtherExpenses", "OtherExpenses",
+        "DescriptionOfItemThatWillNotBeReclassifiedToProfitAndLoss",
+        "AmountOfItemThatWillNotBeReclassifiedToProfitAndLoss",
+        "IncomeTaxRelatingToItemsThatWillNotBeReclassifiedToProfitOrLoss",
+        "DescriptionOfItemThatWillBeReclassifiedToProfitAndLoss",
+        "AmountOfItemThatWillBeReclassifiedToProfitAndLoss",
+        "IncomeTaxRelatingToItemsThatWillBeReclassifiedToProfitOrLoss"
+    ]
+    fin_df, df = pd.DataFrame(), pd.DataFrame()
+    for row in master_data_df.itertuples(index=False):
+        logging.debug(f"---collecting financial data for symbol: {row.symbol}")
+        try:
+            # Fetch the XML content
+            response_ = requests.get(row.xbrl, headers=headers)
+            response_.raise_for_status()  # Check for HTTP errors
+
+            # Parse the XML content
+            root = ET.fromstring(response_.content)
+
+            # Extract values
+            extracted_data = {}
+            for key in keys_to_extract:
+                elem_ = root.find(f".//in-bse-fin:{key}", ns)
+                extracted_data[key] = elem_.text if elem_ is not None else None
+
+            # Convert to Pandas DataFrame
+            df = pd.DataFrame([extracted_data])
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Request failed: {e}")
+        except ET.ParseError as e:
+            logging.error(f"XML parsing failed: {e}")
+        except Exception as e:
+            logging.error(f"An error occurred: {e}")
+
+        if fin_df.empty:
+            fin_df = df
+        else:
+            fin_df = pd.concat([fin_df, df], ignore_index=True)
+    return fin_df
+
+
 # if __name__ == '__main__':
     # data = bhav_copy_indices(trade_date='11-09-2024')  # trade_date='11-09-2024'
     # data = index_data(index='NIFTY 50', period='1W')
     # data = block_deals_data(period='1W')
-    # data = block_deals_data(period='1W')
+    # data = bulk_deal_data(period='1D')
     # data = india_vix_data(period='1W')
     # data = short_selling_data(period='1W')
     # data = index_data(index='NIFTY 50', from_date='21-10-2024', to_date='30-10-2024')
     # data = deliverable_position_data(symbol='SBIN', from_date='23-03-2024', to_date='23-06-2024')
     # data = market_watch_all_indices()
     # data = price_volume_and_deliverable_position_data(symbol='SBIN',  from_date='23-03-2024', to_date='23-06-2024')
+    # data = price_volume_and_deliverable_position_data(symbol='SBIN', period='1M')
+    # data = price_volume_data(symbol='SBIN', from_date='20-06-2023', to_date='20-07-2023')
+    # data = financial_results_for_equity(from_date='11-03-2025', to_date='16-03-2025', fo_sec=True,
+    #                                     fin_period='Quarterly')
 
     # data = fno_index_list()
-    # print(data)
+    # print(data.columns)
     # print(data.info())
+    # -----------------------------------------------------
 
