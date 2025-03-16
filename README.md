@@ -63,6 +63,7 @@ data = nselib.trading_holiday_calendar()
 * sme_bhav_copy
 * sme_band_complete
 * week_52_high_low_report
+* financial_results_for_equity
 
 Example : 
 

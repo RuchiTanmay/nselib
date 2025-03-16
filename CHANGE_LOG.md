@@ -1,5 +1,8 @@
 # CHANGE LOG
 #### All the changes are listed...
+### Version: 1.7 [16/03/2025]
+* functions added financial_results_for_equity to get financial results
+
 ### Version: 1.6 [23/02/2025]
 * functions added to capital market (fno_index_list)
 * Issue fix with fetching previous day if holiday
