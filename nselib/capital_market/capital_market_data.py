@@ -857,6 +857,80 @@ def financial_results_for_equity(from_date: str = None,
     return fin_df
 
 
+def corporate_actions_for_equity(from_date: str = None,
+                                 to_date: str = None,
+                                 period: str = None,
+                                 fo_sec: bool = None):
+
+    """
+    get corporate actions for equities as per
+    https://www.nseindia.com/companies-listing/corporate-filings-actions
+    :param fo_sec: True/False
+    :param from_date: '17-03-2022' ('dd-mm-YYYY')
+    :param to_date: '17-06-2023' ('dd-mm-YYYY')
+    :param period: use one {'1D': last day data,
+                            '1W': for last 7 days data,
+                            '1M': from last month same date,
+                            '6M': last 6 month data,
+                            '1Y': from last year same date)
+    :return: pandas.DataFrame
+    :raise ValueError if the parameter input is not proper
+    """
+    validate_date_param(from_date, to_date, period)
+    from_date, to_date = derive_from_and_to_date(from_date=from_date, to_date=to_date, period=period)
+    origin_url = "https://www.nseindia.com/companies-listing/corporate-filings-actions"
+    url_ = "https://www.nseindia.com/api/corporates-corporateactions?index=equities&"
+    if fo_sec:
+        payload = f'from_date={from_date}&to_date={to_date}&fo_sec=true'
+    else:
+        payload = f'from_date={from_date}&to_date={to_date}'
+    data_text = nse_urlfetch(url_ + payload, origin_url=origin_url)
+    if data_text.status_code != 200:
+        raise NSEdataNotFound(f" Resource not available for financial data with these parameters")
+    json_str = data_text.content.decode("utf-8")
+    data_list = json.loads(json_str)
+    master_data_df = pd.DataFrame(data_list)
+    master_data_df.columns = [name.replace(' ', '') for name in master_data_df.columns]
+    return master_data_df
+
+
+def event_calendar_for_equity(from_date: str = None,
+                                 to_date: str = None,
+                                 period: str = None,
+                                 fo_sec: bool = None):
+
+    """
+    get event calendar for equities as per
+    https://www.nseindia.com/companies-listing/corporate-filings-event-calendar
+    :param fo_sec: True/False
+    :param from_date: '17-03-2022' ('dd-mm-YYYY')
+    :param to_date: '17-06-2023' ('dd-mm-YYYY')
+    :param period: use one {'1D': last day data,
+                            '1W': for last 7 days data,
+                            '1M': from last month same date,
+                            '6M': last 6 month data,
+                            '1Y': from last year same date)
+    :return: pandas.DataFrame
+    :raise ValueError if the parameter input is not proper
+    """
+    validate_date_param(from_date, to_date, period)
+    from_date, to_date = derive_from_and_to_date(from_date=from_date, to_date=to_date, period=period)
+    origin_url = "https://www.nseindia.com/companies-listing/corporate-filings-event-calendar"
+    url_ = "https://www.nseindia.com/api/event-calendar?index=equities&"
+    if fo_sec:
+        payload = f'from_date={from_date}&to_date={to_date}&fo_sec=true'
+    else:
+        payload = f'from_date={from_date}&to_date={to_date}'
+    data_text = nse_urlfetch(url_ + payload, origin_url=origin_url)
+    if data_text.status_code != 200:
+        raise NSEdataNotFound(f" Resource not available for financial data with these parameters")
+    json_str = data_text.content.decode("utf-8")
+    data_list = json.loads(json_str)
+    master_data_df = pd.DataFrame(data_list)
+    master_data_df.columns = [name.replace(' ', '') for name in master_data_df.columns]
+    return master_data_df
+
+
 # if __name__ == '__main__':
     # data = bhav_copy_indices(trade_date='11-09-2024')  # trade_date='11-09-2024'
     # data = index_data(index='NIFTY 50', period='1W')
@@ -872,9 +946,13 @@ def financial_results_for_equity(from_date: str = None,
     # data = price_volume_data(symbol='SBIN', from_date='20-06-2023', to_date='20-07-2023')
     # data = financial_results_for_equity(from_date='11-03-2025', to_date='16-03-2025', fo_sec=True,
     #                                     fin_period='Quarterly')
-
+    # data = corporate_actions_for_equity(from_date='25-03-2025', to_date='26-03-2025', fo_sec=True)
+    # data = event_calendar_for_equity(from_date='21-03-2024', to_date='26-03-2025', fo_sec=True)
     # data = fno_index_list()
     # print(data.columns)
     # print(data.info())
+    # print(data)
     # -----------------------------------------------------
+
+
 
