@@ -872,9 +872,11 @@ def financial_results_for_equity(from_date: str = None,
     # data = price_volume_data(symbol='SBIN', from_date='20-06-2023', to_date='20-07-2023')
     # data = financial_results_for_equity(from_date='11-03-2025', to_date='16-03-2025', fo_sec=True,
     #                                     fin_period='Quarterly')
+    # data = var_end_of_day(trade_date='11-03-2025')
+    # data.to_csv(fr'C:\Ruchi Tanmay\Stock Market\Data Analysis\Final Data\data.csv')
 
     # data = fno_index_list()
-    # print(data.columns)
+    # print(data)
     # print(data.info())
     # -----------------------------------------------------
 

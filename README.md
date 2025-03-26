@@ -1,4 +1,4 @@
-# NSElib 1.6
+# NSElib 1.8
 
 Python Library to get publicly available data on new NSE india website.
 
@@ -89,6 +89,7 @@ More functions will be available in future releases...
 * expiry_dates_option_index
 * nse_live_option_chain
 * fii_derivatives_statistics
+* fno_security_in_ban_period
 
 Example : 
 
