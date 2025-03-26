@@ -1,5 +1,8 @@
 # CHANGE LOG
 #### All the changes are listed...
+### Version: 1.8 [26/03/2025]
+* functions added fno_security_in_ban_period to get securities baned from trading for the date
+
 ### Version: 1.7 [16/03/2025]
 * functions added financial_results_for_equity to get financial results
 
