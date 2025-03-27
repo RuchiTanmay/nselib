@@ -357,11 +357,40 @@ def nse_live_option_chain(symbol: str, expiry_date: str = None, oi_mode: str = "
     return oi_data
 
 
+def fno_security_in_ban_period(trade_date: str):
+    """
+    To get the list of securities which are baned from fno segment to trade
+    :param trade_date: eg:'20-06-2023'
+    :return: pandas Data frame
+    """
+    trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
+    url = 'https://nsearchives.nseindia.com/archives/fo/sec_ban/fo_secban_'
+    payload = f"{str(trade_date.strftime('%d%m%Y'))}.csv"
+    request = nse_urlfetch(url + payload)
+    securities = []
+    if request.status_code == 200:
+        lines = request.content.decode("utf-8").strip().split("\n")
+        securities = [line.split(",")[1] for line in lines[1:]]
+    elif request.status_code == 403:
+        url2 = "https://www.nseindia.com/api/reports?archives=" \
+             "%5B%7B%22name%22%3A%22F%26O%20-%20Security%20in%20ban%20period%22%2C%22type%22%3A%22archives%22%2C%22category%22" \
+             f"%3A%22derivatives%22%2C%22section%22%3A%22equity%22%7D%5D&date={str(trade_date.strftime('%d-%b-%Y'))}" \
+             f"&type=equity&mode=single"
+        request = nse_urlfetch(url2)
+        if request.status_code == 200:
+            lines = request.content.decode("utf-8").strip().split("\n")
+            securities = [line.split(",")[1] for line in lines[1:]]
+        elif request.status_code == 403:
+            raise FileNotFoundError(f' Data not found, change the date...')
+    return securities
+
+
 # if __name__ == '__main__':
     # df = future_price_volume_data("BANKNIFTY", "FUTIDX", from_date='17-06-2023', to_date='19-06-2023', period='1W')
     # df = option_price_volume_data('NIFTY', 'OPTIDX', period='1D')
     # df = get_nse_option_chain(symbol='TCS')
     # df = fii_derivatives_statistics(trade_date='16-09-2024')
+    # df = fno_security_in_ban_period(trade_date='26-03-2025')
     # df = expiry_dates_option_index()
     # df = fno_bhav_copy('17-02-2025')
     # print(df)

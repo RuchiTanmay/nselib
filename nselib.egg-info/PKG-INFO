@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: nselib
-Version: 1.6
+Version: 1.7
 Summary: library to get NSE India data
 Home-page: https://github.com/RuchiTanmay/nselib
 Author: Ruchi Tanmay, Amlan Mishra
@@ -83,6 +83,7 @@ data = nselib.trading_holiday_calendar()
 * sme_bhav_copy
 * sme_band_complete
 * week_52_high_low_report
+* financial_results_for_equity
 
 Example : 
 
