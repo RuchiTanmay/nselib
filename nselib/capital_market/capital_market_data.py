@@ -54,8 +54,8 @@ def price_volume_and_deliverable_position_data(symbol: str, from_date: str = Non
 
 def get_price_volume_and_deliverable_position_data(symbol: str, from_date: str, to_date: str):
     origin_url = "https://nsewebsite-staging.nseindia.com/report-detail/eq_security"
-    url = "https://nsewebsite-staging.nseindia.com/api/historical/securityArchives?"
-    payload = f"from={from_date}&to={to_date}&symbol={symbol}&dataType=priceVolumeDeliverable&series=ALL&csv=true"
+    url = "https://www.nseindia.com/api/historicalOR/generateSecurityWiseHistoricalData?"
+    payload = f"from={from_date}&to={to_date}&symbol={symbol}&type=priceVolumeDeliverable&series=ALL&csv=true"
     try:
         data_text = nse_urlfetch(url + payload, origin_url=origin_url).text
         data_text = data_text.replace('\x82', '').replace('â¹', 'In Rs')
@@ -106,8 +106,8 @@ def price_volume_data(symbol: str, from_date: str = None, to_date: str = None, p
 
 def get_price_volume_data(symbol: str, from_date: str, to_date: str):
     origin_url = "https://nsewebsite-staging.nseindia.com/report-detail/eq_security"
-    url = "https://nsewebsite-staging.nseindia.com/api/historical/securityArchives?"
-    payload = f"from={from_date}&to={to_date}&symbol={symbol}&dataType=priceVolume&series=ALL&csv=true"
+    url = "https://www.nseindia.com/api/historicalOR/generateSecurityWiseHistoricalData?"
+    payload = f"from={from_date}&to={to_date}&symbol={symbol}&type=priceVolume&series=ALL&csv=true"
     try:
         data_text = nse_urlfetch(url + payload, origin_url=origin_url)
         if data_text.status_code != 200:
@@ -159,8 +159,8 @@ def deliverable_position_data(symbol: str, from_date: str = None, to_date: str =
 
 def get_deliverable_position_data(symbol: str, from_date: str, to_date: str):
     origin_url = "https://nsewebsite-staging.nseindia.com/report-detail/eq_security"
-    url = "https://nsewebsite-staging.nseindia.com/api/historical/securityArchives?"
-    payload = f"from={from_date}&to={to_date}&symbol={symbol}&dataType=deliverable&series=ALL&csv=true"
+    url = "https://www.nseindia.com/api/historicalOR/generateSecurityWiseHistoricalData?"
+    payload = f"from={from_date}&to={to_date}&symbol={symbol}&type=deliverable&series=ALL&csv=true"
     try:
         data_text = nse_urlfetch(url + payload, origin_url=origin_url)
         if data_text.status_code != 200:
@@ -309,9 +309,9 @@ def bulk_deal_data(from_date: str = None, to_date: str = None, period: str = Non
 def get_bulk_deal_data(from_date: str, to_date: str):
     # print(from_date, to_date)
     origin_url = "https://nsewebsite-staging.nseindia.com"
-    url = "https://nsewebsite-staging.nseindia.com/api/historical/bulk-deals?"
+    url = "https://www.nseindia.com/api/historicalOR/bulk-block-short-deals?optionType=bulk_deals&"
     payload = f"from={from_date}&to={to_date}&csv=true"
-    print(url + payload)
+    # print(url + payload)
     data_text = nse_urlfetch(url + payload, origin_url=origin_url)
     if data_text.status_code != 200:
         raise NSEdataNotFound(f" Resource not available for bulk_deal_data")
@@ -359,7 +359,7 @@ def block_deals_data(from_date: str = None, to_date: str = None, period: str = N
 def get_block_deals_data(from_date: str, to_date: str):
     # print(from_date, to_date)
     origin_url = "https://nsewebsite-staging.nseindia.com"
-    url = "https://nsewebsite-staging.nseindia.com/api/historical/block-deals?"
+    url = "https://www.nseindia.com/api/historicalOR/bulk-block-short-deals?optionType=block_deals&"
     payload = f"from={from_date}&to={to_date}&csv=true"
     data_text = nse_urlfetch(url + payload, origin_url=origin_url)
     if data_text.status_code != 200:
@@ -414,7 +414,7 @@ def get_short_selling_data(from_date: str, to_date: str):
     """
     # print(from_date, to_date)
     origin_url = "https://nsewebsite-staging.nseindia.com"
-    url = "https://nsewebsite-staging.nseindia.com/api/historical/short-selling?"
+    url = "https://www.nseindia.com/api/historicalOR/bulk-block-short-deals?optionType=short_selling&"
     payload = f"from={from_date}&to={to_date}&csv=true"
     data_text = nse_urlfetch(url + payload,origin_url=origin_url)
     if data_text.status_code != 200:
@@ -482,6 +482,24 @@ def bhav_copy_indices(trade_date: str):
         bhav_df = pd.read_csv(BytesIO(file_chk.content))
     except Exception as e:
         raise FileNotFoundError(f' Bhav copy indices not found for : {trade_date} :: NSE error : {e}')
+    return bhav_df
+
+
+def bhav_copy_sme(trade_date: str):
+    """
+    get the NSE bhav copy for SME data as per the traded date
+    :param trade_date: eg:'20-06-2023'
+    :return: pandas data frame
+    """
+    trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
+    use_date = trade_date.strftime(ddmmyy)
+    url = f'https://nsearchives.nseindia.com/archives/sme/bhavcopy/sme{use_date}.csv'
+    request_bhav = nse_urlfetch(url)
+    if request_bhav.status_code == 200:
+        bhav_df = pd.read_csv(BytesIO(request_bhav.content))
+    else:
+        raise FileNotFoundError(f' Data not found, change the trade_date...')
+    bhav_df.columns = [name.replace(' ', '') for name in bhav_df.columns]
     return bhav_df
 
 
@@ -857,11 +875,48 @@ def financial_results_for_equity(from_date: str = None,
     return fin_df
 
 
+def corporate_bond_trade_report(trade_date: str):
+    """
+    get the NSE corporate bond trade report as per the traded date
+    :param trade_date: eg:'20-06-2023'
+    :return: pandas data frame
+    """
+    trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
+    use_date = trade_date.strftime(ddmmyy)
+    url = f'https://nsearchives.nseindia.com/archives/equities/corpbond/corpbond{use_date}.csv'
+    request_bhav = nse_urlfetch(url)
+    if request_bhav.status_code == 200:
+        bond_df = pd.read_csv(BytesIO(request_bhav.content))
+    else:
+        raise FileNotFoundError(f' Data not found, change the trade_date...')
+    bond_df.columns = [name.replace(' ', '') for name in bond_df.columns]
+    bond_df['SERIES'] = bond_df['SERIES'].str.replace(' ', '')
+    return bond_df
+
+
+def pe_ratio(trade_date: str):
+    """
+    get the NSE pe ratio for all NSE equities data as per the traded date
+    :param trade_date: eg:'20-06-2023'
+    :return: pandas data frame
+    """
+    trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
+    use_date = trade_date.strftime(ddmmyy)
+    url = f'https://nsearchives.nseindia.com/content/equities/peDetail/PE_{use_date}.csv'
+    request_bhav = nse_urlfetch(url)
+    if request_bhav.status_code == 200:
+        pe_df = pd.read_csv(BytesIO(request_bhav.content))
+    else:
+        raise FileNotFoundError(f' Data not found, change the trade_date...')
+    pe_df.columns = [name.replace(' ', '') for name in pe_df.columns]
+    return pe_df
+
+
 # if __name__ == '__main__':
-    # data = bhav_copy_indices(trade_date='11-09-2024')  # trade_date='11-09-2024'
+#     data = pe_ratio(trade_date='11-09-2024')  # trade_date='11-09-2024'
     # data = index_data(index='NIFTY 50', period='1W')
     # data = block_deals_data(period='1W')
-    # data = bulk_deal_data(period='1D')
+    # data = bulk_deal_data(period='1W')
     # data = india_vix_data(period='1W')
     # data = short_selling_data(period='1W')
     # data = index_data(index='NIFTY 50', from_date='21-10-2024', to_date='30-10-2024')
@@ -872,7 +927,7 @@ def financial_results_for_equity(from_date: str = None,
     # data = price_volume_data(symbol='SBIN', from_date='20-06-2023', to_date='20-07-2023')
     # data = financial_results_for_equity(from_date='11-03-2025', to_date='16-03-2025', fo_sec=True,
     #                                     fin_period='Quarterly')
-    # data = var_end_of_day(trade_date='11-03-2025')
+    # data = sme_band_complete(trade_date='11-03-2025')
     # data.to_csv(fr'C:\Ruchi Tanmay\Stock Market\Data Analysis\Final Data\data.csv')
 
     # data = fno_index_list()

@@ -1,5 +1,10 @@
 # CHANGE LOG
 #### All the changes are listed...
+### Version: 1.9 [18/05/2025]
+* functions added corporate_bond_trade_report to get NSE corporate bond trade report as per the traded date
+* functions added bhav_copy_sme to get bhav copy for SME data as per the traded date
+* functions added pe_ratio to get pe ratio for all NSE equities
+
 ### Version: 1.8 [26/03/2025]
 * functions added fno_security_in_ban_period to get securities baned from trading for the date
 
