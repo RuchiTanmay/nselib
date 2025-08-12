@@ -1,5 +1,10 @@
 # CHANGE LOG
 #### All the changes are listed...
+### Version: 2.0 [12/08/2025]
+* functions added corporate_actions_for_equity to get corporate actions information from trading for the date
+* functions added event_calendar_for_equity to get event calendar
+* removed internal loggings
+
 ### Version: 1.9 [18/05/2025]
 * functions added corporate_bond_trade_report to get NSE corporate bond trade report as per the traded date
 * functions added bhav_copy_sme to get bhav copy for SME data as per the traded date

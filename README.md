@@ -1,4 +1,4 @@
-# NSElib 1.9
+# NSElib 2.0
 
 Python Library to get publicly available data on new NSE india website.
 
@@ -67,6 +67,8 @@ data = nselib.trading_holiday_calendar()
 * corporate_bond_trade_report
 * bhav_copy_sme
 * pe_ratio
+* corporate_actions_for_equity
+* event_calendar_for_equity
 
 Example : 
 

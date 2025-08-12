@@ -3,14 +3,13 @@ import datetime as dt
 import json
 import zipfile
 from io import BytesIO, StringIO
-import logging
 import xml.etree.ElementTree as ET
 from nselib.libutil import *
 from nselib.constants import *
 
 
-logging.basicConfig(level=logging.DEBUG)
-logging.getLogger("urllib3").setLevel(logging.WARNING)
+# logging.basicConfig(level=logging.DEBUG)
+# logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 
 def price_volume_and_deliverable_position_data(symbol: str, from_date: str = None, to_date: str = None,
@@ -42,13 +41,19 @@ def price_volume_and_deliverable_position_data(symbol: str, from_date: str = Non
         data_df = get_price_volume_and_deliverable_position_data(symbol=symbol, from_date=start_date, to_date=end_date)
         from_date = from_date + dt.timedelta(365)
         load_days = (to_date - from_date).days
-        if not data_df.empty and not data_df.isna().all().all():
-            nse_df = pd.concat([nse_df, data_df], ignore_index=True)
+        if not data_df.empty:
+            # Drop all-NaN columns from both frames
+            data_df = data_df.fillna('-')
+            nse_df = nse_df.fillna('-')
+            data_df = data_df.dropna(axis=1, how='all')
+            nse_df = nse_df.dropna(axis=1, how='all')
+            if not data_df.empty:
+                nse_df = pd.concat([nse_df, data_df], ignore_index=True)
 
-    nse_df["TotalTradedQuantity"] = pd.to_numeric(nse_df["TotalTradedQuantity"].str.replace(",", ""), errors="coerce")
-    nse_df["TurnoverInRs"] = pd.to_numeric(nse_df["TurnoverInRs"].str.replace(",", ""), errors="coerce")
-    nse_df["No.ofTrades"] = pd.to_numeric(nse_df["No.ofTrades"].str.replace(",", ""), errors="coerce")
-    nse_df["DeliverableQty"] = pd.to_numeric(nse_df["DeliverableQty"].str.replace(",", ""), errors="coerce")
+    nse_df["TotalTradedQuantity"] = pd.to_numeric(nse_df["TotalTradedQuantity"].astype(str).str.replace(",", ""), errors="coerce")
+    nse_df["TurnoverInRs"] = pd.to_numeric(nse_df["TurnoverInRs"].astype(str).str.replace(",", ""), errors="coerce")
+    nse_df["No.ofTrades"] = pd.to_numeric(nse_df["No.ofTrades"].astype(str).str.replace(",", ""), errors="coerce")
+    nse_df["DeliverableQty"] = pd.to_numeric(nse_df["DeliverableQty"].astype(str).str.replace(",", ""), errors="coerce")
     return nse_df
 
 
@@ -758,7 +763,7 @@ def week_52_high_low_report(trade_date: str):
 def financial_results_for_equity(from_date: str = None,
                                  to_date: str = None,
                                  period: str = None,
-                                 fo_sec: bool = None,
+                                 fo_sec: bool = False,
                                  fin_period: str = 'Quarterly'):
 
     """
@@ -844,7 +849,6 @@ def financial_results_for_equity(from_date: str = None,
     ]
     fin_df, df = pd.DataFrame(), pd.DataFrame()
     for row in master_data_df.itertuples(index=False):
-        logging.debug(f"---collecting financial data for symbol: {row.symbol}")
         try:
             # Fetch the XML content
             response_ = requests.get(row.xbrl, headers=headers)
@@ -862,11 +866,11 @@ def financial_results_for_equity(from_date: str = None,
             # Convert to Pandas DataFrame
             df = pd.DataFrame([extracted_data])
         except requests.exceptions.RequestException as e:
-            logging.error(f"Request failed: {e}")
+            raise requests.exceptions.RequestException(f"Request failed: {e}") from e
         except ET.ParseError as e:
-            logging.error(f"XML parsing failed: {e}")
+            raise ET.ParseError(f"XML parsing failed: {e}") from e
         except Exception as e:
-            logging.error(f"An error occurred: {e}")
+            raise RuntimeError(f"An error occurred: {e}") from e
 
         if fin_df.empty:
             fin_df = df
@@ -912,6 +916,80 @@ def pe_ratio(trade_date: str):
     return pe_df
 
 
+def corporate_actions_for_equity(from_date: str = None,
+                                 to_date: str = None,
+                                 period: str = None,
+                                 fno_only: bool = False):
+
+    """
+    get corporate actions for equities as per
+    https://www.nseindia.com/companies-listing/corporate-filings-actions
+    :param fno_only: True/False
+    :param from_date: '17-03-2022' ('dd-mm-YYYY')
+    :param to_date: '17-06-2023' ('dd-mm-YYYY')
+    :param period: use one {'1D': last day data,
+                            '1W': for last 7 days data,
+                            '1M': from last month same date,
+                            '6M': last 6 month data,
+                            '1Y': from last year same date)
+    :return: pandas.DataFrame
+    :raise ValueError if the parameter input is not proper
+    """
+    validate_date_param(from_date, to_date, period)
+    from_date, to_date = derive_from_and_to_date(from_date=from_date, to_date=to_date, period=period)
+    origin_url = "https://www.nseindia.com/companies-listing/corporate-filings-actions"
+    url_ = "https://www.nseindia.com/api/corporates-corporateactions?index=equities&"
+    if fno_only:
+        payload = f'from_date={from_date}&to_date={to_date}&fo_sec=true'
+    else:
+        payload = f'from_date={from_date}&to_date={to_date}'
+    data_text = nse_urlfetch(url_ + payload, origin_url=origin_url)
+    if data_text.status_code != 200:
+        raise NSEdataNotFound(f" Resource not available for financial data with these parameters")
+    json_str = data_text.content.decode("utf-8")
+    data_list = json.loads(json_str)
+    master_data_df = pd.DataFrame(data_list)
+    master_data_df.columns = [name.replace(' ', '') for name in master_data_df.columns]
+    return master_data_df
+
+
+def event_calendar_for_equity(from_date: str = None,
+                              to_date: str = None,
+                              period: str = None,
+                              fno_only: bool = False):
+
+    """
+    get event calendar for equities as per
+    https://www.nseindia.com/companies-listing/corporate-filings-event-calendar
+    :param fno_only: True/False
+    :param from_date: '17-03-2022' ('dd-mm-YYYY')
+    :param to_date: '17-06-2023' ('dd-mm-YYYY')
+    :param period: use one {'1D': last day data,
+                            '1W': for last 7 days data,
+                            '1M': from last month same date,
+                            '6M': last 6 month data,
+                            '1Y': from last year same date)
+    :return: pandas.DataFrame
+    :raise ValueError if the parameter input is not proper
+    """
+    validate_date_param(from_date, to_date, period)
+    from_date, to_date = derive_from_and_to_date(from_date=from_date, to_date=to_date, period=period)
+    origin_url = "https://www.nseindia.com/companies-listing/corporate-filings-event-calendar"
+    url_ = "https://www.nseindia.com/api/event-calendar?index=equities&"
+    if fno_only:
+        payload = f'from_date={from_date}&to_date={to_date}&fo_sec=true'
+    else:
+        payload = f'from_date={from_date}&to_date={to_date}'
+    data_text = nse_urlfetch(url_ + payload, origin_url=origin_url)
+    if data_text.status_code != 200:
+        raise NSEdataNotFound(f" Resource not available for financial data with these parameters")
+    json_str = data_text.content.decode("utf-8")
+    data_list = json.loads(json_str)
+    master_data_df = pd.DataFrame(data_list)
+    master_data_df.columns = [name.replace(' ', '') for name in master_data_df.columns]
+    return master_data_df
+
+
 # if __name__ == '__main__':
 #     data = pe_ratio(trade_date='11-09-2024')  # trade_date='11-09-2024'
     # data = index_data(index='NIFTY 50', period='1W')
@@ -927,6 +1005,8 @@ def pe_ratio(trade_date: str):
     # data = price_volume_data(symbol='SBIN', from_date='20-06-2023', to_date='20-07-2023')
     # data = financial_results_for_equity(from_date='11-03-2025', to_date='16-03-2025', fo_sec=True,
     #                                     fin_period='Quarterly')
+    # data = corporate_actions_for_equity(period='6M', fno_only=False)
+    # data = event_calendar_for_equity(period='1M', fno_only=False)
     # data = sme_band_complete(trade_date='11-03-2025')
     # data.to_csv(fr'C:\Ruchi Tanmay\Stock Market\Data Analysis\Final Data\data.csv')
 
