@@ -123,9 +123,11 @@ def get_option_price_volume_data(symbol: str, instrument: str, option_type: str,
         data_dict = nse_urlfetch(url + payload, origin_url=origin_url).json()
     except Exception as e:
         raise ValueError(f" Invalid parameters : NSE error : {e}")
-    data_df = pd.DataFrame(data_dict['data']).drop(columns='TIMESTAMP')
+    data_df = pd.DataFrame(data_dict['data'])
+    if data_df.empty:
+        raise ValueError(f"Invalid parameters, Please change the parameters")
+    data_df = data_df.drop(columns='TIMESTAMP')
     data_df.columns = cleaning_column_name(data_df.columns)
-    # print(data_df.columns)
     return data_df[future_price_volume_data_column]
 
 
@@ -393,6 +395,7 @@ def fno_security_in_ban_period(trade_date: str):
     # df = fno_security_in_ban_period(trade_date='26-03-2025')
     # df = expiry_dates_option_index()
     # df = fno_bhav_copy('17-02-2025')
+    # df = option_price_volume_data('NIFTY', 'OPTIDX', option_type='PE', period='1D')
     # print(df)
     # print(df.columns)
     # print(df[df['EXPIRY_DT']=='27-Jul-2023'])
