@@ -50,6 +50,9 @@ data = nselib.trading_holiday_calendar()
 * fno_equity_list
 * fno_index_list
 * nifty50_equity_list
+* niftynext50_equity_list
+* niftymidcap150_equity_list
+* niftysmallcap250_equity_list
 * india_vix_data
 * index_data
 * market_watch_all_indices
