@@ -1,5 +1,10 @@
 # CHANGE LOG
 #### All the changes are listed...
+### Version: 2.1 [06/12/2025]
+* added indices section data in nselib
+* functions added get_index_list to get the available NSE indices for each category of indices
+* functions added get_constituent_stock_list to get list of all that stocks constituent .
+
 ### Version: 2.0 [12/08/2025]
 * functions added corporate_actions_for_equity to get corporate actions information from trading for the date
 * functions added event_calendar_for_equity to get event calendar

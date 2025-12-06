@@ -1,4 +1,4 @@
-# NSElib 2.0
+# NSElib 2.1
 
 Python Library to get publicly available data on new NSE india website.
 
@@ -110,6 +110,18 @@ OR
 data = derivatives.price_volume_and_deliverable_position_data(symbol='BANKNIFTY', instrument='FUTIDX', period='1M')
 
 Note: instrument type ( future index = FUTIDX, future stocks = FUTSTK, option index = OPTIDX, option stocks = OPTSTK)
+
+More functions will be available in future releases...
+
+### Indices
+* get_index_list
+* get_constituent_stock_list
+
+Example :
+
+from nselib import indices
+
+data = indices.get_constituent_stock_list(index_category='BroadMarketIndices', index_name='Nifty 50')
 
 More functions will be available in future releases...
 
