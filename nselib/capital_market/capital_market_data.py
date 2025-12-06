@@ -573,6 +573,45 @@ def nifty50_equity_list():
     return data_df
 
 
+def niftynext50_equity_list():
+    """
+    list of all equities under NIFTY NEXT 50 index
+    :return: pandas data frame
+    """
+    try:
+        data_df = pd.read_csv("https://archives.nseindia.com/content/indices/ind_niftynext50list.csv")
+    except Exception as e:
+        raise FileNotFoundError(f' equities under NIFTY NEXT 50 index not found :: NSE error : {e}')
+    data_df = data_df[['Company Name', 'Industry', 'Symbol']]
+    return data_df
+
+
+def niftymidcap150_equity_list():
+    """
+    list of all equities under NIFTY MIDCAP 150 index
+    :return: pandas data frame
+    """
+    try:
+        data_df = pd.read_csv("https://archives.nseindia.com/content/indices/ind_niftymidcap150list.csv")
+    except Exception as e:
+        raise FileNotFoundError(f' equities under NIFTY MIDCAP 150 index not found :: NSE error : {e}')
+    data_df = data_df[['Company Name', 'Industry', 'Symbol']]
+    return data_df
+
+
+def niftysmallcap250_equity_list():
+    """
+    list of all equities under NIFTY SMALLCAP 250 index
+    :return: pandas data frame
+    """
+    try:
+        data_df = pd.read_csv("https://archives.nseindia.com/content/indices/ind_niftysmallcap250list.csv")
+    except Exception as e:
+        raise FileNotFoundError(f' equities under NIFTY SMALLCAP 250 index not found :: NSE error : {e}')
+    data_df = data_df[['Company Name', 'Industry', 'Symbol']]
+    return data_df
+
+
 def market_watch_all_indices():
     """
     Market Watch - Indices of the day in data frame
@@ -1010,7 +1049,7 @@ def event_calendar_for_equity(from_date: str = None,
     # data = sme_band_complete(trade_date='11-03-2025')
     # data.to_csv(fr'C:\Ruchi Tanmay\Stock Market\Data Analysis\Final Data\data.csv')
 
-    # data = fno_index_list()
+    # data = niftymidcap150_equity_list()
     # print(data)
     # print(data.info())
     # -----------------------------------------------------

@@ -1,4 +1,4 @@
-# NSElib 2.0
+# NSElib 2.1
 
 Python Library to get publicly available data on new NSE india website.
 
@@ -50,6 +50,9 @@ data = nselib.trading_holiday_calendar()
 * fno_equity_list
 * fno_index_list
 * nifty50_equity_list
+* niftynext50_equity_list
+* niftymidcap150_equity_list
+* niftysmallcap250_equity_list
 * india_vix_data
 * index_data
 * market_watch_all_indices
@@ -107,6 +110,18 @@ OR
 data = derivatives.price_volume_and_deliverable_position_data(symbol='BANKNIFTY', instrument='FUTIDX', period='1M')
 
 Note: instrument type ( future index = FUTIDX, future stocks = FUTSTK, option index = OPTIDX, option stocks = OPTSTK)
+
+More functions will be available in future releases...
+
+### Indices
+* get_index_list
+* get_constituent_stock_list
+
+Example :
+
+from nselib import indices
+
+data = indices.get_constituent_stock_list(index_category='BroadMarketIndices', index_name='Nifty 50')
 
 More functions will be available in future releases...
 
