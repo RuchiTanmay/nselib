@@ -13,7 +13,7 @@ def get_class(index_category: str):
     return category_class
 
 
-def get_index_list(index_category: str = 'BroadMarketIndices'):
+def index_list(index_category: str = 'BroadMarketIndices'):
     """
      to get the available NSE indices for each category of indices. there ar 4 category defined by NSE link as below
      https://www.nseindia.com/static/products-services/about-indices..
@@ -23,7 +23,7 @@ def get_index_list(index_category: str = 'BroadMarketIndices'):
     return get_class(index_category).indices_list
 
 
-def get_constituent_stock_list(index_category: str = 'BroadMarketIndices', index_name: str = 'Nifty 50'):
+def constituent_stock_list(index_category: str = 'BroadMarketIndices', index_name: str = 'Nifty 50'):
     """
     to get list of all that stocks constituent with the given index and index_category.
     :param index_category: SectoralIndices/ BroadMarketIndices/ ThematicIndices/ StrategyIndices

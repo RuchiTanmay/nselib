@@ -1,4 +1,4 @@
-# NSElib 2.1
+# NSElib 2.2
 
 Python Library to get publicly available data on new NSE india website.
 
@@ -114,14 +114,14 @@ Note: instrument type ( future index = FUTIDX, future stocks = FUTSTK, option in
 More functions will be available in future releases...
 
 ### Indices
-* get_index_list
-* get_constituent_stock_list
+* index_list
+* constituent_stock_list
 
 Example :
 
 from nselib import indices
 
-data = indices.get_constituent_stock_list(index_category='BroadMarketIndices', index_name='Nifty 50')
+data = indices.constituent_stock_list(index_category='BroadMarketIndices', index_name='Nifty 50')
 
 More functions will be available in future releases...
 

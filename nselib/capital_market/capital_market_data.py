@@ -212,13 +212,13 @@ def india_vix_data(from_date: str = None, to_date: str = None, period: str = Non
 
 def get_india_vix_data(from_date: str, to_date: str):
     origin_url = "https://nsewebsite-staging.nseindia.com/report-detail/eq_security"
-    url = f"https://nsewebsite-staging.nseindia.com/api/historical/vixhistory?from={from_date}&to={to_date}&csv=true"
+    url = f"https://www.nseindia.com/api/historicalOR/vixhistory?from={from_date}&to={to_date}&csv=true"
     try:
         data_json = nse_urlfetch(url, origin_url=origin_url).json()
         data_df = pd.DataFrame(data_json['data'])
     except Exception as e:
         raise NSEdataNotFound(f" Resource not available MSG: {e}")
-    data_df.drop(columns='TIMESTAMP', inplace=True)
+    # data_df.drop(columns='TIMESTAMP', inplace=True)
     data_df.columns = cleaning_column_name(data_df.columns)
     return data_df[india_vix_data_column]
 
@@ -621,9 +621,10 @@ def market_watch_all_indices():
     url = "https://www.nseindia.com/api/allIndices"
     data_json = nse_urlfetch(url, origin_url=origin_url).json()
     data_df = pd.DataFrame(data_json['data'])
+    print(data_df.columns)
     return data_df[['key', 'index', 'indexSymbol', 'last', 'variation', 'percentChange', 'open', 'high', 'low',
                    'previousClose', 'yearHigh', 'yearLow', 'pe', 'pb', 'dy', 'declines', 'advances', 'unchanged',
-                   'perChange365d', 'perChange30d', 'previousDay', 'oneWeekAgo', 'oneMonthAgo', 'oneYearAgo']]
+                   'perChange365d', 'perChange30d', 'previousDay', 'oneWeekAgoVal', 'oneMonthAgoVal', 'oneYearAgoVal']]
 
 
 def fii_dii_trading_activity():
@@ -1030,7 +1031,7 @@ def event_calendar_for_equity(from_date: str = None,
 
 
 # if __name__ == '__main__':
-#     data = pe_ratio(trade_date='11-09-2024')  # trade_date='11-09-2024'
+    # data = pe_ratio(trade_date='11-09-2024')  # trade_date='11-09-2024'
     # data = index_data(index='NIFTY 50', period='1W')
     # data = block_deals_data(period='1W')
     # data = bulk_deal_data(period='1W')

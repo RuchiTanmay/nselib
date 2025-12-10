@@ -17,3 +17,6 @@ nselib/capital_market/capital_market_data.py
 nselib/debt/__init__.py
 nselib/derivatives/__init__.py
 nselib/derivatives/derivative_data.py
+nselib/indices/__init__.py
+nselib/indices/config.py
+nselib/indices/index_data.py
