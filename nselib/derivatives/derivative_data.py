@@ -233,20 +233,21 @@ def fii_derivatives_statistics(trade_date: str):
     return bhav_df
 
 
-def get_nse_option_chain(symbol):
+def get_nse_option_chain(symbol: str, expiry_date: str):
     """
     get NSE option chain for the symbol
+    :param expiry_date: in 'DD-MMM-YYYY' format eg='25-Dec-2025'
     :param symbol: eg:'TCS'/'BANKNIFTY'
     :return: pandas dataframe
     """
     symbol = cleaning_nse_symbol(symbol)
     origin_url = "https://www.nseindia.com/option-chain"
+
     if any(x in symbol for x in indices_list):
-        payload = nse_urlfetch('https://www.nseindia.com/api/option-chain-indices?symbol=' + symbol,
-                               origin_url=origin_url)
+        url = f'https://www.nseindia.com/api/option-chain-v3?type=Indices&symbol={symbol}&expiry={expiry_date}'
     else:
-        payload = nse_urlfetch('https://www.nseindia.com/api/option-chain-equities?symbol=' + symbol,
-                               origin_url=origin_url)
+        url = f'https://www.nseindia.com/api/option-chain-v3?type=Equity&symbol={symbol}&expiry={expiry_date}'
+    payload = nse_urlfetch(url, origin_url=origin_url)
     return payload
 
 
@@ -255,8 +256,10 @@ def expiry_dates_future():
     get the future and option expiry dates as per stock or index given
     :return: list of dates
     """
-    payload = get_nse_option_chain("TCS").json()
-    return payload['records']['expiryDates']
+    origin_url = "https://www.nseindia.com/option-chain"
+    payload = nse_urlfetch(f'https://www.nseindia.com/api/option-chain-contract-info?symbol=TCS',
+                           origin_url=origin_url).json()
+    return payload['expiryDates']
 
 
 def expiry_dates_option_index():
@@ -267,8 +270,10 @@ def expiry_dates_option_index():
     # data_df = pd.DataFrame(columns=['index', 'expiry_date'])
     data_dict = {}
     for ind in indices_list:
-        payload = get_nse_option_chain(ind).json()
-        data_dict.update({ind: payload['records']['expiryDates']})
+        origin_url = "https://www.nseindia.com/option-chain"
+        payload = nse_urlfetch(f'https://www.nseindia.com/api/option-chain-contract-info?symbol={ind}',
+                               origin_url=origin_url).json()
+        data_dict.update({ind: payload['expiryDates']})
     return data_dict
 
 
@@ -280,10 +285,11 @@ def nse_live_option_chain(symbol: str, expiry_date: str = None, oi_mode: str = "
     :param oi_mode: eg: full/compact
     :return: pands dataframe
     """
-    payload = get_nse_option_chain(symbol).json()
+
     if expiry_date:
         exp_date = pd.to_datetime(expiry_date, format='%d-%m-%Y')
-        expiry_date = exp_date.strftime('%d-%b-%Y')
+        expiry_date = pd.to_datetime(exp_date, format='%d-%m-%Y').strftime('%d-%b-%Y')
+    payload = get_nse_option_chain(symbol, expiry_date).json()
 
     if oi_mode == 'compact':
         col_names = ['Fetch_Time', 'Symbol', 'Expiry_Date', 'CALLS_OI', 'CALLS_Chng_in_OI', 'CALLS_Volume', 'CALLS_IV',
@@ -305,9 +311,9 @@ def nse_live_option_chain(symbol: str, expiry_date: str = None, oi_mode: str = "
 
     # print(expiry_date)
     for m in range(len(payload['records']['data'])):
-        if not expiry_date or (payload['records']['data'][m]['expiryDate'] == expiry_date):
+        if not expiry_date or (payload['records']['data'][m]['expiryDates'] == expiry_date):
             try:
-                oi_row['Expiry_Date'] = payload['records']['data'][m]['expiryDate']
+                oi_row['Expiry_Date'] = payload['records']['data'][m]['expiryDates']
                 oi_row['CALLS_OI'] = payload['records']['data'][m]['CE']['openInterest']
                 oi_row['CALLS_Chng_in_OI'] = payload['records']['data'][m]['CE']['changeinOpenInterest']
                 oi_row['CALLS_Volume'] = payload['records']['data'][m]['CE']['totalTradedVolume']
@@ -388,14 +394,17 @@ def fno_security_in_ban_period(trade_date: str):
 
 
 # if __name__ == '__main__':
-    # df = future_price_volume_data("BANKNIFTY", "FUTIDX", from_date='17-06-2023', to_date='19-06-2023', period='1W')
+    # df = future_price_volume_data("BANKNIFTY", "FUTIDX", from_date='01-11-2025', to_date='08-12-2025', period='1W')
     # df = option_price_volume_data('NIFTY', 'OPTIDX', period='1D')
-    # df = get_nse_option_chain(symbol='TCS')
+    # df = get_nse_option_chain(symbol='TCS', expiry_date='30-Dec-2025').json()
     # df = fii_derivatives_statistics(trade_date='16-09-2024')
+    # df = participant_wise_trading_volume(trade_date='16-09-2024')
     # df = fno_security_in_ban_period(trade_date='26-03-2025')
     # df = expiry_dates_option_index()
+    # df = expiry_dates_future()
     # df = fno_bhav_copy('17-02-2025')
     # df = option_price_volume_data('NIFTY', 'OPTIDX', option_type='PE', period='1D')
+    # df = nse_live_option_chain(symbol="BANKNIFTY", expiry_date='30-12-2025', oi_mode="full")
     # print(df)
     # print(df.columns)
     # print(df[df['EXPIRY_DT']=='27-Jul-2023'])

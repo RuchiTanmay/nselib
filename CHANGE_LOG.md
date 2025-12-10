@@ -1,5 +1,8 @@
 # CHANGE LOG
 #### All the changes are listed...
+### Version: 2.2 [10/12/2025]
+* nse_live_option_chain issue fix
+
 ### Version: 2.1 [06/12/2025]
 * added indices section data in nselib
 * functions added get_index_list to get the available NSE indices for each category of indices
