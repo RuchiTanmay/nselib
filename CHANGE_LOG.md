@@ -1,5 +1,10 @@
 # CHANGE LOG
 #### All the changes are listed...
+### Version: 2.3 [12/12/2025]
+* functions added top_gainers_or_losers, most_active_equities, total_traded_stocks in capital market section
+* functions added live_most_active_underlying in derivative section
+* functions added live_index_performances in indices section
+
 ### Version: 2.2 [10/12/2025]
 * nse_live_option_chain issue fix
 

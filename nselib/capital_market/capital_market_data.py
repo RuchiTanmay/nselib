@@ -1,11 +1,8 @@
 import pandas as pd
 import datetime as dt
-import json
 import zipfile
-from io import BytesIO, StringIO
 import xml.etree.ElementTree as ET
-from nselib.libutil import *
-from nselib.constants import *
+from nselib.capital_market.get_func import *
 
 
 # logging.basicConfig(level=logging.DEBUG)
@@ -57,23 +54,6 @@ def price_volume_and_deliverable_position_data(symbol: str, from_date: str = Non
     return nse_df
 
 
-def get_price_volume_and_deliverable_position_data(symbol: str, from_date: str, to_date: str):
-    origin_url = "https://nsewebsite-staging.nseindia.com/report-detail/eq_security"
-    url = "https://www.nseindia.com/api/historicalOR/generateSecurityWiseHistoricalData?"
-    payload = f"from={from_date}&to={to_date}&symbol={symbol}&type=priceVolumeDeliverable&series=ALL&csv=true"
-    try:
-        data_text = nse_urlfetch(url + payload, origin_url=origin_url).text
-        data_text = data_text.replace('\x82', '').replace('â¹', 'In Rs')
-        with open('file.csv', 'w') as f:
-            f.write(data_text)
-        f.close()
-    except Exception as e:
-        raise NSEdataNotFound(f" Resource not available MSG: {e}")
-    data_df = pd.read_csv('file.csv')
-    data_df.columns = [name.replace(' ', '') for name in data_df.columns]
-    return data_df
-
-
 def price_volume_data(symbol: str, from_date: str = None, to_date: str = None, period: str = None):
     """
     get Security wise price volume data set.
@@ -107,21 +87,6 @@ def price_volume_data(symbol: str, from_date: str = None, to_date: str = None, p
         else:
             nse_df = pd.concat([nse_df, data_df], ignore_index=True)
     return nse_df
-
-
-def get_price_volume_data(symbol: str, from_date: str, to_date: str):
-    origin_url = "https://nsewebsite-staging.nseindia.com/report-detail/eq_security"
-    url = "https://www.nseindia.com/api/historicalOR/generateSecurityWiseHistoricalData?"
-    payload = f"from={from_date}&to={to_date}&symbol={symbol}&type=priceVolume&series=ALL&csv=true"
-    try:
-        data_text = nse_urlfetch(url + payload, origin_url=origin_url)
-        if data_text.status_code != 200:
-            raise NSEdataNotFound(f" Resource not available for Price Volume Data")
-    except Exception as e:
-        raise NSEdataNotFound(f" Resource not available MSG: {e}")
-    data_df = pd.read_csv(BytesIO(data_text.content), index_col=False)
-    data_df.columns = [name.replace(' ', '') for name in data_df.columns]
-    return data_df
 
 
 def deliverable_position_data(symbol: str, from_date: str = None, to_date: str = None, period: str = None):
@@ -162,21 +127,6 @@ def deliverable_position_data(symbol: str, from_date: str = None, to_date: str =
     return nse_df
 
 
-def get_deliverable_position_data(symbol: str, from_date: str, to_date: str):
-    origin_url = "https://nsewebsite-staging.nseindia.com/report-detail/eq_security"
-    url = "https://www.nseindia.com/api/historicalOR/generateSecurityWiseHistoricalData?"
-    payload = f"from={from_date}&to={to_date}&symbol={symbol}&type=deliverable&series=ALL&csv=true"
-    try:
-        data_text = nse_urlfetch(url + payload, origin_url=origin_url)
-        if data_text.status_code != 200:
-            raise NSEdataNotFound(f" Resource not available for deliverable_position_data")
-    except Exception as e:
-        raise NSEdataNotFound(f" Resource not available MSG: {e}")
-    data_df = pd.read_csv(BytesIO(data_text.content), index_col=False)
-    data_df.columns = [name.replace(' ', '') for name in data_df.columns]
-    return data_df
-
-
 def india_vix_data(from_date: str = None, to_date: str = None, period: str = None):
     """
     get india vix spot data  set for the specific time period.
@@ -208,19 +158,6 @@ def india_vix_data(from_date: str = None, to_date: str = None, period: str = Non
         else:
             nse_df = pd.concat([nse_df, data_df], ignore_index=True)
     return nse_df
-
-
-def get_india_vix_data(from_date: str, to_date: str):
-    origin_url = "https://nsewebsite-staging.nseindia.com/report-detail/eq_security"
-    url = f"https://www.nseindia.com/api/historicalOR/vixhistory?from={from_date}&to={to_date}&csv=true"
-    try:
-        data_json = nse_urlfetch(url, origin_url=origin_url).json()
-        data_df = pd.DataFrame(data_json['data'])
-    except Exception as e:
-        raise NSEdataNotFound(f" Resource not available MSG: {e}")
-    # data_df.drop(columns='TIMESTAMP', inplace=True)
-    data_df.columns = cleaning_column_name(data_df.columns)
-    return data_df[india_vix_data_column]
 
 
 def index_data(index: str, from_date: str = None, to_date: str = None, period: str = None):
@@ -256,23 +193,6 @@ def index_data(index: str, from_date: str = None, to_date: str = None, period: s
         else:
             nse_df = pd.concat([nse_df, data_df], ignore_index=True)
     return nse_df
-
-
-def get_index_data(index: str, from_date: str, to_date: str):
-    index = index.replace(' ', '%20').upper()
-    origin_url = "https://www.nseindia.com/reports-indices-historical-index-data"
-    url = f"https://www.nseindia.com/api/historical/indicesHistory?indexType={index}&from={from_date}&to={to_date}"
-    try:
-        data_json = nse_urlfetch(url, origin_url=origin_url).json()
-        data_close_df = pd.DataFrame(data_json['data']['indexCloseOnlineRecords']).drop(columns=['_id', "EOD_TIMESTAMP"])
-        data_turnover_df = pd.DataFrame(data_json['data']['indexTurnoverRecords']).drop(columns=['_id',
-                                                                                                 'HIT_INDEX_NAME_UPPER'])
-        data_df = pd.merge(data_close_df,data_turnover_df, on='TIMESTAMP', how='inner')
-    except Exception as e:
-        raise NSEdataNotFound(f" Resource not available MSG: {e}")
-    data_df.drop(columns='TIMESTAMP', inplace=True)
-    data_df.columns = cleaning_column_name(data_df.columns)
-    return data_df[index_data_columns]
 
 
 def bulk_deal_data(from_date: str = None, to_date: str = None, period: str = None):
@@ -311,20 +231,6 @@ def bulk_deal_data(from_date: str = None, to_date: str = None, period: str = Non
     return nse_df
 
 
-def get_bulk_deal_data(from_date: str, to_date: str):
-    # print(from_date, to_date)
-    origin_url = "https://nsewebsite-staging.nseindia.com"
-    url = "https://www.nseindia.com/api/historicalOR/bulk-block-short-deals?optionType=bulk_deals&"
-    payload = f"from={from_date}&to={to_date}&csv=true"
-    # print(url + payload)
-    data_text = nse_urlfetch(url + payload, origin_url=origin_url)
-    if data_text.status_code != 200:
-        raise NSEdataNotFound(f" Resource not available for bulk_deal_data")
-    data_df = pd.read_csv(BytesIO(data_text.content), index_col=False)
-    data_df.columns = [name.replace(' ', '') for name in data_df.columns]
-    return data_df
-
-
 def block_deals_data(from_date: str = None, to_date: str = None, period: str = None):
     """
     get block deals data set.
@@ -361,19 +267,6 @@ def block_deals_data(from_date: str = None, to_date: str = None, period: str = N
     return nse_df
 
 
-def get_block_deals_data(from_date: str, to_date: str):
-    # print(from_date, to_date)
-    origin_url = "https://nsewebsite-staging.nseindia.com"
-    url = "https://www.nseindia.com/api/historicalOR/bulk-block-short-deals?optionType=block_deals&"
-    payload = f"from={from_date}&to={to_date}&csv=true"
-    data_text = nse_urlfetch(url + payload, origin_url=origin_url)
-    if data_text.status_code != 200:
-        raise NSEdataNotFound(f" Resource not available for block_deals_data")
-    data_df = pd.read_csv(BytesIO(data_text.content), index_col=False)
-    data_df.columns = [name.replace(' ', '') for name in data_df.columns]
-    return data_df
-
-
 def short_selling_data(from_date: str = None, to_date: str = None, period: str = None):
     """
     get short selling data set.
@@ -408,25 +301,6 @@ def short_selling_data(from_date: str = None, to_date: str = None, period: str =
         else:
             nse_df = pd.concat([nse_df, data_df], ignore_index=True)
     return nse_df
-
-
-def get_short_selling_data(from_date: str, to_date: str):
-    """
-    NSE short selling data in data frame
-    :param from_date:
-    :param to_date:
-    :return:
-    """
-    # print(from_date, to_date)
-    origin_url = "https://nsewebsite-staging.nseindia.com"
-    url = "https://www.nseindia.com/api/historicalOR/bulk-block-short-deals?optionType=short_selling&"
-    payload = f"from={from_date}&to={to_date}&csv=true"
-    data_text = nse_urlfetch(url + payload,origin_url=origin_url)
-    if data_text.status_code != 200:
-        raise NSEdataNotFound(f" Resource not available for short_selling_data")
-    data_df = pd.read_csv(BytesIO(data_text.content), index_col=False)
-    data_df.columns = [name.replace(' ', '') for name in data_df.columns]
-    return data_df
 
 
 def bhav_copy_with_delivery(trade_date: str):
@@ -821,72 +695,8 @@ def financial_results_for_equity(from_date: str = None,
     :return: pandas.DataFrame
     :raise ValueError if the parameter input is not proper
     """
-    validate_date_param(from_date, to_date, period)
-    from_date, to_date = derive_from_and_to_date(from_date=from_date, to_date=to_date, period=period)
-    origin_url = "https://www.nseindia.com/companies-listing/corporate-filings-financial-results"
-    url_ = "https://www.nseindia.com/api/corporates-financial-results?index=equities&"
-    if fo_sec:
-        payload = f'from_date={from_date}&to_date={to_date}&fo_sec=true&period={fin_period}'
-    else:
-        payload = f'from_date={from_date}&to_date={to_date}&period={fin_period}'
-    data_text = nse_urlfetch(url_ + payload, origin_url=origin_url)
-    if data_text.status_code != 200:
-        raise NSEdataNotFound(f" Resource not available for financial data with these parameters")
-    json_str = data_text.content.decode("utf-8")
-    data_list = json.loads(json_str)
-    master_data_df = pd.DataFrame(data_list)
-    master_data_df.columns = [name.replace(' ', '') for name in master_data_df.columns]
-    headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
-            'Accept': '*/*',
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Referer': 'https://www.nseindia.com/'
-        }
-    ns = {
-            "xbrli": "http://www.xbrl.org/2003/instance",
-            "in-bse-fin": "http://www.bseindia.com/xbrl/fin/2020-03-31/in-bse-fin"
-        }
-    keys_to_extract = [
-        "ScripCode", "Symbol", "MSEISymbol", "NameOfTheCompany", "ClassOfSecurity",
-        "DateOfStartOfFinancialYear", "DateOfEndOfFinancialYear",
-        "DateOfBoardMeetingWhenFinancialResultsWereApproved",
-        "DateOnWhichPriorIntimationOfTheMeetingForConsideringFinancialResultsWasInformedToTheExchange",
-        "DescriptionOfPresentationCurrency", "LevelOfRoundingUsedInFinancialStatements",
-        "ReportingQuarter", "StartTimeOfBoardMeeting", "EndTimeOfBoardMeeting",
-        "DateOfStartOfBoardMeeting", "DateOfEndOfBoardMeeting",
-        "DeclarationOfUnmodifiedOpinionOrStatementOnImpactOfAuditQualification",
-        "IsCompanyReportingMultisegmentOrSingleSegment", "DescriptionOfSingleSegment",
-        "DateOfStartOfReportingPeriod", "DateOfEndOfReportingPeriod",
-        "WhetherResultsAreAuditedOrUnaudited", "NatureOfReportStandaloneConsolidated",
-        "RevenueFromOperations", "OtherIncome", "Income", "CostOfMaterialsConsumed",
-        "PurchasesOfStockInTrade", "ChangesInInventoriesOfFinishedGoodsWorkInProgressAndStockInTrade",
-        "EmployeeBenefitExpense", "FinanceCosts", "DepreciationDepletionAndAmortisationExpense",
-        "OtherExpenses", "Expenses", "ProfitBeforeExceptionalItemsAndTax", "ExceptionalItemsBeforeTax",
-        "ProfitBeforeTax", "CurrentTax", "DeferredTax", "TaxExpense",
-        "NetMovementInRegulatoryDeferralAccountBalancesRelatedToProfitOrLossAndTheRelatedDeferredTaxMovement",
-        "ProfitLossForPeriodFromContinuingOperations", "ProfitLossFromDiscontinuedOperationsBeforeTax",
-        "TaxExpenseOfDiscontinuedOperations", "ProfitLossFromDiscontinuedOperationsAfterTax",
-        "ShareOfProfitLossOfAssociatesAndJointVenturesAccountedForUsingEquityMethod",
-        "ProfitLossForPeriod", "OtherComprehensiveIncomeNetOfTaxes",
-        "ComprehensiveIncomeForThePeriod", "ProfitOrLossAttributableToOwnersOfParent",
-        "ProfitOrLossAttributableToNonControllingInterests",
-        "ComprehensiveIncomeForThePeriodAttributableToOwnersOfParent",
-        "ComprehensiveIncomeForThePeriodAttributableToOwnersOfParentNonControllingInterests",
-        "PaidUpValueOfEquityShareCapital", "FaceValueOfEquityShareCapital",
-        "BasicEarningsLossPerShareFromContinuingOperations",
-        "DilutedEarningsLossPerShareFromContinuingOperations",
-        "BasicEarningsLossPerShareFromDiscontinuedOperations",
-        "DilutedEarningsLossPerShareFromDiscontinuedOperations",
-        "BasicEarningsLossPerShareFromContinuingAndDiscontinuedOperations",
-        "DilutedEarningsLossPerShareFromContinuingAndDiscontinuedOperations",
-        "DescriptionOfOtherExpenses", "OtherExpenses",
-        "DescriptionOfItemThatWillNotBeReclassifiedToProfitAndLoss",
-        "AmountOfItemThatWillNotBeReclassifiedToProfitAndLoss",
-        "IncomeTaxRelatingToItemsThatWillNotBeReclassifiedToProfitOrLoss",
-        "DescriptionOfItemThatWillBeReclassifiedToProfitAndLoss",
-        "AmountOfItemThatWillBeReclassifiedToProfitAndLoss",
-        "IncomeTaxRelatingToItemsThatWillBeReclassifiedToProfitOrLoss"
-    ]
+    master_data_df, headers, ns, keys_to_extract = get_financial_results_master(from_date, to_date, period,
+                                                                                fo_sec, fin_period)
     fin_df, df = pd.DataFrame(), pd.DataFrame()
     for row in master_data_df.itertuples(index=False):
         try:
@@ -1030,6 +840,66 @@ def event_calendar_for_equity(from_date: str = None,
     return master_data_df
 
 
+def top_gainers_or_losers(to_get: str = 'gainers'):
+    """
+    get top gainers or losers on live market, after market hour it will get as per last traded value
+    :param to_get: gainers/loosers
+    :return: pandas.DataFrame
+    :raise ValueError if the parameter input is not proper
+    """
+    static_options_list = ['gainers', 'loosers']
+    validate_param_from_list(to_get, static_options_list)
+    data_json = get_top_gainers_or_losers(to_get)
+    legends_dict = {item[0]: item[1] for item in data_json['legends']}
+    gainers_losers_df = pd.DataFrame()
+    for i in legends_dict.keys():
+        data_df = pd.DataFrame(data_json[i]['data'])
+        data_df['legend'] = i
+        if gainers_losers_df.empty:
+            gainers_losers_df = data_df
+        else:
+            gainers_losers_df = pd.concat([gainers_losers_df, data_df])
+    return gainers_losers_df
+
+
+def most_active_equities(fetch_by: str = 'value'):
+    """
+    to get most active equities fetched by value/volume in live market, after market hour it will get as per last traded value
+    link : https://www.nseindia.com/market-data/most-active-equities
+    :param fetch_by: select any volume/value
+    :return: pandas dataframe
+    """
+    static_options_list = ['volume', 'value']
+    validate_param_from_list(fetch_by, static_options_list)
+    origin_url = "https://www.nseindia.com/market-data/most-active-equities"
+    url = f"https://www.nseindia.com/api/live-analysis-most-active-securities?index={fetch_by}"
+    try:
+        data_json = nse_urlfetch(url, origin_url=origin_url).json()
+        data_df = pd.DataFrame(data_json['data'])
+    except Exception as e:
+        raise NSEdataNotFound(f" Resource not available MSG: {e}")
+    return data_df
+
+
+def total_traded_stocks():
+    """
+    to get all total traded stocks detail in live market, after market hour it will get as per last traded value
+    summary_dict - has the live market summary for the stocks in dictionary format
+    detail_df - has all detail available in the current market in dataframe format
+    link : https://www.nseindia.com/market-data/stocks-traded
+    :return: summary_dict, detail_df
+    """
+    origin_url = "https://www.nseindia.com/market-data/stocks-traded"
+    url = f"https://www.nseindia.com/api/live-analysis-stocksTraded"
+    try:
+        data_json = nse_urlfetch(url, origin_url=origin_url).json()
+        summary_dict = data_json['total']['count']
+        detail_df = pd.DataFrame(data_json['total']['data'])
+    except Exception as e:
+        raise NSEdataNotFound(f" Resource not available MSG: {e}")
+    return summary_dict, detail_df
+
+
 # if __name__ == '__main__':
     # data = pe_ratio(trade_date='11-09-2024')  # trade_date='11-09-2024'
     # data = index_data(index='NIFTY 50', period='1W')
@@ -1040,6 +910,7 @@ def event_calendar_for_equity(from_date: str = None,
     # data = index_data(index='NIFTY 50', from_date='21-10-2024', to_date='30-10-2024')
     # data = deliverable_position_data(symbol='SBIN', from_date='23-03-2024', to_date='23-06-2024')
     # data = market_watch_all_indices()
+    # data = fno_equity_list()
     # data = price_volume_and_deliverable_position_data(symbol='SBIN',  from_date='23-03-2024', to_date='23-06-2024')
     # data = price_volume_and_deliverable_position_data(symbol='SBIN', period='1M')
     # data = price_volume_data(symbol='SBIN', from_date='20-06-2023', to_date='20-07-2023')
@@ -1048,6 +919,9 @@ def event_calendar_for_equity(from_date: str = None,
     # data = corporate_actions_for_equity(period='6M', fno_only=False)
     # data = event_calendar_for_equity(period='1M', fno_only=False)
     # data = sme_band_complete(trade_date='11-03-2025')
+    # data = top_gainers_or_losers('loosers')   # gainers/losers
+    # data = most_active_equities(fetch_by='volume')  # value/volume
+    # data = total_traded_stocks()
     # data.to_csv(fr'C:\Ruchi Tanmay\Stock Market\Data Analysis\Final Data\data.csv')
 
     # data = niftymidcap150_equity_list()

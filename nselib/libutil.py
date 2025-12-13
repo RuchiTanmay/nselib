@@ -2,7 +2,7 @@ import os
 from datetime import datetime, timedelta, date
 import requests
 import numpy as np
-from dateutil.relativedelta import relativedelta
+# from dateutil.relativedelta import relativedelta
 import pandas as pd
 from nselib.constants import *
 import pandas_market_calendars as mcal
@@ -40,6 +40,13 @@ class NSEdataNotFound(Exception):
         super(NSEdataNotFound, self).__init__(message)
 
 
+def validate_param_from_list(value: str, static_options_list: list):
+    if value not in static_options_list:
+        raise ValueError(f"'{value}' not a valid parameter :: select from {static_options_list}")
+    else:
+        pass
+
+
 def validate_date_param(from_date: str, to_date: str, period: str):
     if not period and (not from_date or not to_date):
         raise ValueError(' Please provide the valid parameters')
@@ -58,6 +65,28 @@ def validate_date_param(from_date: str, to_date: str, period: str):
         raise ValueError(f'either or both from_date = {from_date} || to_date = {to_date} are not valid value')
 
 
+def subtract_months(dt, months):
+    # calculate target year and month
+    year = dt.year
+    month = dt.month - months
+
+    # adjust year and month when month < 1
+    while month <= 0:
+        month += 12
+        year -= 1
+
+    # maximum days in each month
+    month_days = [31,
+                  29 if (year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)) else 28,
+                  31, 30, 31, 30,
+                  31, 31, 30, 31, 30, 31]
+
+    # adjust the day if current date > max days in target month
+    day = min(dt.day, month_days[month - 1])
+
+    return date(year, month, day)
+
+
 def derive_from_and_to_date(from_date: str = None, to_date: str = None, period: str = None):
     if not period:
         return from_date, to_date
@@ -70,9 +99,9 @@ def derive_from_and_to_date(from_date: str = None, to_date: str = None, period: 
                   ]
     value = [today - timedelta(days=1),
              today - timedelta(weeks=1),
-             today - relativedelta(months=1),
-             today - relativedelta(months=6),
-             today - relativedelta(months=12)]
+             subtract_months(today, 1),
+             subtract_months(today, 6),
+             subtract_months(today, 12)]
 
     f_date = np.select(conditions, value, default=(today - timedelta(days=1)))
     f_date = pd.to_datetime(str(f_date))
