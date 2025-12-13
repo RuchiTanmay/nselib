@@ -1,4 +1,4 @@
-# NSElib 2.2
+# NSElib 2.3
 
 Python Library to get publicly available data on new NSE india website.
 
@@ -72,6 +72,9 @@ data = nselib.trading_holiday_calendar()
 * pe_ratio
 * corporate_actions_for_equity
 * event_calendar_for_equity
+* top_gainers_or_losers
+* most_active_equities
+* total_traded_stocks
 
 Example : 
 
@@ -98,6 +101,7 @@ More functions will be available in future releases...
 * nse_live_option_chain
 * fii_derivatives_statistics
 * fno_security_in_ban_period
+* live_most_active_underlying
 
 Example : 
 
@@ -116,6 +120,7 @@ More functions will be available in future releases...
 ### Indices
 * index_list
 * constituent_stock_list
+* live_index_performances
 
 Example :
 
