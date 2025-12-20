@@ -131,6 +131,13 @@ data = indices.constituent_stock_list(index_category='BroadMarketIndices', index
 More functions will be available in future releases...
 
 ### Debt
+* securities_available_for_trading
+
+Example : 
+
+from nselib import debt
+
+data = debt.securities_available_for_trading(trade_date='20-12-2025')
 
 More functions will be available in future releases...
 
