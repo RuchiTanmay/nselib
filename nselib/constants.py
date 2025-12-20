@@ -44,8 +44,8 @@ future_price_volume_data_column = ['TIMESTAMP', 'INSTRUMENT', 'SYMBOL', 'EXPIRY_
 india_vix_data_column = ['TIMESTAMP', 'INDEX_NAME', 'OPEN_INDEX_VAL', 'CLOSE_INDEX_VAL', 'HIGH_INDEX_VAL',
                          'LOW_INDEX_VAL', 'PREV_CLOSE', 'VIX_PTS_CHG', 'VIX_PERC_CHG']
 
-index_data_columns = ['TIMESTAMP', 'INDEX_NAME', 'OPEN_INDEX_VAL', 'HIGH_INDEX_VAL', 'CLOSE_INDEX_VAL',
-                      'LOW_INDEX_VAL', 'TRADED_QTY', 'TURN_OVER']
+index_data_columns = ['INDEX_NAME', 'OPEN_INDEX_VAL', 'HIGH_INDEX_VAL', 'CLOSE_INDEX_VAL',
+                      'LOW_INDEX_VAL', 'TURN_OVER', 'TRADED_QTY', 'TIMESTAMP']
 
 var_columns = ['RecordType', 'Symbol', 'Series', 'Isin', 'SecurityVaR', 'IndexVaR', 'VaRMargin',
                'ExtremeLossRate', 'AdhocMargin', 'ApplicableMarginRate']

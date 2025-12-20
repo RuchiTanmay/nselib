@@ -1,4 +1,3 @@
-import pandas as pd
 import datetime as dt
 import zipfile
 import xml.etree.ElementTree as ET
@@ -174,7 +173,7 @@ def index_data(index: str, from_date: str = None, to_date: str = None, period: s
     """
     validate_date_param(from_date, to_date, period)
     from_date, to_date = derive_from_and_to_date(from_date=from_date, to_date=to_date, period=period)
-    nse_df = pd.DataFrame(columns=index_data_columns)
+    nse_df = pd.DataFrame()
     from_date = datetime.strptime(from_date, dd_mm_yyyy)
     to_date = datetime.strptime(to_date, dd_mm_yyyy)
     load_days = (to_date - from_date).days
@@ -389,7 +388,7 @@ def equity_list():
     """
     origin_url = "https://nsewebsite-staging.nseindia.com"
     url = "https://archives.nseindia.com/content/equities/EQUITY_L.csv"
-    file_chk = nse_urlfetch(url,origin_url=origin_url)
+    file_chk = nse_urlfetch(url, origin_url=origin_url)
     if file_chk.status_code != 200:
         raise FileNotFoundError(f" No data equity list available")
     try:
@@ -497,8 +496,8 @@ def market_watch_all_indices():
     data_df = pd.DataFrame(data_json['data'])
     print(data_df.columns)
     return data_df[['key', 'index', 'indexSymbol', 'last', 'variation', 'percentChange', 'open', 'high', 'low',
-                   'previousClose', 'yearHigh', 'yearLow', 'pe', 'pb', 'dy', 'declines', 'advances', 'unchanged',
-                   'perChange365d', 'perChange30d', 'previousDay', 'oneWeekAgoVal', 'oneMonthAgoVal', 'oneYearAgoVal']]
+                    'previousClose', 'yearHigh', 'yearLow', 'pe', 'pb', 'dy', 'declines', 'advances', 'unchanged',
+                    'perChange365d', 'perChange30d', 'previousDay', 'oneWeekAgoVal', 'oneMonthAgoVal', 'oneYearAgoVal']]
 
 
 def fii_dii_trading_activity():

@@ -2,7 +2,6 @@ import os
 from datetime import datetime, timedelta, date
 import requests
 import numpy as np
-# from dateutil.relativedelta import relativedelta
 import pandas as pd
 from nselib.constants import *
 import pandas_market_calendars as mcal
@@ -115,7 +114,7 @@ def derive_from_and_to_date(from_date: str = None, to_date: str = None, period: 
     return from_date, today
 
 
-def cleaning_column_name(col:list):
+def cleaning_column_name(col: list):
     unwanted_str_list = ['FH_', 'EOD_', 'HIT_']
     new_col = col
     for unwanted in unwanted_str_list:
@@ -141,6 +140,15 @@ def get_nselib_path():
     """
     mydir = os.getcwd()
     return mydir.split(r'\nselib', 1)[0]
+
+
+def get_month_from_date(trade_date):
+    """
+    get the month
+    :param trade_date:
+    :return: 'Dec'
+    """
+    return datetime.strptime(trade_date, '%Y-%m-%d').strftime('%b')
 
 
 def trading_holiday_calendar():

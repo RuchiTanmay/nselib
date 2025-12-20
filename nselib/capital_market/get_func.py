@@ -67,18 +67,15 @@ def get_india_vix_data(from_date: str, to_date: str):
 def get_index_data(index: str, from_date: str, to_date: str):
     index = index.replace(' ', '%20').upper()
     origin_url = "https://www.nseindia.com/reports-indices-historical-index-data"
-    url = f"https://www.nseindia.com/api/historical/indicesHistory?indexType={index}&from={from_date}&to={to_date}"
+    url = f"https://www.nseindia.com/api/historicalOR/indicesHistory?indexType={index}&from={from_date}&to={to_date}"
     try:
         data_json = nse_urlfetch(url, origin_url=origin_url).json()
-        data_close_df = pd.DataFrame(data_json['data']['indexCloseOnlineRecords']).drop(columns=['_id', "EOD_TIMESTAMP"])
-        data_turnover_df = pd.DataFrame(data_json['data']['indexTurnoverRecords']).drop(columns=['_id',
-                                                                                                 'HIT_INDEX_NAME_UPPER'])
-        data_df = pd.merge(data_close_df,data_turnover_df, on='TIMESTAMP', how='inner')
+        data_df = pd.DataFrame(data_json['data'])
     except Exception as e:
         raise NSEdataNotFound(f" Resource not available MSG: {e}")
-    data_df.drop(columns='TIMESTAMP', inplace=True)
-    data_df.columns = cleaning_column_name(data_df.columns)
-    return data_df[index_data_columns]
+    data_df.drop(columns='HI_TIMESTAMP', inplace=True)
+    data_df.columns = index_data_columns
+    return data_df
 
 
 def get_bulk_deal_data(from_date: str, to_date: str):

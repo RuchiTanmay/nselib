@@ -14,9 +14,11 @@ nselib.egg-info/requires.txt
 nselib.egg-info/top_level.txt
 nselib/capital_market/__init__.py
 nselib/capital_market/capital_market_data.py
+nselib/capital_market/get_func.py
 nselib/debt/__init__.py
 nselib/derivatives/__init__.py
 nselib/derivatives/derivative_data.py
+nselib/derivatives/get_func.py
 nselib/indices/__init__.py
 nselib/indices/config.py
 nselib/indices/index_data.py
