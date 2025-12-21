@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: nselib
-Version: 2.3
+Version: 2.4
 Summary: library to get NSE India data
 Home-page: https://github.com/RuchiTanmay/nselib
 Author: Ruchi Tanmay, Amlan Mishra
@@ -18,7 +18,7 @@ Classifier: Topic :: Software Development :: Libraries :: Python Modules
 Description-Content-Type: text/markdown
 License-File: LICENSE
 
-# NSElib 2.3
+# NSElib 2.4
 
 Python Library to get publicly available data on new NSE india website.
 
@@ -151,6 +151,13 @@ data = indices.constituent_stock_list(index_category='BroadMarketIndices', index
 More functions will be available in future releases...
 
 ### Debt
+* securities_available_for_trading
+
+Example : 
+
+from nselib import debt
+
+data = debt.securities_available_for_trading(trade_date='20-12-2025')
 
 More functions will be available in future releases...
 

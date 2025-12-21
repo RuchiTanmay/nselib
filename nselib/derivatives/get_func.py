@@ -6,20 +6,20 @@ from nselib.constants import *
 
 def get_future_price_volume_data(symbol: str, instrument: str, from_date: str, to_date: str):
     origin_url = "https://www.nseindia.com/report-detail/fo_eq_security"
-    url = "https://www.nseindia.com/api/historical/foCPV?"
+    url = "https://www.nseindia.com/api/historicalOR/foCPV?"
     payload = f"from={from_date}&to={to_date}&instrumentType={instrument}&symbol={symbol}&csv=true"
     try:
         data_dict = nse_urlfetch(url + payload, origin_url=origin_url).json()
     except Exception as e:
         raise ValueError(f" Invalid parameters : NSE error:{e}")
-    data_df = pd.DataFrame(data_dict['data']).drop(columns='TIMESTAMP')
+    data_df = pd.DataFrame(data_dict['data'])
     data_df.columns = cleaning_column_name(data_df.columns)
-    return data_df[future_price_volume_data_column]
+    return data_df
 
 
 def get_option_price_volume_data(symbol: str, instrument: str, option_type: str, from_date: str, to_date: str):
     origin_url = "https://www.nseindia.com/report-detail/fo_eq_security"
-    url = "https://www.nseindia.com/api/historical/foCPV?"
+    url = "https://www.nseindia.com/api/historicalOR/foCPV?"
     payload = f"from={from_date}&to={to_date}&instrumentType={instrument}&symbol={symbol}" \
               f"&optionType={option_type}&csv=true"
     try:
@@ -29,7 +29,6 @@ def get_option_price_volume_data(symbol: str, instrument: str, option_type: str,
     data_df = pd.DataFrame(data_dict['data'])
     if data_df.empty:
         raise ValueError(f"Invalid parameters, Please change the parameters")
-    data_df = data_df.drop(columns='TIMESTAMP')
     data_df.columns = cleaning_column_name(data_df.columns)
     return data_df[future_price_volume_data_column]
 
