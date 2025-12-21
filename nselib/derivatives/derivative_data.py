@@ -360,17 +360,14 @@ def live_most_active_underlying():
 # if __name__ == '__main__':
     # df = future_price_volume_data("BANKNIFTY", "FUTIDX", from_date='01-11-2025', to_date='08-12-2025', period='6M')
     # df = option_price_volume_data('NIFTY', 'OPTIDX', period='1D')
-    # df = get_nse_option_chain(symbol='TCS', expiry_date='30-Dec-2025').json()
+    # df = nse_live_option_chain(symbol='TCS', expiry_date='30-12-2025')
     # df = fii_derivatives_statistics(trade_date='16-09-2024')
     # df = participant_wise_trading_volume(trade_date='16-09-2024')
     # df = fno_security_in_ban_period(trade_date='26-03-2025')
     # df = expiry_dates_option_index()
     # df = expiry_dates_future()
     # df = fno_bhav_copy('17-02-2025')
-    # df = option_price_volume_data('NIFTY', 'OPTIDX', option_type='PE', period='1D')
-    # df = nse_live_option_chain(symbol="TCS", expiry_date='30-12-2025', oi_mode="full")
     # df = live_most_active_underlying()
     # print(df)
     # print(df.columns)
     # print(df[df['EXPIRY_DT']=='27-Jul-2023'])
-
