@@ -1,5 +1,8 @@
 # CHANGE LOG
 #### All the changes are listed...
+### Version: 2.4.2 [11/01/2026]
+* dateutil issue fix
+
 ### Version: 2.4.1 [21/12/2025]
 * future_price_volume_data issue fix
 
