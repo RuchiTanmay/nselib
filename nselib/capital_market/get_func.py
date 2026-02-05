@@ -11,12 +11,9 @@ def get_price_volume_and_deliverable_position_data(symbol: str, from_date: str, 
     try:
         data_text = nse_urlfetch(url + payload, origin_url=origin_url).text
         data_text = data_text.replace('\x82', '').replace('â¹', 'In Rs')
-        with open('file.csv', 'w') as f:
-            f.write(data_text)
-        f.close()
     except Exception as e:
         raise NSEdataNotFound(f" Resource not available MSG: {e}")
-    data_df = pd.read_csv('file.csv')
+    data_df = pd.read_csv(StringIO(data_text))
     data_df.columns = [name.replace(' ', '') for name in data_df.columns]
     return data_df
 
