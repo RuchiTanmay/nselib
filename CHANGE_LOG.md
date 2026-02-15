@@ -1,5 +1,10 @@
 # CHANGE LOG
 #### All the changes are listed...
+
+### Version: 2.4.3 [15/02/2026]
+* removing shared CSV file
+* absolute import import config
+
 ### Version: 2.4.2 [11/01/2026]
 * dateutil issue fix
 
