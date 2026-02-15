@@ -21,5 +21,5 @@ nselib/derivatives/__init__.py
 nselib/derivatives/derivative_data.py
 nselib/derivatives/get_func.py
 nselib/indices/__init__.py
-nselib/indices/config.py
 nselib/indices/index_data.py
+nselib/indices/nse_config.py
