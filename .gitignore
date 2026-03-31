@@ -1,5 +1,9 @@
 # created by virtualenv automatically
 venv/
+.venv/
+.env/
+.idea/
+pyvenv.cfg
 *.csv
 __pycache__/
 *.xml

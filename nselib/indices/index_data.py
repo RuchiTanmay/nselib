@@ -1,7 +1,7 @@
 from io import BytesIO
 from nselib.libutil import *
-import nse_config as conf
 import pandas as pd
+import nselib.indices.nse_config as conf
 
 
 def get_class(index_category: str):
@@ -28,7 +28,7 @@ def validate_index_category(index_category: str = 'BroadMarketIndices'):
     if index_category in category_list:
         pass
     else:
-        raise ValueError(f'{index_category} is not a valid index_category:: please select category_list from list :  {category_list}')
+        raise ValueError(f'{index_category} is not a valid index_category:: please select category_list from list : {category_list}')
 
 
 def validate_index_name(index_category: str = 'BroadMarketIndices', index_name: str = 'Nifty 50'):
@@ -79,8 +79,8 @@ def live_index_performances():
     return data_df
 
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
 
     # data = constituent_stock_list(index_category='BroadMarketIndices', index_name='Nifty  50')
-    # data = live_index_performances()
-    # print(data)
+    data = live_index_performances()
+    print(data)

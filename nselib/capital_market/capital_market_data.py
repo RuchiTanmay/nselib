@@ -901,12 +901,12 @@ def total_traded_stocks():
 
 # if __name__ == '__main__':
     # data = pe_ratio(trade_date='11-09-2024')  # trade_date='11-09-2024'
-    # data = index_data(index='NIFTY 50', period='1W')
+    # data = index_data(index='NIFTY 50', period='6M')
     # data = block_deals_data(period='1W')
     # data = bulk_deal_data(period='1W')
     # data = india_vix_data(period='1W')
     # data = short_selling_data(period='1W')
-    # data = index_data(index='NIFTY 50', from_date='21-10-2024', to_date='30-10-2024')
+    # data = index_data(index='NIFTY MIDCAP 150', from_date='21-10-2024', to_date='30-10-2024')
     # data = deliverable_position_data(symbol='SBIN', from_date='23-03-2024', to_date='23-06-2024')
     # data = market_watch_all_indices()
     # data = fno_equity_list()
@@ -927,6 +927,7 @@ def total_traded_stocks():
 
     # data = niftymidcap150_equity_list()
     # print(data)
+    # print(data.columns)
     # print(data.info())
     # -----------------------------------------------------
 
