@@ -51,4 +51,34 @@ def get_nse_option_chain(symbol: str, expiry_date: str):
     return payload
 
 
+def _get_business_growth_fo_segment_data(api_path: str):
+    origin_url = "https://www.nseindia.com/market-data/business-growth-fo-segment"
+    url = f"https://www.nseindia.com{api_path}"
+    try:
+        r_session = requests.session()
+        r_session.trust_env = False
+        nse_live = r_session.get(origin_url, headers=default_header)
+        cookies = nse_live.cookies
+        data_json = r_session.get(url, headers=header, cookies=cookies).json()
+    except Exception as e:
+        raise NSEdataNotFound(f" Resource not available MSG: {e}")
+    return data_json
+
+
+def get_business_growth_fo_segment_yearly():
+    return _get_business_growth_fo_segment_data("/api/historicalOR/fo/tbg/yearly")
+
+
+def get_business_growth_fo_segment_monthly(from_year: str, to_year: str):
+    return _get_business_growth_fo_segment_data(
+        f"/api/historicalOR/fo/tbg/monthly?from={from_year}&to={to_year}"
+    )
+
+
+def get_business_growth_fo_segment_daily(month: str, year: str):
+    return _get_business_growth_fo_segment_data(
+        f"/api/historicalOR/fo/tbg/daily?month={month}&year={year}"
+    )
+
+
 

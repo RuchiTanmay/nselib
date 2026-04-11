@@ -899,6 +899,95 @@ def total_traded_stocks():
     return summary_dict, detail_df
 
 
+def _normalize_business_growth_cm_segment_financial_year(from_year, to_year):
+    if to_year is None and from_year is not None and "-" in str(from_year):
+        from_year, to_year = [part.strip() for part in str(from_year).split("-", 1)]
+    if from_year is None or to_year is None:
+        raise ValueError(" For monthly data provide from_year and to_year, e.g. from_year='2025', to_year='2026'")
+    return str(from_year).strip(), str(to_year).strip()
+
+
+def _normalize_business_growth_cm_segment_daily_args(month, year):
+    if year is None and month is not None and "-" in str(month):
+        month, year = [part.strip() for part in str(month).split("-", 1)]
+    if month is None or year is None:
+        raise ValueError(" For daily data provide month and year, e.g. month='Mar', year='26'")
+
+    month = str(month).strip()
+    try:
+        month = datetime.strptime(month[:3].title(), "%b").strftime("%b")
+    except ValueError as exc:
+        raise ValueError(" month should be a valid month name like 'Mar' or 'March'") from exc
+
+    year = str(year).strip()
+    if len(year) == 4 and year.isdigit():
+        year = year[-2:]
+    return month, year
+
+
+def _business_growth_cm_segment_dataframe(data_json):
+    records = [row.get("data", row) for row in data_json.get("data", [])]
+    data_df = pd.DataFrame(records)
+    if data_df.empty:
+        return data_df
+
+    data_df = data_df.replace({r"\r": ""}, regex=True)
+    for order_column in ["GTM_MONTH_YEAR_ORDER", "CDT_DATE_ORDER"]:
+        if order_column in data_df.columns:
+            data_df[order_column] = pd.to_datetime(data_df[order_column], errors="coerce")
+
+    preserve_columns = {"type", "TYPE", "GLY_MONTH_YEAR", "GLM_MONTH_YEAR", "F_TIMESTAMP"}
+    null_map = {"": np.nan, "-": np.nan, "--": np.nan, "None": np.nan, "nan": np.nan, "NaN": np.nan}
+
+    for column_name in data_df.columns:
+        if column_name in preserve_columns or column_name.endswith("_ORDER"):
+            continue
+        if pd.api.types.is_datetime64_any_dtype(data_df[column_name]):
+            continue
+        cleaned_series = data_df[column_name].astype(str).str.replace(",", "", regex=False).str.strip()
+        normalized_series = cleaned_series.replace(null_map)
+        numeric_series = pd.to_numeric(normalized_series, errors="coerce")
+        if numeric_series.notna().sum() == normalized_series.notna().sum():
+            data_df[column_name] = numeric_series
+        else:
+            data_df[column_name] = normalized_series
+
+    meta_keys = [key for key in data_json.keys() if key != "data"]
+    if meta_keys:
+        data_df.attrs["metadata"] = {key: data_json[key] for key in meta_keys}
+    return data_df
+
+
+def business_growth_cm_segment(data_type: str = "yearly",
+                               from_year: str = None,
+                               to_year: str = None,
+                               month: str = None,
+                               year: str = None):
+    """
+    get historical business growth data for the NSE capital market (CM) segment.
+    :param data_type: use one {'yearly', 'monthly', 'daily'}
+    :param from_year: required for monthly data. eg: '2025' for FY 2025-2026
+    :param to_year: required for monthly data. eg: '2026' for FY 2025-2026
+    :param month: required for daily data. eg: 'Mar', 'March' or 'Mar-26'
+    :param year: required for daily data. eg: '26' or '2026'
+    :return: pandas.DataFrame
+    :raise ValueError if the parameter input is not proper
+    """
+    static_options_list = ["yearly", "monthly", "daily"]
+    validate_param_from_list(data_type, static_options_list)
+
+    if data_type == "yearly":
+        data_json = get_business_growth_cm_segment_yearly()
+    elif data_type == "monthly":
+        from_year, to_year = _normalize_business_growth_cm_segment_financial_year(from_year, to_year)
+        data_json = get_business_growth_cm_segment_monthly(from_year=from_year, to_year=to_year)
+    else:
+        month, year = _normalize_business_growth_cm_segment_daily_args(month, year)
+        data_json = get_business_growth_cm_segment_daily(month=month, year=year)
+
+    return _business_growth_cm_segment_dataframe(data_json)
+
+
 # if __name__ == '__main__':
     # data = pe_ratio(trade_date='11-09-2024')  # trade_date='11-09-2024'
     # data = index_data(index='NIFTY 50', period='1W')
@@ -921,6 +1010,9 @@ def total_traded_stocks():
     # data = top_gainers_or_losers('loosers')   # gainers/losers
     # data = most_active_equities(fetch_by='volume')  # value/volume
     # data = total_traded_stocks()
+    # data = business_growth_cm_segment(data_type='yearly')
+    # data = business_growth_cm_segment(data_type='monthly', from_year='2025', to_year='2026')
+    # data = business_growth_cm_segment(data_type='daily', month='Mar', year='26')
     # df = index_data("NIFTY 50", from_date="01-11-2024", to_date="27-12-2024")
     # print(f"Success! Got {df} rows")
     # data.to_csv(fr'C:\Ruchi Tanmay\Stock Market\Data Analysis\Final Data\data.csv')

@@ -357,6 +357,91 @@ def live_most_active_underlying():
     return data_df
 
 
+def _normalize_business_growth_fo_segment_financial_year(from_year, to_year):
+    if to_year is None and from_year is not None and "-" in str(from_year):
+        from_year, to_year = [part.strip() for part in str(from_year).split("-", 1)]
+    if from_year is None or to_year is None:
+        raise ValueError(" For monthly data provide from_year and to_year, e.g. from_year='2025', to_year='2026'")
+    return str(from_year).strip(), str(to_year).strip()
+
+
+def _normalize_business_growth_fo_segment_daily_args(month, year):
+    if year is None and month is not None and "-" in str(month):
+        month, year = [part.strip() for part in str(month).split("-", 1)]
+    if month is None or year is None:
+        raise ValueError(" For daily data provide month and year, e.g. month='Mar', year='2026'")
+
+    month = str(month).strip()
+    try:
+        month = datetime.strptime(month[:3].title(), "%b").strftime("%b")
+    except ValueError as exc:
+        raise ValueError(" month should be a valid month name like 'Mar' or 'March'") from exc
+
+    year = str(year).strip()
+    if len(year) == 2 and year.isdigit():
+        year = f"20{year}"
+    return month, year
+
+
+def _business_growth_fo_segment_dataframe(data_json):
+    records = [row.get("data", row) for row in data_json.get("data", [])]
+    data_df = pd.DataFrame(records)
+    if data_df.empty:
+        return data_df
+
+    data_df = data_df.replace({r"\r": ""}, regex=True)
+    preserve_columns = {"type", "TYPE", "date"}
+    null_map = {"": np.nan, "-": np.nan, "--": np.nan, "None": np.nan, "nan": np.nan, "NaN": np.nan}
+
+    for column_name in data_df.columns:
+        if column_name in preserve_columns:
+            continue
+        if pd.api.types.is_datetime64_any_dtype(data_df[column_name]):
+            continue
+        cleaned_series = data_df[column_name].astype(str).str.replace(",", "", regex=False).str.strip()
+        normalized_series = cleaned_series.replace(null_map)
+        numeric_series = pd.to_numeric(normalized_series, errors="coerce")
+        if numeric_series.notna().sum() == normalized_series.notna().sum():
+            data_df[column_name] = numeric_series
+        else:
+            data_df[column_name] = normalized_series
+
+    meta_keys = [key for key in data_json.keys() if key != "data"]
+    if meta_keys:
+        data_df.attrs["metadata"] = {key: data_json[key] for key in meta_keys}
+    return data_df
+
+
+def business_growth_fo_segment(data_type: str = "yearly",
+                               from_year: str = None,
+                               to_year: str = None,
+                               month: str = None,
+                               year: str = None):
+    """
+    get historical business growth data for the NSE F&O segment.
+    :param data_type: use one {'yearly', 'monthly', 'daily'}
+    :param from_year: required for monthly data. eg: '2025' for FY 2025-2026
+    :param to_year: required for monthly data. eg: '2026' for FY 2025-2026
+    :param month: required for daily data. eg: 'Mar', 'March' or 'Mar-26'
+    :param year: required for daily data. eg: '2026' or '26'
+    :return: pandas.DataFrame
+    :raise ValueError if the parameter input is not proper
+    """
+    static_options_list = ["yearly", "monthly", "daily"]
+    validate_param_from_list(data_type, static_options_list)
+
+    if data_type == "yearly":
+        data_json = get_business_growth_fo_segment_yearly()
+    elif data_type == "monthly":
+        from_year, to_year = _normalize_business_growth_fo_segment_financial_year(from_year, to_year)
+        data_json = get_business_growth_fo_segment_monthly(from_year=from_year, to_year=to_year)
+    else:
+        month, year = _normalize_business_growth_fo_segment_daily_args(month, year)
+        data_json = get_business_growth_fo_segment_daily(month=month, year=year)
+
+    return _business_growth_fo_segment_dataframe(data_json)
+
+
 # if __name__ == '__main__':
     # df = future_price_volume_data("BANKNIFTY", "FUTIDX", from_date='01-11-2025', to_date='08-12-2025', period='6M')
     # df = option_price_volume_data('NIFTY', 'OPTIDX', period='1W')
@@ -368,6 +453,9 @@ def live_most_active_underlying():
     # df = expiry_dates_future()
     # df = fno_bhav_copy('17-02-2025')
     # df = live_most_active_underlying()
+    # df = business_growth_fo_segment(data_type='yearly')
+    # df = business_growth_fo_segment(data_type='monthly', from_year='2025', to_year='2026')
+    # df = business_growth_fo_segment(data_type='daily', month='Mar', year='2026')
     # print(df)
     # print(df.columns)
     # print(df[df['EXPIRY_DT']=='27-Jul-2023'])
