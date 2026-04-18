@@ -56,6 +56,7 @@ data = nselib.trading_holiday_calendar()
 * india_vix_data
 * index_data
 * market_watch_all_indices
+* daily_volatility
 * fii_dii_trading_activity
 * var_begin_day
 * var_1st_intra_day
@@ -88,6 +89,8 @@ data = capital_market.price_volume_and_deliverable_position_data(symbol='SBIN', 
 
 data = capital_market.bhav_copy_with_delivery(trade_date='20-06-2024')
 
+data = capital_market.daily_volatility(trade_date='17-04-2026')
+
 More functions will be available in future releases...
 
 ### Derivative
@@ -96,6 +99,7 @@ More functions will be available in future releases...
 * fno_bhav_copy
 * participant_wise_open_interest
 * participant_wise_trading_volume
+* daily_volatility
 * expiry_dates_future
 * expiry_dates_option_index
 * nse_live_option_chain
@@ -112,6 +116,8 @@ data = derivatives.future_price_volume_data(symbol='SBIN', instrument='FUTSTK', 
 OR
 
 data = derivatives.price_volume_and_deliverable_position_data(symbol='BANKNIFTY', instrument='FUTIDX', period='1M')
+
+data = derivatives.daily_volatility(trade_date='17-04-2026')
 
 Note: instrument type ( future index = FUTIDX, future stocks = FUTSTK, option index = OPTIDX, option stocks = OPTSTK)
 

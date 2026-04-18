@@ -179,6 +179,49 @@ def participant_wise_trading_volume(trade_date: str):
     return data_df
 
 
+def daily_volatility(trade_date: str):
+    """
+    get F&O daily volatility report as per the traded date provided
+    :param trade_date: eg:'20-06-2023'
+    :return: pandas dataframe
+    """
+    trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
+    payload = f"FOVOLT_{str(trade_date.strftime('%d%m%Y'))}.csv"
+    origin_url = "https://www.nseindia.com/all-reports-derivatives"
+    report_urls = [
+        f"https://nsearchives.nseindia.com/archives/nsccl/volt/{payload}",
+        f"https://archives.nseindia.com/archives/nsccl/volt/{payload}",
+        "https://www.nseindia.com/api/reports?archives="
+        "%5B%7B%22name%22%3A%22F%26O%20-%20Daily%20Volatility%22%2C%22type%22%3A%22archives%22%2C%22category%22"
+        f"%3A%22derivatives%22%2C%22section%22%3A%22equity%22%7D%5D&date={str(trade_date.strftime('%d-%b-%Y'))}"
+        f"&type=equity&mode=single",
+    ]
+    last_status_code = None
+    for url in report_urls:
+        # NSE archive requests can fail behind stale local proxy settings, so fetch this report
+        # with a session that ignores environment proxies while preserving the usual cookie flow.
+        r_session = requests.session()
+        r_session.trust_env = False
+        nse_live = r_session.get(origin_url, headers=default_header)
+        cookies = nse_live.cookies
+        report = r_session.get(url, headers=header, cookies=cookies)
+        last_status_code = report.status_code
+        if report.status_code != 200:
+            continue
+        try:
+            data_df = pd.read_csv(BytesIO(report.content), skipinitialspace=True)
+        except Exception as exc:
+            raise FileNotFoundError(
+                f" Daily volatility data not found for : {trade_date.strftime(dd_mm_yyyy)} :: NSE error : {exc}"
+            )
+        data_df = data_df.dropna(how='all')
+        data_df.columns = [column_name.strip() for column_name in data_df.columns]
+        return data_df
+    raise FileNotFoundError(
+        f" No daily volatility data available for : {trade_date.strftime(dd_mm_yyyy)} :: status={last_status_code}"
+    )
+
+
 def fii_derivatives_statistics(trade_date: str):
     """
     get FII derivatives statistics as per the traded date provided
