@@ -50,7 +50,7 @@ class NiftySectoralIndices:
 
 class NiftyBroadMarketIndices:
     indices_list = ["Nifty 50", "Nifty Next 50", "Nifty 100", "Nifty 200", "Nifty Total Market", "Nifty 500",
-                    "Nifty Midcap150", "Nifty Midcap 50", "Nifty Midcap Select", "Nifty Midcap 100",
+                    "Nifty Midcap 150", "Nifty Midcap 50", "Nifty Midcap Select", "Nifty Midcap 100",
                     "Nifty Smallcap 250", "Nifty Smallcap 50", "Nifty Smallcap 100", "Nifty Microcap 250",
                     "Nifty LargeMidcap 250", "Nifty MidSmallcap 400", "Nifty India FPI 150", "India Vix"]
     index_constituent_list_urls = {
@@ -60,7 +60,7 @@ class NiftyBroadMarketIndices:
         "Nifty 200": "https://nsearchives.nseindia.com/content/indices/ind_nifty200list.csv",
         "Nifty Total Market": "https://nsearchives.nseindia.com/content/indices/ind_niftytotalmarket_list.csv",
         "Nifty 500": "https://nsearchives.nseindia.com/content/indices/ind_nifty500list.csv",
-        "Nifty Midcap150": "https://nsearchives.nseindia.com/content/indices/ind_niftymidcap150list.csv",
+        "Nifty Midcap 150": "https://nsearchives.nseindia.com/content/indices/ind_niftymidcap150list.csv",
         "Nifty Midcap 50": "https://nsearchives.nseindia.com/content/indices/ind_niftymidcap50list.csv",
         "Nifty Midcap Select": "https://nsearchives.nseindia.com/content/indices/ind_niftymidcapselect_list.csv",
         "Nifty Midcap 100": "https://nsearchives.nseindia.com/content/indices/ind_niftymidcap100list.csv",
@@ -79,7 +79,7 @@ class NiftyBroadMarketIndices:
         "Nifty 200": "https://nsearchives.nseindia.com/content/indices/ind_nifty_200.pdf",
         "Nifty Total Market": "https://nsearchives.nseindia.com/content/indices/Factsheet_NiftyTotalMarket.pdf",
         "Nifty 500": "https://nsearchives.nseindia.com/content/indices/ind_nifty_500.pdf",
-        "Nifty Midcap150": "https://nsearchives.nseindia.com/content/indices/ind_Nifty_Midcap_150.pdf",
+        "Nifty Midcap 150": "https://nsearchives.nseindia.com/content/indices/ind_Nifty_Midcap_150.pdf",
         "Nifty Midcap 50": "https://nsearchives.nseindia.com/content/indices/ind_nifty_midcap50.pdf",
         "Nifty Midcap Select": "https://nsearchives.nseindia.com/content/indices/Factsheet_NiftyMidcapSelect.pdf",
         "Nifty Midcap 100": "https://nsearchives.nseindia.com/content/indices/ind_niftymidcap100.pdf",
