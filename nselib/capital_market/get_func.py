@@ -182,7 +182,7 @@ def get_index_data(index: str, from_date: str, to_date: str) -> pd.DataFrame:
     logger.debug(f"Fetching index data for {index} from {from_date} to {to_date}")
     index = index.replace(" ", "%20").upper()
     origin_url = "https://www.nseindia.com/reports-indices-historical-index-data"
-    url = f"https://www.nseindia.com/api/historicalOR/indicesHistory?indexType={index}&from={from_date}&to={to_date}"
+    url = f"https://www.nseindia.com/api/historicalOR/indicesHistory?indexType={index}&from={from_date}&to={to_date}&csv=true"
     try:
         data_json = nse_urlfetch(url, origin_url=origin_url).json()
         data_df = pd.DataFrame(data_json["data"])
