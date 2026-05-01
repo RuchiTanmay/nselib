@@ -10,6 +10,7 @@ class ErrorCodeEnum(Enum):
     DATA_NOT_FOUND = "DATA_NOT_FOUND"
     INVALID_INDEX_CATEGORY = "INVALID_INDEX_CATEGORY"
     INVALID_INDEX = "INVALID_INDEX"
+    DERIVATIVE_INSTRUMENT_NOT_FOUND = "DERIVATIVE_INSTRUMENT_NOT_FOUND"
 
 
 class NSEException(Exception):
@@ -40,6 +41,15 @@ class CalenderNotFound(NSEException):
     def __init__(self, message):
         super(CalenderNotFound, self).__init__(
             message, ErrorCodeEnum.CALENDAR_NOT_FOUND
+        )
+
+
+class DerivativeInstrumentNotFoundError(NSEException):
+    """Exception raised when derivative instrument is not found"""
+
+    def __init__(self, message):
+        super(DerivativeInstrumentNotFoundError, self).__init__(
+            message, ErrorCodeEnum.DERIVATIVE_INSTRUMENT_NOT_FOUND
         )
 
 

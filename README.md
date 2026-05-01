@@ -305,6 +305,23 @@ df = nselib.trading_holiday_calendar()
 
 ---
 
+## 🐞 Logging & Debugging
+
+`nselib` comes with a built-in logger that is silent by default so it doesn't pollute your application's logs. If you want to see detailed network requests, API responses, or debug errors while working with the library, you can easily enable it.
+
+```python
+import nselib
+import logging
+
+# Enable the logger to output to the console
+nselib.enable_logging(level=logging.DEBUG)
+
+# Now, function calls will emit helpful trace logs
+df = nselib.capital_market.price_volume_data('SBIN', period='1W')
+```
+
+---
+
 ## 🤝 How to Contribute
 
 There are multiple ways to contribute to nselib:
