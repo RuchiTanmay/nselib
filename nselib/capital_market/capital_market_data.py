@@ -7,24 +7,8 @@ import logging
 import requests
 from io import BytesIO
 
-from nselib.capital_market.get_func import (
-    get_price_volume_and_deliverable_position_data,
-    get_price_volume_data,
-    get_deliverable_position_data,
-    get_india_vix_data,
-    get_index_data,
-    get_bulk_deal_data,
-    get_block_deals_data,
-    get_short_selling_data,
-)
-from nselib.libutil import (
-    cleaning_nse_symbol,
-    derive_from_and_to_date,
-    nse_urlfetch,
-    validate_date_param,
-    default_header,
-    header,
-)
+from nselib.capital_market.get_func import *
+from nselib.libutil import *
 from nselib.constants import (
     dd_mm_yyyy,
     ddmmyyyy,
@@ -41,7 +25,6 @@ from nselib.constants import (
 from nselib.errors import NSEdataNotFound
 
 logger = logging.getLogger(__name__)
-
 
 
 def price_volume_and_deliverable_position_data(symbol: str, from_date: str = None, to_date: str = None,
@@ -100,8 +83,8 @@ def price_volume_data(symbol: str, from_date: str = None, to_date: str = None, p
     :return: pandas.DataFrame
     :raise ValueError if the parameter input is not proper
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.price_volume_data('SBIN', '17-03-2022', '17-06-2023', period='1M')
+            from nselib import capital_market
+            df = capital_market.price_volume_data('SBIN', '17-03-2022', '17-06-2023', period='1M')
     """
     logger.debug(f"Fetching data for price_volume_data")
     validate_date_param(from_date, to_date, period)
@@ -142,8 +125,8 @@ def deliverable_position_data(symbol: str, from_date: str = None, to_date: str =
     :return: pandas.DataFrame
     :raise ValueError if the parameter input is not proper
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.deliverable_position_data('SBIN', '17-03-2022', '17-06-2023', period='1M')
+            from nselib import capital_market
+            df = capital_market.deliverable_position_data('SBIN', '17-03-2022', '17-06-2023', period='1M')
     """
     logger.debug(f"Fetching data for deliverable_position_data")
     validate_date_param(from_date, to_date, period)
@@ -180,8 +163,8 @@ def india_vix_data(from_date: str = None, to_date: str = None, period: str = Non
     :return: pandas.DataFrame
     :raise ValueError if the parameter input is not proper
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.india_vix_data('17-03-2022', '17-06-2023', period='1M')
+            from nselib import capital_market
+            df = capital_market.india_vix_data('17-03-2022', '17-06-2023', period='1M')
     """
     logger.debug(f"Fetching data for india_vix_data")
     validate_date_param(from_date, to_date, period)
@@ -219,8 +202,8 @@ def index_data(index: str, from_date: str = None, to_date: str = None, period: s
     :return: pandas.DataFrame
     :raise ValueError if the parameter input is not proper
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.index_data('17-03-2022', '17-06-2023', period='1M', 'NIFTY 50')
+         from nselib import capital_market
+         df = capital_market.index_data('17-03-2022', '17-06-2023', period='1M', 'NIFTY 50')
     """
     logger.debug(f"Fetching data for index_data")
     validate_date_param(from_date, to_date, period)
@@ -259,8 +242,8 @@ def bulk_deal_data(from_date: str = None, to_date: str = None, period: str = Non
     :return: pandas.DataFrame
     :raise ValueError if the parameter input is not proper
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.bulk_deal_data('17-03-2022', '17-06-2023', period='1M')
+            from nselib import capital_market
+            df = capital_market.bulk_deal_data('17-03-2022', '17-06-2023', period='1M')
     """
     logger.debug(f"Fetching data for bulk_deal_data")
     validate_date_param(from_date, to_date, period)
@@ -299,8 +282,8 @@ def block_deals_data(from_date: str = None, to_date: str = None, period: str = N
     :return: pandas.DataFrame
     :raise ValueError if the parameter input is not proper
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.block_deals_data('17-03-2022', '17-06-2023', period='1M')
+            from nselib import capital_market
+            df = capital_market.block_deals_data('17-03-2022', '17-06-2023', period='1M')
     """
     logger.debug(f"Fetching data for block_deals_data")
     validate_date_param(from_date, to_date, period)
@@ -339,8 +322,8 @@ def short_selling_data(from_date: str = None, to_date: str = None, period: str =
     :return: pandas.DataFrame
     :raise ValueError if the parameter input is not proper
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.short_selling_data('17-03-2022', '17-06-2023', period='1M')
+            from nselib import capital_market
+            df = capital_market.short_selling_data('17-03-2022', '17-06-2023', period='1M')
     """
     logger.debug(f"Fetching data for short_selling_data")
     validate_date_param(from_date, to_date, period)
@@ -372,8 +355,8 @@ def bhav_copy_with_delivery(trade_date: str):
     :param trade_date: eg:'20-06-2023'
     :return: pandas data frame
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.bhav_copy_with_delivery('17-03-2022')
+            from nselib import capital_market
+            df = capital_market.bhav_copy_with_delivery('17-03-2022')
     """
     logger.debug(f"Fetching data for bhav_copy_with_delivery")
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
@@ -396,8 +379,8 @@ def bhav_copy_equities(trade_date: str):
     :param trade_date:
     :return: pandas dataframe
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.bhav_copy_equities('17-03-2022')
+            from nselib import capital_market
+            df = capital_market.bhav_copy_equities('17-03-2022')
     """
     logger.debug(f"Fetching data for bhav_copy_equities")
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
@@ -423,8 +406,8 @@ def bhav_copy_indices(trade_date: str):
     :param trade_date: eg:'20-06-2023'
     :return: pandas dataframe
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.bhav_copy_indices('17-03-2022')
+            from nselib import capital_market
+            df = capital_market.bhav_copy_indices('17-03-2022')
     """
     logger.debug(f"Fetching data for bhav_copy_indices")
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
@@ -445,8 +428,8 @@ def bhav_copy_sme(trade_date: str):
     :param trade_date: eg:'20-06-2023'
     :return: pandas data frame
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.bhav_copy_sme('17-03-2022')
+            from nselib import capital_market
+            df = capital_market.bhav_copy_sme('17-03-2022')
     """
     logger.debug(f"Fetching data for bhav_copy_sme")
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
@@ -466,8 +449,8 @@ def equity_list():
     get list of all equity available to trade in NSE
     :return: pandas data frame
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.equity_list()
+            from nselib import capital_market
+            df = capital_market.equity_list()
     """
     logger.debug(f"Fetching data for equity_list")
     origin_url = "https://nsewebsite-staging.nseindia.com"
@@ -488,8 +471,8 @@ def fno_equity_list():
     get a dataframe of all listed derivative equity list with the recent lot size to trade
     :return: pandas data frame
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.fno_equity_list()
+            from nselib import capital_market
+            df = capital_market.fno_equity_list()
     """
     logger.debug(f"Fetching data for fno_equity_list")
     origin_url = "https://www.nseindia.com/products-services/equity-derivatives-list-underlyings-information"
@@ -507,8 +490,8 @@ def fno_index_list():
     get a dataframe of all listed derivative index list with the recent lot size to trade
     :return: pandas data frame
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.fno_index_list()
+            from nselib import capital_market
+            df = capital_market.fno_index_list()
     """
     logger.debug(f"Fetching data for fno_index_list")
     origin_url = "https://www.nseindia.com/products-services/equity-derivatives-list-underlyings-information"
@@ -526,8 +509,8 @@ def nifty50_equity_list():
     list of all equities under NIFTY 50 index
     :return: pandas data frame
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.nifty50_equity_list()
+            from nselib import capital_market
+            df = capital_market.nifty50_equity_list()
     """
     logger.debug(f"Fetching data for nifty50_equity_list")
     url = "https://nsearchives.nseindia.com/content/indices/ind_nifty50list.csv"
@@ -547,8 +530,8 @@ def niftynext50_equity_list():
     list of all equities under NIFTY NEXT 50 index
     :return: pandas data frame
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.niftynext50_equity_list()
+            from nselib import capital_market
+            df = capital_market.niftynext50_equity_list()
     """
     logger.debug(f"Fetching data for niftynext50_equity_list")
     try:
@@ -564,8 +547,8 @@ def niftymidcap150_equity_list():
     list of all equities under NIFTY MIDCAP 150 index
     :return: pandas data frame
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.niftymidcap150_equity_list()
+            from nselib import capital_market
+            df = capital_market.niftymidcap150_equity_list()
     """
     logger.debug(f"Fetching data for niftymidcap150_equity_list")
     try:
@@ -581,8 +564,8 @@ def niftysmallcap250_equity_list():
     list of all equities under NIFTY SMALLCAP 250 index
     :return: pandas data frame
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.niftysmallcap250_equity_list()
+            from nselib import capital_market
+            df = capital_market.niftysmallcap250_equity_list()
     """
     logger.debug(f"Fetching data for niftysmallcap250_equity_list")
     try:
@@ -598,8 +581,8 @@ def market_watch_all_indices():
     Market Watch - Indices of the day in data frame
     :return: pd.DataFrame
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.market_watch_all_indices()
+            from nselib import capital_market
+            df = capital_market.market_watch_all_indices()
     """
     logger.debug(f"Fetching data for market_watch_all_indices")
     origin_url = "https://nsewebsite-staging.nseindia.com"
@@ -617,8 +600,8 @@ def fii_dii_trading_activity():
     FII and DII trading activity of the day in data frame
     :return: pd.DataFrame
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.fii_dii_trading_activity()
+            from nselib import capital_market
+            df = capital_market.fii_dii_trading_activity()
     """
     logger.debug(f"Fetching data for fii_dii_trading_activity")
     url = "https://www.nseindia.com/api/fiidiiTradeReact"
@@ -633,8 +616,8 @@ def daily_volatility(trade_date: str):
     :param trade_date: eg:'20-06-2023'
     :return: pandas dataframe
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.daily_volatility('17-03-2022')
+            from nselib import capital_market
+            df = capital_market.daily_volatility('17-03-2022')
     """
     logger.debug(f"Fetching data for daily_volatility")
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
@@ -680,8 +663,8 @@ def category_turnover_cash(trade_date: str):
     :param trade_date: eg:'07-04-2026'
     :return: pandas dataframe
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.category_turnover_cash('17-03-2022')
+            from nselib import capital_market
+            df = capital_market.category_turnover_cash('17-03-2022')
     """
     logger.debug(f"Fetching data for category_turnover_cash")
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
@@ -769,8 +752,8 @@ def var_begin_day(trade_date: str):
     :param trade_date: eg:'20-06-2023'
     :return: pandas data frame
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.var_begin_day('17-03-2022')
+            from nselib import capital_market
+            df = capital_market.var_begin_day('17-03-2022')
     """
     logger.debug(f"Fetching data for var_begin_day")
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
@@ -791,8 +774,8 @@ def var_1st_intra_day(trade_date: str):
     :param trade_date: eg:'20-06-2023'
     :return: pandas data frame
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.var_1st_intra_day('17-03-2022')
+            from nselib import capital_market
+            df = capital_market.var_1st_intra_day('17-03-2022')
     """
     logger.debug(f"Fetching data for var_1st_intra_day")
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
@@ -813,8 +796,8 @@ def var_2nd_intra_day(trade_date: str):
     :param trade_date: eg:'20-06-2023'
     :return: pandas data frame
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.var_2nd_intra_day('17-03-2022')
+            from nselib import capital_market
+            df = capital_market.var_2nd_intra_day('17-03-2022')
     """
     logger.debug(f"Fetching data for var_2nd_intra_day")
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
@@ -835,8 +818,8 @@ def var_3rd_intra_day(trade_date: str):
     :param trade_date: eg:'20-06-2023'
     :return: pandas data frame
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.var_3rd_intra_day('17-03-2022')
+            from nselib import capital_market
+            df = capital_market.var_3rd_intra_day('17-03-2022')
     """
     logger.debug(f"Fetching data for var_3rd_intra_day")
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
@@ -857,8 +840,8 @@ def var_4th_intra_day(trade_date: str):
     :param trade_date: eg:'20-06-2023'
     :return: pandas data frame
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.var_4th_intra_day('17-03-2022')
+            from nselib import capital_market
+            df = capital_market.var_4th_intra_day('17-03-2022')
     """
     logger.debug(f"Fetching data for var_4th_intra_day")
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
@@ -879,8 +862,8 @@ def var_end_of_day(trade_date: str):
     :param trade_date: eg:'20-06-2023'
     :return: pandas data frame
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.var_end_of_day('17-03-2022')
+            from nselib import capital_market
+            df = capital_market.var_end_of_day('17-03-2022')
     """
     logger.debug(f"Fetching data for var_end_of_day")
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
@@ -901,8 +884,8 @@ def sme_bhav_copy(trade_date: str):
     :param trade_date: eg:'20-06-2023'
     :return: pandas data frame
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.sme_bhav_copy('17-03-2022')
+            from nselib import capital_market
+            df = capital_market.sme_bhav_copy('17-03-2022')
     """
     logger.debug(f"Fetching data for sme_bhav_copy")
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
@@ -923,8 +906,8 @@ def sme_band_complete(trade_date: str):
     :param trade_date: eg:'20-06-2023'
     :return: pandas data frame
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.sme_band_complete('17-03-2022')
+            from nselib import capital_market
+            df = capital_market.sme_band_complete('17-03-2022')
     """
     logger.debug(f"Fetching data for sme_band_complete")
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
@@ -945,8 +928,8 @@ def week_52_high_low_report(trade_date: str):
     :param trade_date: eg:'20-06-2023'
     :return: pandas data frame
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.week_52_high_low_report('17-03-2022')
+            from nselib import capital_market
+            df = capital_market.week_52_high_low_report('17-03-2022')
     """
     logger.debug(f"Fetching data for week_52_high_low_report")
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
@@ -1022,8 +1005,8 @@ def corporate_bond_trade_report(trade_date: str):
     :param trade_date: eg:'20-06-2023'
     :return: pandas data frame
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.corporate_bond_trade_report('17-03-2022')
+            from nselib import capital_market
+            df = capital_market.corporate_bond_trade_report('17-03-2022')
     """
     logger.debug(f"Fetching data for corporate_bond_trade_report")
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
@@ -1045,8 +1028,8 @@ def pe_ratio(trade_date: str):
     :param trade_date: eg:'20-06-2023'
     :return: pandas data frame
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.pe_ratio('17-03-2022')
+            from nselib import capital_market
+            df = capital_market.pe_ratio('17-03-2022')
     """
     logger.debug(f"Fetching data for pe_ratio")
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
@@ -1142,8 +1125,8 @@ def top_gainers_or_losers(to_get: str = 'gainers'):
     :return: pandas.DataFrame
     :raise ValueError if the parameter input is not proper
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.top_gainers_or_losers()
+            from nselib import capital_market
+            df = capital_market.top_gainers_or_losers()
     """
     logger.debug(f"Fetching data for top_gainers_or_losers")
     static_options_list = ['gainers', 'loosers']
@@ -1168,8 +1151,8 @@ def most_active_equities(fetch_by: str = 'value'):
     :param fetch_by: select any volume/value
     :return: pandas dataframe
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.most_active_equities()
+            from nselib import capital_market
+            df = capital_market.most_active_equities()
     """
     logger.debug(f"Fetching data for most_active_equities")
     static_options_list = ['volume', 'value']
@@ -1192,8 +1175,8 @@ def total_traded_stocks():
     link : https://www.nseindia.com/market-data/stocks-traded
     :return: summary_dict, detail_df
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.total_traded_stocks()
+            from nselib import capital_market
+            df = capital_market.total_traded_stocks()
     """
     logger.debug(f"Fetching data for total_traded_stocks")
     origin_url = "https://www.nseindia.com/market-data/stocks-traded"
@@ -1281,8 +1264,8 @@ def business_growth_cm_segment(data_type: str = "yearly",
     :return: pandas.DataFrame
     :raise ValueError if the parameter input is not proper
         Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market._normalize_business_growth_cm_segment_financial_year()
+            from nselib import capital_market
+            df = capital_market._normalize_business_growth_cm_segment_financial_year()
     """
     logger.debug(f"Fetching data for _normalize_business_growth_cm_segment_financial_year")
     static_options_list = ["yearly", "monthly", "daily"]

@@ -34,8 +34,8 @@ def get_price_volume_and_deliverable_position_data(
         pandas.DataFrame: A DataFrame containing the price, volume, and deliverable data.
 
     Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.get_func.get_price_volume_and_deliverable_position_data('SBIN', '17-03-2022', '17-06-2023')
+            from nselib import capital_market
+            df = capital_market.get_func.get_price_volume_and_deliverable_position_data('SBIN', '17-03-2022', '17-06-2023')
     """
     logger.debug(
         f"Fetching price, volume and deliverable data for {symbol} from {from_date} to {to_date}"
@@ -69,8 +69,8 @@ def get_price_volume_data(symbol: str, from_date: str, to_date: str) -> pd.DataF
         pandas.DataFrame: A DataFrame containing the price and volume data.
 
     Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.get_func.get_price_volume_data('SBIN', '17-03-2022', '17-06-2023')
+            from nselib import capital_market
+            df = capital_market.get_func.get_price_volume_data('SBIN', '17-03-2022', '17-06-2023')
     """
     logger.debug(
         f"Fetching price and volume data for {symbol} from {from_date} to {to_date}"
@@ -107,8 +107,8 @@ def get_deliverable_position_data(
         pandas.DataFrame: A DataFrame containing the deliverable position data.
 
     Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.get_func.get_deliverable_position_data('SBIN', '17-03-2022', '17-06-2023')
+            from nselib import capital_market
+            df = capital_market.get_func.get_deliverable_position_data('SBIN', '17-03-2022', '17-06-2023')
     """
     logger.debug(
         f"Fetching deliverable position data for {symbol} from {from_date} to {to_date}"
@@ -144,8 +144,8 @@ def get_india_vix_data(from_date: str, to_date: str) -> pd.DataFrame:
         pandas.DataFrame: A DataFrame containing the India VIX data.
 
     Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.get_func.get_india_vix_data('17-03-2022', '17-06-2023')
+            from nselib import capital_market
+            df = capital_market.get_func.get_india_vix_data('17-03-2022', '17-06-2023')
     """
     logger.debug(f"Fetching India VIX data from {from_date} to {to_date}")
     origin_url = "https://nsewebsite-staging.nseindia.com/report-detail/eq_security"
@@ -176,8 +176,8 @@ def get_index_data(index: str, from_date: str, to_date: str) -> pd.DataFrame:
         pandas.DataFrame: A DataFrame containing the historical index data.
 
     Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.get_func.get_index_data('NIFTY 50', '17-03-2022', '17-06-2023')
+            from nselib import capital_market
+            df = capital_market.get_func.get_index_data('NIFTY 50', '17-03-2022', '17-06-2023')
     """
     logger.debug(f"Fetching index data for {index} from {from_date} to {to_date}")
     index = index.replace(" ", "%20").upper()
@@ -207,8 +207,8 @@ def get_bulk_deal_data(from_date: str, to_date: str) -> pd.DataFrame:
         pandas.DataFrame: A DataFrame containing the bulk deal data.
 
     Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.get_func.get_bulk_deal_data('17-03-2022', '17-06-2023')
+            from nselib import capital_market
+            df = capital_market.get_func.get_bulk_deal_data('17-03-2022', '17-06-2023')
     """
     logger.debug(f"Fetching bulk deal data from {from_date} to {to_date}")
     origin_url = "https://nsewebsite-staging.nseindia.com"
@@ -234,8 +234,8 @@ def get_block_deals_data(from_date: str, to_date: str) -> pd.DataFrame:
         pandas.DataFrame: A DataFrame containing the block deals data.
 
     Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.get_func.get_block_deals_data('17-03-2022', '17-06-2023')
+            from nselib import capital_market
+            df = capital_market.get_func.get_block_deals_data('17-03-2022', '17-06-2023')
     """
     logger.debug(f"Fetching block deals data from {from_date} to {to_date}")
     origin_url = "https://nsewebsite-staging.nseindia.com"
@@ -261,8 +261,8 @@ def get_short_selling_data(from_date: str, to_date: str) -> pd.DataFrame:
         pandas.DataFrame: A DataFrame containing the short selling data.
 
     Example:
-        >>> from nselib import capital_market
-        >>> df = capital_market.get_func.get_short_selling_data('17-03-2022', '17-06-2023')
+            from nselib import capital_market
+            df = capital_market.get_func.get_short_selling_data('17-03-2022', '17-06-2023')
     """
     logger.debug(f"Fetching short selling data from {from_date} to {to_date}")
     origin_url = "https://nsewebsite-staging.nseindia.com"
@@ -309,8 +309,8 @@ def get_business_growth_cm_segment_yearly() -> dict:
         dict: Parsed JSON response.
 
     Example:
-        >>> from nselib import capital_market
-        >>> data = capital_market.get_func.get_business_growth_cm_segment_yearly()
+            from nselib import capital_market
+            data = capital_market.get_func.get_business_growth_cm_segment_yearly()
     """
     logger.debug("Fetching yearly business growth CM segment data")
     return _get_business_growth_cm_segment_data("/api/historicalOR/cm/tbg/yearly")
@@ -328,8 +328,8 @@ def get_business_growth_cm_segment_monthly(from_year: str, to_year: str) -> dict
         dict: Parsed JSON response.
 
     Example:
-        >>> from nselib import capital_market
-        >>> data = capital_market.get_func.get_business_growth_cm_segment_monthly('2022', '2023')
+            from nselib import capital_market
+            data = capital_market.get_func.get_business_growth_cm_segment_monthly('2022', '2023')
     """
     logger.debug(
         f"Fetching monthly business growth CM segment data for {from_year}-{to_year}"
@@ -351,8 +351,8 @@ def get_business_growth_cm_segment_daily(month: str, year: str) -> dict:
         dict: Parsed JSON response.
 
     Example:
-        >>> from nselib import capital_market
-        >>> data = capital_market.get_func.get_business_growth_cm_segment_daily('Mar', '2023')
+            from nselib import capital_market
+            data = capital_market.get_func.get_business_growth_cm_segment_daily('Mar', '2023')
     """
     logger.debug(f"Fetching daily business growth CM segment data for {month}-{year}")
     return _get_business_growth_cm_segment_data(
@@ -381,8 +381,8 @@ def get_financial_results_master(
         tuple: (master_data_df, headers, ns, keys_to_extract)
 
     Example:
-        >>> from nselib import capital_market
-        >>> master_df, hdrs, ns, keys = capital_market.get_func.get_financial_results_master(period='1M')
+            from nselib import capital_market
+            master_df, hdrs, ns, keys = capital_market.get_func.get_financial_results_master(period='1M')
     """
     logger.debug(
         f"Fetching financial results master for period={period}, from={from_date}, to={to_date}"
@@ -505,8 +505,8 @@ def get_top_gainers_or_losers(to_get: str) -> dict:
         dict: Parsed JSON data.
 
     Example:
-        >>> from nselib import capital_market
-        >>> data = capital_market.get_func.get_top_gainers_or_losers('NIFTY 50')
+            from nselib import capital_market
+            data = capital_market.get_func.get_top_gainers_or_losers('NIFTY 50')
     """
     logger.debug(f"Fetching top gainers or losers for index: {to_get}")
     origin_url = "https://www.nseindia.com/market-data/top-gainers-losers"

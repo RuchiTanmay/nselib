@@ -60,8 +60,8 @@ def future_price_volume_data(
         ValueError: If the parameters or dates are formatted incorrectly.
 
     Example:
-        >>> from nselib import derivatives
-        >>> df = derivatives.future_price_volume_data(symbol='SBIN', instrument='FUTSTK', period='1M')
+            from nselib import derivatives
+            df = derivatives.future_price_volume_data(symbol='SBIN', instrument='FUTSTK', period='1M')
     """
     validate_date_param(from_date, to_date, period)
     logger.debug(
@@ -128,8 +128,8 @@ def option_price_volume_data(
         ValueError: If the parameters or dates are formatted incorrectly.
 
     Example:
-        >>> from nselib import derivatives
-        >>> df = derivatives.option_price_volume_data(symbol='NIFTY', instrument='OPTIDX', option_type='CE', period='1M')
+            from nselib import derivatives
+            df = derivatives.option_price_volume_data(symbol='NIFTY', instrument='OPTIDX', option_type='CE', period='1M')
     """
     validate_date_param(from_date, to_date, period)
     logger.debug(
@@ -195,8 +195,8 @@ def fno_bhav_copy(trade_date: str) -> pd.DataFrame:
         NSEdataNotFound: If no data is found for the given date.
 
     Example:
-        >>> from nselib import derivatives
-        >>> df = derivatives.fno_bhav_copy(trade_date='17-02-2025')
+            from nselib import derivatives
+            df = derivatives.fno_bhav_copy(trade_date='17-02-2025')
     """
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
     logger.debug(
@@ -249,8 +249,8 @@ def participant_wise_open_interest(trade_date: str) -> pd.DataFrame:
         NSEdataNotFound: If the OI data is not available for the given date.
 
     Example:
-        >>> from nselib import derivatives
-        >>> df = derivatives.participant_wise_open_interest(trade_date='16-09-2024')
+            from nselib import derivatives
+            df = derivatives.participant_wise_open_interest(trade_date='16-09-2024')
     """
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
     logger.debug(
@@ -299,8 +299,8 @@ def participant_wise_trading_volume(trade_date: str) -> pd.DataFrame:
         NSEdataNotFound: If the volume data is not available for the given date.
 
     Example:
-        >>> from nselib import derivatives
-        >>> df = derivatives.participant_wise_trading_volume(trade_date='16-09-2024')
+            from nselib import derivatives
+            df = derivatives.participant_wise_trading_volume(trade_date='16-09-2024')
     """
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
     logger.debug(
@@ -393,8 +393,8 @@ def category_turnover_fo(trade_date: str) -> pd.DataFrame:
         NSEdataNotFound: If the turnover data cannot be found for the given date.
 
     Example:
-        >>> from nselib import derivatives
-        >>> df = derivatives.category_turnover_fo(trade_date='16-09-2025')
+            from nselib import derivatives
+            df = derivatives.category_turnover_fo(trade_date='16-09-2025')
     """
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
     logger.debug(
@@ -493,8 +493,8 @@ def fii_derivatives_statistics(trade_date: str) -> pd.DataFrame:
         NSEdataNotFound: If the statistics are not available for the given date.
 
     Example:
-        >>> from nselib import derivatives
-        >>> df = derivatives.fii_derivatives_statistics(trade_date='16-09-2024')
+            from nselib import derivatives
+            df = derivatives.fii_derivatives_statistics(trade_date='16-09-2024')
     """
     t_date = pd.to_datetime(trade_date, format="%d-%m-%Y")
     trade_date = t_date.strftime("%d-%b-%Y")
@@ -536,8 +536,8 @@ def expiry_dates_future() -> list:
         list: A list of expiration dates in 'dd-MMM-yyyy' format.
 
     Example:
-        >>> from nselib import derivatives
-        >>> exp_dates = derivatives.expiry_dates_future()
+            from nselib import derivatives
+            exp_dates = derivatives.expiry_dates_future()
     """
     origin_url = "https://www.nseindia.com/option-chain"
     logger.debug("Fetching valid expiry dates for futures contracts.")
@@ -556,8 +556,8 @@ def expiry_dates_option_index() -> dict:
         dict: A dictionary mapping index/symbols to their exact list of expiry dates.
 
     Example:
-        >>> from nselib import derivatives
-        >>> index_dates_map = derivatives.expiry_dates_option_index()
+            from nselib import derivatives
+            index_dates_map = derivatives.expiry_dates_option_index()
     """
     # data_df = pd.DataFrame(columns=['index', 'expiry_date'])
     logger.debug("Fetching valid expiry dates for mapped option indices.")
@@ -587,8 +587,8 @@ def nse_live_option_chain(
         pd.DataFrame: A DataFrame containing the real-time option chain data.
 
     Example:
-        >>> from nselib import derivatives
-        >>> chain_df = derivatives.nse_live_option_chain(symbol='TCS', expiry_date='20-06-2023')
+            from nselib import derivatives
+            chain_df = derivatives.nse_live_option_chain(symbol='TCS', expiry_date='20-06-2023')
     """
 
     if expiry_date:
@@ -793,8 +793,8 @@ def fno_security_in_ban_period(trade_date: str) -> list:
         list: A list of security symbols currently in the ban period.
 
     Example:
-        >>> from nselib import derivatives
-        >>> banned_securities = derivatives.fno_security_in_ban_period(trade_date='26-03-2025')
+            from nselib import derivatives
+            banned_securities = derivatives.fno_security_in_ban_period(trade_date='26-03-2025')
     """
     trade_date = datetime.strptime(trade_date, dd_mm_yyyy)
     logger.debug(
@@ -840,8 +840,8 @@ def live_most_active_underlying() -> pd.DataFrame:
         NSEdataNotFound: If the API resource is unavailable.
 
     Example:
-        >>> from nselib import derivatives
-        >>> df = derivatives.live_most_active_underlying()
+            from nselib import derivatives
+            df = derivatives.live_most_active_underlying()
     """
     origin_url = "https://www.nseindia.com/market-data/most-active-underlying"
     url = "https://www.nseindia.com/api/live-analysis-most-active-underlying"
@@ -955,9 +955,9 @@ def business_growth_fo_segment(
         ValueError: If the required parameters for the specified `data_type` are missing or improperly formatted.
 
     Example:
-        >>> from nselib import derivatives
-        >>> df_yearly = derivatives.business_growth_fo_segment(data_type='yearly')
-        >>> df_monthly = derivatives.business_growth_fo_segment(data_type='monthly', from_year='2025', to_year='2026')
+            from nselib import derivatives
+            df_yearly = derivatives.business_growth_fo_segment(data_type='yearly')
+            df_monthly = derivatives.business_growth_fo_segment(data_type='monthly', from_year='2025', to_year='2026')
     """
     logger.debug(
         f"Fetching historical business growth data for F&O segment, frequency: {data_type}"
@@ -981,21 +981,21 @@ def business_growth_fo_segment(
     return _business_growth_fo_segment_dataframe(data_json)
 
 
-# if __name__ == '__main__':
-# df = future_price_volume_data("BANKNIFTY", "FUTIDX", from_date='01-11-2025', to_date='08-12-2025', period='6M')
-# df = option_price_volume_data('NIFTY', 'OPTIDX', period='1W')
-# df = nse_live_option_chain(symbol='TCS', expiry_date='02-01-2026')
-# df = fii_derivatives_statistics(trade_date='16-09-2024')
-# df = participant_wise_trading_volume(trade_date='16-09-2024')
-# df = fno_security_in_ban_period(trade_date='26-03-2025')
-# df = expiry_dates_option_index()
-# df = expiry_dates_future()
-# df = fno_bhav_copy('17-02-2025')
-# df = live_most_active_underlying()
-# df = category_turnover_fo(trade_date='16-09-2025')
-# df = business_growth_fo_segment(data_type='yearly')
-# df = business_growth_fo_segment(data_type='monthly', from_year='2025', to_year='2026')
-# df = business_growth_fo_segment(data_type='daily', month='Mar', year='2026')
-# print(df)
-# print(df.columns)
-# print(df[df['EXPIRY_DT']=='27-Jul-2023'])
+if __name__ == '__main__':
+    # df = future_price_volume_data("BANKNIFTY", "FUTIDX", from_date='01-11-2025', to_date='08-12-2025', period='6M')
+    # df = option_price_volume_data('NIFTY', 'OPTIDX', period='1W')
+    # df = nse_live_option_chain(symbol='TCS', expiry_date='02-01-2026')
+    # df = fii_derivatives_statistics(trade_date='16-09-2024')
+    # df = participant_wise_trading_volume(trade_date='16-09-2024')
+    # df = fno_security_in_ban_period(trade_date='26-03-2025')
+    # df = expiry_dates_option_index()
+    # df = expiry_dates_future()
+    # df = fno_bhav_copy('17-02-2025')
+    df = live_most_active_underlying()
+    # df = category_turnover_fo(trade_date='16-09-2025')
+    # df = business_growth_fo_segment(data_type='yearly')
+    # df = business_growth_fo_segment(data_type='monthly', from_year='2025', to_year='2026')
+    # df = business_growth_fo_segment(data_type='daily', month='Mar', year='2026')
+    print(df)
+    # print(df.columns)
+    # print(df[df['EXPIRY_DT']=='27-Jul-2023'])
