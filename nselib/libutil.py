@@ -108,8 +108,8 @@ def derive_from_and_to_date(
         tuple: A tuple containing (from_date, to_date) in 'dd-mm-YYYY' format.
 
     Example:
-        >>> from nselib import libutil
-        >>> f_date, t_date = libutil.derive_from_and_to_date(period='1M')
+            from nselib import libutil
+            f_date, t_date = libutil.derive_from_and_to_date(period='1M')
     """
     if not period:
         logger.debug(
@@ -171,8 +171,8 @@ def nse_urlfetch(url, origin_url="http://nseindia.com"):
         requests.Response: The HTTP response object.
 
     Example:
-        >>> from nselib import libutil
-        >>> response = libutil.nse_urlfetch('https://www.nseindia.com/api/holiday-master?type=trading')
+            from nselib import libutil
+            response = libutil.nse_urlfetch('https://www.nseindia.com/api/holiday-master?type=trading')
     """
     logger.debug(f"Fetching cookies from origin_url: {origin_url}")
     r_session = requests.session()

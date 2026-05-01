@@ -1,17 +1,9 @@
-import logging
-import pandas as pd
 import requests
 
 from nselib.constants import indices_list
 from nselib.errors import NSEdataNotFound
-from nselib.libutil import (
-    cleaning_column_name,
-    cleaning_nse_symbol,
-    future_price_volume_data_column,
-    nse_urlfetch,
-    default_header,
-    header,
-)
+from nselib.libutil import *
+from nselib.constants import future_price_volume_data_column
 
 logger = logging.getLogger(__name__)
 
@@ -35,8 +27,8 @@ def get_future_price_volume_data(
         ValueError: If the NSE API rejects the parameters or encounters an error during the fetch.
 
     Example:
-        >>> from nselib import derivatives
-        >>> df = derivatives.future_price_volume_data(symbol='SBIN', instrument='FUTSTK', period='1M')
+            from nselib import derivatives
+            df = derivatives.future_price_volume_data(symbol='SBIN', instrument='FUTSTK', period='1M')
     """
     logger.debug(
         f"Fetching future price volume data for symbol: {symbol}, instrument: {instrument}, from: {from_date}, to: {to_date}"
@@ -82,8 +74,8 @@ def get_option_price_volume_data(
         ValueError: If the provided parameters yield no data, or if the NSE API throws an error.
 
     Example:
-        >>> from nselib import derivatives
-        >>> df = derivatives.option_price_volume_data(symbol='NIFTY', instrument='OPTIDX', option_type='CE', period='1M')
+            from nselib import derivatives
+            df = derivatives.option_price_volume_data(symbol='NIFTY', instrument='OPTIDX', option_type='CE', period='1M')
     """
     logger.debug(
         f"Fetching option price volume data for symbol: {symbol}, instrument: {instrument}, option type: {option_type}, from: {from_date}, to: {to_date}"
@@ -127,8 +119,8 @@ def get_nse_option_chain(symbol: str, expiry_date: str):
         requests.Response: The HTTP response from the NSE API containing the option chain data payload.
 
     Example:
-        >>> from nselib import derivatives
-        >>> chain = derivatives.nse_live_option_chain(symbol='TCS', expiry_date='27-03-2026')
+            from nselib import derivatives
+            chain = derivatives.nse_live_option_chain(symbol='TCS', expiry_date='27-03-2026')
     """
     logger.debug(
         f"Fetching NSE option chain for symbol: {symbol}, expiry date: {expiry_date}"
@@ -191,8 +183,8 @@ def get_business_growth_fo_segment_yearly() -> dict:
         dict: The JSON response containing yearly F&O business growth statistics.
 
     Example:
-        >>> from nselib import derivatives
-        >>> df = derivatives.business_growth_fo_segment(data_type='yearly')
+            from nselib import derivatives
+            df = derivatives.business_growth_fo_segment(data_type='yearly')
     """
     logger.debug("Fetching yearly business growth F&O segment data.")
     return _get_business_growth_fo_segment_data("/api/historicalOR/fo/tbg/yearly")
@@ -210,8 +202,8 @@ def get_business_growth_fo_segment_monthly(from_year: str, to_year: str) -> dict
         dict: The JSON response containing monthly F&O business growth statistics.
 
     Example:
-        >>> from nselib import derivatives
-        >>> df = derivatives.business_growth_fo_segment(data_type='monthly', from_year='2025', to_year='2026')
+            from nselib import derivatives
+            df = derivatives.business_growth_fo_segment(data_type='monthly', from_year='2025', to_year='2026')
     """
     logger.debug(
         f"Fetching monthly business growth F&O segment data for FY {from_year}-{to_year}."
@@ -233,8 +225,8 @@ def get_business_growth_fo_segment_daily(month: str, year: str) -> dict:
         dict: The JSON response containing daily F&O business growth statistics.
 
     Example:
-        >>> from nselib import derivatives
-        >>> df = derivatives.business_growth_fo_segment(data_type='daily', month='Mar', year='2026')
+            from nselib import derivatives
+            df = derivatives.business_growth_fo_segment(data_type='daily', month='Mar', year='2026')
     """
     logger.debug(f"Fetching daily business growth F&O segment data for {month} {year}.")
     return _get_business_growth_fo_segment_data(

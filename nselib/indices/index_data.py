@@ -27,8 +27,8 @@ def get_class(index_category: str) -> str:
         InvalidIndexCategoryError: If the provided index category does not exist.
 
     Example:
-        >>> from nselib import indices
-        >>> config_class = indices.index_data.get_class('BroadMarketIndices')
+            from nselib import indices
+            config_class = indices.index_data.get_class('BroadMarketIndices')
     """
     category = f"Nifty{index_category}"
     category_class = getattr(conf, category, None)
@@ -58,8 +58,8 @@ def index_list(index_category: str = "BroadMarketIndices") -> list:
         list: A list of index names belonging to the specified category.
 
     Example:
-        >>> from nselib import indices
-        >>> list_of_indices = indices.index_list('BroadMarketIndices')
+            from nselib import indices
+            list_of_indices = indices.index_list('BroadMarketIndices')
     """
     return get_class(index_category).indices_list
 
@@ -75,8 +75,8 @@ def validate_index_category(index_category: str = "BroadMarketIndices") -> bool:
         InvalidIndexCategoryError: If the category is not one of the standardized NSE categories.
 
     Example:
-        >>> from nselib import indices
-        >>> is_valid = indices.index_data.validate_index_category('SectoralIndices')
+            from nselib import indices
+            is_valid = indices.index_data.validate_index_category('SectoralIndices')
     """
     category_list = [
         "SectoralIndices",
@@ -107,8 +107,8 @@ def validate_index_name(
         InvalidIndexError: If the index name is not found in the given category.
 
     Example:
-        >>> from nselib import indices
-        >>> is_valid = indices.index_data.validate_index_name('BroadMarketIndices', 'NIFTY 50')
+            from nselib import indices
+            is_valid = indices.index_data.validate_index_name('BroadMarketIndices', 'NIFTY 50')
     """
     validate_index_category(index_category)
     ind_list = index_list(index_category)
@@ -140,8 +140,8 @@ def constituent_stock_list(
         IndexDataNotFound: If the data for the index is unavailable or fails to download.
 
     Example:
-        >>> from nselib import indices
-        >>> df = indices.constituent_stock_list('BroadMarketIndices', 'NIFTY 50')
+            from nselib import indices
+            df = indices.constituent_stock_list('BroadMarketIndices', 'NIFTY 50')
     """
     logger.debug(f"Fetching constituent stock list for index_name: {index_name} in category: {index_category}")
     validate_index_name(index_category, index_name)
@@ -182,8 +182,8 @@ def live_index_performances() -> pd.DataFrame:
         NSEApiError: If the NSE API is unreachable or returns an error.
 
     Example:
-        >>> from nselib import indices
-        >>> df = indices.live_index_performances()
+            from nselib import indices
+            df = indices.live_index_performances()
     """
     logger.debug("Fetching live index performances for all indices")
     origin_url = "https://www.nseindia.com/market-data/index-performances"

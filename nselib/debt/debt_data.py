@@ -20,8 +20,8 @@ def securities_available_for_trading(trade_date: str) -> pd.DataFrame:
         pandas.DataFrame: A DataFrame containing securities available for trading.
 
     Example:
-        >>> from nselib import debt
-        >>> df = debt.securities_available_for_trading('17-03-2022')
+            from nselib import debt
+            df = debt.securities_available_for_trading('17-03-2022')
     """
     logger.debug(f"Fetching securities available for trading for date: {trade_date}")
     month = dt.datetime.strptime(trade_date, "%d-%m-%Y").strftime("%b").upper()
