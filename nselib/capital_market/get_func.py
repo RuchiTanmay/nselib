@@ -190,7 +190,7 @@ def get_index_data(index: str, from_date: str, to_date: str) -> pd.DataFrame:
         logger.error(f"Failed to fetch data: {e}", exc_info=e)
         raise NSEdataNotFound(f" Resource not available MSG: {e}")
     if not data_df.empty:
-        data_df.drop(columns="HI_TIMESTAMP", inplace=True)
+        data_df.drop(columns="HI_TIMESTAMP", inplace=True, errors="ignore")
         data_df.columns = index_data_columns
     return data_df
 
